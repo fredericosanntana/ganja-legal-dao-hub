@@ -3,6 +3,7 @@ import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, FileText, Search, Download } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Juridico: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("habeas-corpus");
@@ -87,12 +88,12 @@ const Juridico: React.FC = () => {
                 </div>
               </CardContent>
               <CardFooter>
-              <Link href="habeas corpus Page" passHref>
-              <Button className="w-full" size="lg">
-              <Shield className="mr-2 h-5 w-5" />
-              Iniciar Geração de HC
-              </Button>
-              </Link>
+                <Link to="/habeas-corpus" className="w-full">
+                  <Button className="w-full" size="lg">
+                    <Shield className="mr-2 h-5 w-5" />
+                    Iniciar Geração de HC
+                  </Button>
+                </Link>
               </CardFooter>
             </Card>
           )}

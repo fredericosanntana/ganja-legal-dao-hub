@@ -1,9 +1,8 @@
+
 import React from 'react';
 import Head from 'next/head';
-import { GetServerSideProps } from 'next';
 import Layout from '@/components/Layout';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '/css/style.css';
 
 interface Fundamento {
   id: string;
@@ -15,7 +14,15 @@ interface Props {
   title: string;
 }
 
-const HabeasCorpusPage: React.FC<Props> = ({ fundamentos, title }) => {
+const HabeasCorpusPage: React.FC = () => {
+  // For now, we'll hardcode these values since we're transitioning from Next.js to React Router
+  const fundamentos: Fundamento[] = [
+    { id: 'adpf187', nome: 'ADPF 187 - STF' },
+    { id: 're635659', nome: 'RE 635659 - STF' },
+    { id: 'resp2121548', nome: 'REsp 2.121.548 - STJ' }
+  ];
+  const title = 'Gerador de Habeas Corpus Preventivo';
+  
   return (
     <>
       <Head>
@@ -120,21 +127,6 @@ const HabeasCorpusPage: React.FC<Props> = ({ fundamentos, title }) => {
       </Layout>
     </>
   );
-};
-
-export const getServerSideProps: GetServerSideProps<Props> = async () => {
-  // Em produção, busque de API ou base de dados
-  const fundamentos: Fundamento[] = [
-    { id: 'adpf187', nome: 'ADPF 187 - STF' },
-    { id: 're635659', nome: 'RE 635659 - STF' },
-    { id: 'resp2121548', nome: 'REsp 2.121.548 - STJ' }
-  ];
-  return {
-    props: {
-      fundamentos,
-      title: 'Gerador de Habeas Corpus Preventivo'
-    }
-  };
 };
 
 export default HabeasCorpusPage;
