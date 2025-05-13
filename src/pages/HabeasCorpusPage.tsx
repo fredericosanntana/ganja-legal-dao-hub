@@ -1,8 +1,7 @@
-
 import React from 'react';
+import { jsPDF } from 'jspdf';
 import Layout from '@/components/Layout';
 import { Button } from "@/components/ui/button";
-import { Link, useNavigate } from 'react-router-dom';
 
 interface Fundamento {
   id: string;
@@ -10,14 +9,40 @@ interface Fundamento {
 }
 
 const HabeasCorpusPage: React.FC = () => {
-  // For now, we'll hardcode these values since we're transitioning from Next.js to React Router
+  // Dados estáticos para demonstração
   const fundamentos: Fundamento[] = [
     { id: 'adpf187', nome: 'ADPF 187 - STF' },
     { id: 're635659', nome: 'RE 635659 - STF' },
     { id: 'resp2121548', nome: 'REsp 2.121.548 - STJ' }
   ];
   const title = 'Gerador de Habeas Corpus Preventivo';
-  
+
+  // Função para gerar PDF
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    // Monta texto do PDF a partir dos campos do formulário
+    let text = `${title}\n\n`;
+    formData.forEach((value, key) => {
+      text += `${key}: ${value}\n`;
+    });
+
+    const doc = new jsPDF();
+    const lines = doc.splitTextToSize(text, 180);
+    let y = 20;
+    lines.forEach(line => {
+      if (y > 280) {
+        doc.addPage();
+        y = 20;
+      }
+      doc.text(line, 10, y);
+      y += 7;
+    });
+    doc.save('habeas-corpus-preventivo.pdf');
+  };
+
   return (
     <Layout>
       <main className="container mx-auto px-4 py-8">
@@ -27,10 +52,11 @@ const HabeasCorpusPage: React.FC = () => {
             Preencha o formulário abaixo para gerar seu Habeas Corpus Preventivo personalizado.
           </p>
 
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Dados Pessoais */}
             <fieldset className="border rounded-lg p-4">
               <legend className="text-lg font-semibold px-2">Dados Pessoais</legend>
+              {/* Campos de input conforme antes */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="nome" className="block text-sm font-medium mb-1">Nome Completo</label>
@@ -81,17 +107,9 @@ const HabeasCorpusPage: React.FC = () => {
               <legend className="text-lg font-semibold px-2">Fundamentos Jurídicos</legend>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {fundamentos.map(f => (
-                  <div key={f.id} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id={f.id}
-                      name="fundamentosJuridicos"
-                      value={f.id}
-                      className="mr-2 h-4 w-4"
-                    />
-                    <label htmlFor={f.id} className="text-sm">
-                      {f.nome}
-                    </label>
+                  <div key={f.id} className="flex items-center" >
+                    <input type="checkbox" id={f.id} name="fundamentosJuridicos" value={f.nome} className="mr-2 h-4 w-4" />
+                    <label htmlFor={f.id} className="text-sm">{f.nome}</label>
                   </div>
                 ))}
               </div>
@@ -102,7 +120,7 @@ const HabeasCorpusPage: React.FC = () => {
               <legend className="text-lg font-semibold px-2">Motivação</legend>
               <div>
                 <label htmlFor="motivacao" className="block text-sm font-medium mb-1">Descreva sua motivação para o autocultivo</label>
-                <textarea id="motivacao" name="motivacao" rows={5} className="w-full p-2 border rounded" required></textarea>
+                <textarea id="motivacao" name="motivacao" rows={5} className="w-full p-2 border rounded" required ></textarea>
               </div>
             </fieldset>
 
