@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
-import { FileText, Search } from "lucide-react";
+import { FileText, Search, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface JurisprudenciaResult {
   id: string;
@@ -28,6 +30,7 @@ const Jurisprudencia: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<JurisprudenciaResult[]>([]);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,34 +45,50 @@ const Jurisprudencia: React.FC = () => {
     }
     
     setLoading(true);
+    setApiError(null);
     
     try {
-      const response = await fetch("https://api-publica.datajud.cnj.jus.br/api_publica_stj/_search", {
+      console.log("Iniciando busca com termo:", searchTerm);
+      
+      const apiUrl = "https://api-publica.datajud.cnj.jus.br/api_publica_stj/_search";
+      console.log("URL da API:", apiUrl);
+      
+      const requestBody = {
+        query: {
+          bool: {
+            should: [
+              { match: { "assuntos.nome": searchTerm } },
+              { match: { "classe.nome": searchTerm } },
+              { match: { "numeroProcesso": searchTerm } }
+            ]
+          }
+        },
+        size: 10
+      };
+      
+      console.log("Corpo da requisição:", JSON.stringify(requestBody));
+      
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Authorization": "APIKey cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw==",
           "Content-Type": "application/json",
+          "Accept": "application/json"
         },
-        body: JSON.stringify({
-          query: {
-            bool: {
-              should: [
-                { match: { "assuntos.nome": searchTerm } },
-                { match: { "classe.nome": searchTerm } },
-                { match: { "numeroProcesso": searchTerm } }
-              ]
-            }
-          },
-          size: 10
-        })
+        body: JSON.stringify(requestBody)
       });
-
+      
+      console.log("Status da resposta:", response.status);
+      
       if (!response.ok) {
-        throw new Error(`Erro na API: ${response.status}`);
+        throw new Error(`Erro na API: ${response.status} - ${response.statusText}`);
       }
 
       const data = await response.json();
+      console.log("Dados recebidos:", data);
+      
       const hits = data.hits?.hits || [];
+      console.log("Hits encontrados:", hits.length);
       
       const formattedResults = hits.map((hit: any) => ({
         id: hit._id,
@@ -87,12 +106,25 @@ const Jurisprudencia: React.FC = () => {
           title: "Nenhum resultado encontrado",
           description: "Tente outros termos de pesquisa",
         });
+      } else {
+        toast({
+          title: "Busca concluída",
+          description: `Foram encontrados ${formattedResults.length} resultados`,
+        });
       }
     } catch (error) {
       console.error("Erro ao buscar jurisprudência:", error);
+      let errorMessage = "Não foi possível comunicar com a API do DataJud";
+      
+      if (error instanceof Error) {
+        errorMessage += `: ${error.message}`;
+      }
+      
+      setApiError(errorMessage);
+      
       toast({
         title: "Erro ao buscar dados",
-        description: "Não foi possível comunicar com a API do DataJud",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -111,6 +143,16 @@ const Jurisprudencia: React.FC = () => {
               Pesquise decisões judiciais do Superior Tribunal de Justiça (STJ)
             </p>
           </div>
+
+          {apiError && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Erro de conexão</AlertTitle>
+              <AlertDescription>
+                {apiError}. Por favor, tente novamente mais tarde ou verifique sua conexão com a internet.
+              </AlertDescription>
+            </Alert>
+          )}
 
           {/* Formulário de Pesquisa */}
           <Card className="mb-8">
@@ -141,8 +183,16 @@ const Jurisprudencia: React.FC = () => {
             </CardContent>
           </Card>
 
+          {/* Estado de carregamento */}
+          {loading && (
+            <div className="mt-8 space-y-4">
+              <Skeleton className="h-8 w-3/4" />
+              <Skeleton className="h-32 w-full" />
+            </div>
+          )}
+
           {/* Resultados */}
-          {results.length > 0 && (
+          {!loading && results.length > 0 && (
             <div className="mt-8">
               <h2 className="text-xl font-semibold mb-4">Resultados da Pesquisa</h2>
               <div className="bg-muted p-4 mb-4 rounded-lg">
@@ -191,6 +241,7 @@ const Jurisprudencia: React.FC = () => {
                 <li>Pesquise por números de processo no formato CNJ (sem pontuação)</li>
                 <li>Experimente termos jurídicos relacionados ao seu caso</li>
                 <li>Para buscar por classes processuais específicas, use termos como "habeas corpus", "recurso especial", etc.</li>
+                <li>Se encontrar problemas de conexão, verifique sua internet e tente novamente mais tarde</li>
               </ul>
             </CardContent>
           </Card>
