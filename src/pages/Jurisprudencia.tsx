@@ -6,11 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
-import { FileText, Search, AlertCircle } from "lucide-react";
+import { FileText, Search, AlertCircle, Globe, Database } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { searchDataJud, searchSTJWebsite } from "@/services/jurisprudenciaService";
 
 interface JurisprudenciaResult {
   id: string;
@@ -23,14 +25,26 @@ interface JurisprudenciaResult {
   assuntos?: Array<{
     nome: string;
   }>;
+  fonte: string;
+}
+
+interface STJWebsiteResult {
+  id: string;
+  titulo: string;
+  link: string;
+  descricao: string;
+  detalhes: string;
+  fonte: string;
 }
 
 const Jurisprudencia: React.FC = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<JurisprudenciaResult[]>([]);
+  const [dataJudResults, setDataJudResults] = useState<JurisprudenciaResult[]>([]);
+  const [stjWebsiteResults, setStjWebsiteResults] = useState<STJWebsiteResult[]>([]);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("datajud");
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,72 +63,52 @@ const Jurisprudencia: React.FC = () => {
     
     try {
       console.log("Iniciando busca com termo:", searchTerm);
+      console.log("Fonte selecionada:", activeTab);
       
-      const apiUrl = "https://api-publica.datajud.cnj.jus.br/api_publica_stj/_search";
-      console.log("URL da API:", apiUrl);
-      
-      const requestBody = {
-        query: {
-          bool: {
-            should: [
-              { match: { "assuntos.nome": searchTerm } },
-              { match: { "classe.nome": searchTerm } },
-              { match: { "numeroProcesso": searchTerm } }
-            ]
+      if (activeTab === "datajud") {
+        const result = await searchDataJud(searchTerm);
+        
+        if (result.success) {
+          setDataJudResults(result.data as JurisprudenciaResult[]);
+          
+          if (result.data.length === 0) {
+            toast({
+              title: "Nenhum resultado encontrado",
+              description: "Tente outros termos de pesquisa ou utilize a busca no site do STJ",
+            });
+          } else {
+            toast({
+              title: "Busca concluída",
+              description: `Foram encontrados ${result.data.length} resultados no DataJud`,
+            });
           }
-        },
-        size: 10
-      };
-      
-      console.log("Corpo da requisição:", JSON.stringify(requestBody));
-      
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Authorization": "APIKey cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw==",
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        body: JSON.stringify(requestBody)
-      });
-      
-      console.log("Status da resposta:", response.status);
-      
-      if (!response.ok) {
-        throw new Error(`Erro na API: ${response.status} - ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      console.log("Dados recebidos:", data);
-      
-      const hits = data.hits?.hits || [];
-      console.log("Hits encontrados:", hits.length);
-      
-      const formattedResults = hits.map((hit: any) => ({
-        id: hit._id,
-        tribunal: hit._source.tribunal || "Não informado",
-        numeroProcesso: hit._source.numeroProcesso || "Não informado",
-        dataAjuizamento: hit._source.dataAjuizamento ? new Date(hit._source.dataAjuizamento).toLocaleDateString('pt-BR') : "Não informado",
-        classe: hit._source.classe || { nome: "Não informado" },
-        assuntos: hit._source.assuntos || []
-      }));
-
-      setResults(formattedResults);
-      
-      if (formattedResults.length === 0) {
-        toast({
-          title: "Nenhum resultado encontrado",
-          description: "Tente outros termos de pesquisa",
-        });
-      } else {
-        toast({
-          title: "Busca concluída",
-          description: `Foram encontrados ${formattedResults.length} resultados`,
-        });
+        } else {
+          throw new Error(result.error);
+        }
+      } else if (activeTab === "stj") {
+        const result = await searchSTJWebsite(searchTerm);
+        
+        if (result.success) {
+          setStjWebsiteResults(result.data as STJWebsiteResult[]);
+          
+          if (result.data.length === 0) {
+            toast({
+              title: "Nenhum resultado encontrado",
+              description: "Tente outros termos de pesquisa",
+            });
+          } else {
+            toast({
+              title: "Busca concluída",
+              description: `Foram encontrados ${result.data.length} resultados no site do STJ`,
+            });
+          }
+        } else {
+          throw new Error(result.error);
+        }
       }
     } catch (error) {
       console.error("Erro ao buscar jurisprudência:", error);
-      let errorMessage = "Não foi possível comunicar com a API do DataJud";
+      let errorMessage = "Não foi possível comunicar com o servidor";
       
       if (error instanceof Error) {
         errorMessage += `: ${error.message}`;
@@ -154,34 +148,77 @@ const Jurisprudencia: React.FC = () => {
             </Alert>
           )}
 
-          {/* Formulário de Pesquisa */}
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Search className="h-5 w-5 text-primary" />
-                Pesquisar Jurisprudência
-              </CardTitle>
-              <CardDescription>
-                Digite termos relacionados ao assunto, classe ou número do processo
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSearch} className="space-y-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="searchTerm">Termo de Pesquisa</Label>
-                  <Input
-                    id="searchTerm"
-                    placeholder="Ex: cannabis, habeas corpus, responsabilidade civil..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-                <Button type="submit" disabled={loading} className="w-full">
-                  {loading ? "Pesquisando..." : "Pesquisar"}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+          {/* Abas para escolher a fonte de dados */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="datajud" className="flex items-center gap-2">
+                <Database className="h-4 w-4" /> API DataJud
+              </TabsTrigger>
+              <TabsTrigger value="stj" className="flex items-center gap-2">
+                <Globe className="h-4 w-4" /> Site do STJ
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="datajud">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Database className="h-5 w-5 text-primary" />
+                    Pesquisar via API DataJud
+                  </CardTitle>
+                  <CardDescription>
+                    Busca oficial através da API DataJud do CNJ
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleSearch} className="space-y-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="searchTerm">Termo de Pesquisa</Label>
+                      <Input
+                        id="searchTerm"
+                        placeholder="Ex: cannabis, habeas corpus, responsabilidade civil..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </div>
+                    <Button type="submit" disabled={loading} className="w-full">
+                      {loading ? "Pesquisando..." : "Pesquisar"}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="stj">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Globe className="h-5 w-5 text-primary" />
+                    Pesquisar via Site do STJ
+                  </CardTitle>
+                  <CardDescription>
+                    Busca através de web scraping do site oficial do STJ
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleSearch} className="space-y-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="searchTerm">Termo de Pesquisa</Label>
+                      <Input
+                        id="searchTerm"
+                        placeholder="Ex: responsabilidade civil, dano moral..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </div>
+                    <Button type="submit" disabled={loading} className="w-full">
+                      {loading ? "Pesquisando..." : "Pesquisar"}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
 
           {/* Estado de carregamento */}
           {loading && (
@@ -191,12 +228,12 @@ const Jurisprudencia: React.FC = () => {
             </div>
           )}
 
-          {/* Resultados */}
-          {!loading && results.length > 0 && (
+          {/* Resultados da API DataJud */}
+          {!loading && activeTab === "datajud" && dataJudResults.length > 0 && (
             <div className="mt-8">
-              <h2 className="text-xl font-semibold mb-4">Resultados da Pesquisa</h2>
+              <h2 className="text-xl font-semibold mb-4">Resultados da API DataJud</h2>
               <div className="bg-muted p-4 mb-4 rounded-lg">
-                <p className="text-sm">Encontrados {results.length} resultados para "{searchTerm}"</p>
+                <p className="text-sm">Encontrados {dataJudResults.length} resultados para "{searchTerm}"</p>
               </div>
               <div className="overflow-x-auto">
                 <Table>
@@ -209,7 +246,7 @@ const Jurisprudencia: React.FC = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {results.map((result) => (
+                    {dataJudResults.map((result) => (
                       <TableRow key={result.id}>
                         <TableCell className="font-medium">{result.numeroProcesso}</TableCell>
                         <TableCell>{result.dataAjuizamento}</TableCell>
@@ -223,6 +260,48 @@ const Jurisprudencia: React.FC = () => {
                     ))}
                   </TableBody>
                 </Table>
+              </div>
+            </div>
+          )}
+
+          {/* Resultados do site do STJ */}
+          {!loading && activeTab === "stj" && stjWebsiteResults.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold mb-4">Resultados do Site do STJ</h2>
+              <div className="bg-muted p-4 mb-4 rounded-lg">
+                <p className="text-sm">Encontrados {stjWebsiteResults.length} resultados para "{searchTerm}"</p>
+              </div>
+              <div className="space-y-6">
+                {stjWebsiteResults.map((result) => (
+                  <Card key={result.id} className="overflow-hidden">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg">
+                        <a 
+                          href={result.link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          {result.titulo}
+                        </a>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <p className="text-sm">{result.descricao}</p>
+                      <p className="text-xs text-muted-foreground">{result.detalhes}</p>
+                      <div className="pt-2">
+                        <a 
+                          href={result.link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-sm text-primary hover:underline flex items-center gap-1"
+                        >
+                          <FileText className="h-4 w-4" /> Ver documento completo
+                        </a>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </div>
           )}
@@ -242,6 +321,7 @@ const Jurisprudencia: React.FC = () => {
                 <li>Experimente termos jurídicos relacionados ao seu caso</li>
                 <li>Para buscar por classes processuais específicas, use termos como "habeas corpus", "recurso especial", etc.</li>
                 <li>Se encontrar problemas de conexão, verifique sua internet e tente novamente mais tarde</li>
+                <li>Utilize a busca no site do STJ quando a API DataJud não retornar resultados</li>
               </ul>
             </CardContent>
           </Card>
