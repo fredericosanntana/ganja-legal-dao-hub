@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,32 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				ganja: {
+					'50': '#f1f8f6',
+					'100': '#dcefe5',
+					'200': '#bcdeca',
+					'300': '#95d5b2',
+					'400': '#40916c',
+					'500': '#2d6a4f',
+					'600': '#1b4332',
+					'700': '#1a3a2e',
+					'800': '#152f27',
+					'900': '#112821',
+					'950': '#0a1613',
+				},
+				activist: {
+					'50': '#fbf1fe',
+					'100': '#f5e1fd',
+					'200': '#eec3fb',
+					'300': '#e294f8',
+					'400': '#d25af2',
+					'500': '#c229ea',
+					'600': '#b5179e',
+					'700': '#7209b7',
+					'800': '#66086f',
+					'900': '#56095c',
+					'950': '#3b0243',
 				}
 			},
 			borderRadius: {
@@ -84,11 +111,20 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'pulse-slow': {
+					'0%, 100%': { opacity: '1' },
+					'50%': { opacity: '0.5' },
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'pulse-slow': 'pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+			},
+			fontFamily: {
+				sans: ['Open Sans', 'sans-serif'],
+				heading: ['Montserrat', 'sans-serif'],
 			}
 		}
 	},
