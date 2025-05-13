@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { FileText, Search } from "lucide-react";
-import { useToast } from "@/components/ui/use-toaster";
+import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 
 interface JurisprudenciaResult {
