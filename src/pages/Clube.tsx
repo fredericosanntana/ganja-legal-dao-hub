@@ -47,8 +47,8 @@ const Clube = () => {
                   </div>
                   <h3 className="text-xl font-bold mb-1">R$4,20</h3>
                   <p className="text-sm text-muted-foreground mb-4">por mês</p>
-                  <Button className="w-full" asChild>
-                    <Link to="/clube/assinar">Assinar Agora</Link>
+                  <Button className="w-full" onClick={() => window.open("https://buy.stripe.com/dR65lA6DX0s6bEQ28c", "_blank")}>
+                    Assinar Agora
                   </Button>
                 </div>
               </div>

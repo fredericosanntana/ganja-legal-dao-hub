@@ -12,6 +12,8 @@ import Anvisa from "./pages/Anvisa";
 import Calculadoras from "./pages/Calculadoras";
 import Conteudo from "./pages/Conteudo";
 import Clube from "./pages/Clube";
+import Votacoes from "./pages/Votacoes";
+import VotacaoDetalhe from "./pages/VotacaoDetalhe";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +33,8 @@ const App = () => (
           <Route path="/calculadoras" element={<Calculadoras />} />
           <Route path="/conteudo" element={<Conteudo />} />
           <Route path="/clube" element={<Clube />} />
+          <Route path="/clube/votacoes" element={<Votacoes />} />
+          <Route path="/clube/votacoes/:id" element={<VotacaoDetalhe />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
