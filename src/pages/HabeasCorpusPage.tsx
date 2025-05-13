@@ -1,17 +1,12 @@
 
 import React from 'react';
-import Head from 'next/head';
 import Layout from '@/components/Layout';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { Button } from "@/components/ui/button";
+import { useNavigate } from 'react-router-dom';
 
 interface Fundamento {
   id: string;
   nome: string;
-}
-
-interface Props {
-  fundamentos: Fundamento[];
-  title: string;
 }
 
 const HabeasCorpusPage: React.FC = () => {
@@ -24,108 +19,102 @@ const HabeasCorpusPage: React.FC = () => {
   const title = 'Gerador de Habeas Corpus Preventivo';
   
   return (
-    <>
-      <Head>
-        <title>{title}</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
-      <Layout>
-        <main className="container page-section light-bg-alt py-5">
-          <section className="form-section mx-auto" style={{ maxWidth: '720px' }}>
-            <h1 className="text-center mb-3">{title}</h1>
-            <p className="lead text-center mb-4">
-              Preencha o formulário abaixo para gerar seu Habeas Corpus Preventivo personalizado.
-            </p>
+    <Layout>
+      <main className="container mx-auto px-4 py-8">
+        <section className="form-section mx-auto" style={{ maxWidth: '720px' }}>
+          <h1 className="text-3xl font-bold mb-3 text-center">{title}</h1>
+          <p className="text-lg text-muted-foreground mb-8 text-center">
+            Preencha o formulário abaixo para gerar seu Habeas Corpus Preventivo personalizado.
+          </p>
 
-            <form action="/juridico/habeas-corpus" method="POST" className="hc-form">
-              {/* Dados Pessoais */}
-              <fieldset className="border p-3 mb-4">
-                <legend className="w-auto px-2">Dados Pessoais</legend>
-                <div className="row g-3">
-                  <div className="col-md-6">
-                    <label htmlFor="nome" className="form-label">Nome Completo</label>
-                    <input type="text" id="nome" name="nome" className="form-control" required />
-                  </div>
-                  <div className="col-md-6">
-                    <label htmlFor="cpf" className="form-label">CPF</label>
-                    <input type="text" id="cpf" name="cpf" className="form-control" required />
-                  </div>
-                  <div className="col-md-6">
-                    <label htmlFor="email" className="form-label">E-mail</label>
-                    <input type="email" id="email" name="email" className="form-control" required />
-                  </div>
-                  <div className="col-md-6">
-                    <label htmlFor="telefone" className="form-label">Telefone</label>
-                    <input type="tel" id="telefone" name="telefone" className="form-control" required />
-                  </div>
-                  <div className="col-12">
-                    <label htmlFor="endereco" className="form-label">Endereço Completo</label>
-                    <input type="text" id="endereco" name="endereco" className="form-control" required />
-                  </div>
+          <form className="space-y-6">
+            {/* Dados Pessoais */}
+            <fieldset className="border rounded-lg p-4">
+              <legend className="text-lg font-semibold px-2">Dados Pessoais</legend>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="nome" className="block text-sm font-medium mb-1">Nome Completo</label>
+                  <input type="text" id="nome" name="nome" className="w-full p-2 border rounded" required />
                 </div>
-              </fieldset>
-
-              {/* Informações do Cultivo */}
-              <fieldset className="border p-3 mb-4">
-                <legend className="w-auto px-2">Informações do Cultivo</legend>
-                <div className="row g-3">
-                  <div className="col-md-6">
-                    <label htmlFor="quantidadePlantas" className="form-label">Quantidade de Plantas</label>
-                    <input type="number" id="quantidadePlantas" name="quantidadePlantas" className="form-control" min={1} required />
-                  </div>
-                  <div className="col-md-6">
-                    <label htmlFor="finalidadeUso" className="form-label">Finalidade de Uso</label>
-                    <select id="finalidadeUso" name="finalidadeUso" className="form-select" required>
-                      <option value="">Selecione...</option>
-                      <option value="medicinal">Medicinal</option>
-                      <option value="terapeutico">Terapêutico</option>
-                      <option value="pessoal">Uso Pessoal</option>
-                      <option value="religioso">Religioso</option>
-                    </select>
-                  </div>
+                <div>
+                  <label htmlFor="cpf" className="block text-sm font-medium mb-1">CPF</label>
+                  <input type="text" id="cpf" name="cpf" className="w-full p-2 border rounded" required />
                 </div>
-              </fieldset>
-
-              {/* Fundamentos Jurídicos */}
-              <fieldset className="border p-3 mb-4">
-                <legend className="w-auto px-2">Fundamentos Jurídicos</legend>
-                <div className="row g-2">
-                  {fundamentos.map(f => (
-                    <div key={f.id} className="col-md-6 d-flex align-items-center">
-                      <input
-                        type="checkbox"
-                        id={f.id}
-                        name="fundamentosJuridicos"
-                        value={f.id}
-                        className="form-check-input me-2"
-                      />
-                      <label htmlFor={f.id} className="form-check-label">
-                        {f.nome}
-                      </label>
-                    </div>
-                  ))}
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium mb-1">E-mail</label>
+                  <input type="email" id="email" name="email" className="w-full p-2 border rounded" required />
                 </div>
-              </fieldset>
-
-              {/* Motivação */}
-              <fieldset className="border p-3 mb-4">
-                <legend className="w-auto px-2">Motivação</legend>
-                <div className="mb-3">
-                  <label htmlFor="motivacao" className="form-label">Descreva sua motivação para o autocultivo</label>
-                  <textarea id="motivacao" name="motivacao" rows={5} className="form-control" required></textarea>
+                <div>
+                  <label htmlFor="telefone" className="block text-sm font-medium mb-1">Telefone</label>
+                  <input type="tel" id="telefone" name="telefone" className="w-full p-2 border rounded" required />
                 </div>
-              </fieldset>
-
-              {/* Ações */}
-              <div className="d-flex justify-content-end gap-2">
-                <button type="reset" className="btn btn-outline-secondary">Limpar</button>
-                <button type="submit" className="btn btn-primary">Gerar Habeas Corpus</button>
+                <div className="col-span-2">
+                  <label htmlFor="endereco" className="block text-sm font-medium mb-1">Endereço Completo</label>
+                  <input type="text" id="endereco" name="endereco" className="w-full p-2 border rounded" required />
+                </div>
               </div>
-            </form>
-          </section>
-        </main>
-      </Layout>
-    </>
+            </fieldset>
+
+            {/* Informações do Cultivo */}
+            <fieldset className="border rounded-lg p-4">
+              <legend className="text-lg font-semibold px-2">Informações do Cultivo</legend>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="quantidadePlantas" className="block text-sm font-medium mb-1">Quantidade de Plantas</label>
+                  <input type="number" id="quantidadePlantas" name="quantidadePlantas" className="w-full p-2 border rounded" min={1} required />
+                </div>
+                <div>
+                  <label htmlFor="finalidadeUso" className="block text-sm font-medium mb-1">Finalidade de Uso</label>
+                  <select id="finalidadeUso" name="finalidadeUso" className="w-full p-2 border rounded" required>
+                    <option value="">Selecione...</option>
+                    <option value="medicinal">Medicinal</option>
+                    <option value="terapeutico">Terapêutico</option>
+                    <option value="pessoal">Uso Pessoal</option>
+                    <option value="religioso">Religioso</option>
+                  </select>
+                </div>
+              </div>
+            </fieldset>
+
+            {/* Fundamentos Jurídicos */}
+            <fieldset className="border rounded-lg p-4">
+              <legend className="text-lg font-semibold px-2">Fundamentos Jurídicos</legend>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {fundamentos.map(f => (
+                  <div key={f.id} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id={f.id}
+                      name="fundamentosJuridicos"
+                      value={f.id}
+                      className="mr-2 h-4 w-4"
+                    />
+                    <label htmlFor={f.id} className="text-sm">
+                      {f.nome}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </fieldset>
+
+            {/* Motivação */}
+            <fieldset className="border rounded-lg p-4">
+              <legend className="text-lg font-semibold px-2">Motivação</legend>
+              <div>
+                <label htmlFor="motivacao" className="block text-sm font-medium mb-1">Descreva sua motivação para o autocultivo</label>
+                <textarea id="motivacao" name="motivacao" rows={5} className="w-full p-2 border rounded" required></textarea>
+              </div>
+            </fieldset>
+
+            {/* Ações */}
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" type="reset">Limpar</Button>
+              <Button type="submit">Gerar Habeas Corpus</Button>
+            </div>
+          </form>
+        </section>
+      </main>
+    </Layout>
   );
 };
 
