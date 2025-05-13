@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
@@ -106,7 +107,7 @@ const Juridico: React.FC = () => {
                   Consulta de Jurisprudência
                 </CardTitle>
                 <CardDescription>
-                  Pesquise decisões judiciais sobre cultivo de Cannabis no Brasil
+                  Pesquise decisões judiciais do Superior Tribunal de Justiça
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -115,18 +116,27 @@ const Juridico: React.FC = () => {
                   do autocultivo de Cannabis no Brasil, ajudando a entender como os tribunais têm se
                   posicionado sobre o assunto.
                 </p>
+                <p className="mb-4">
+                  A ferramenta utiliza a API oficial do DataJud para acessar dados reais do Superior Tribunal de Justiça (STJ),
+                  fornecendo informações atualizadas sobre processos e decisões.
+                </p>
                 <div className="bg-muted p-4 rounded-lg mb-4">
-                  <p className="text-sm">
-                    Estamos trabalhando para disponibilizar esta funcionalidade em breve.
-                    A consulta permitirá filtros por tribunal, data e palavras-chave.
-                  </p>
+                  <h3 className="font-semibold mb-2">Funcionalidades:</h3>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>Busca por termos e palavras-chave</li>
+                    <li>Filtro por assuntos e classes processuais</li>
+                    <li>Visualização de dados reais do STJ</li>
+                    <li>Interface intuitiva para leitura das decisões</li>
+                  </ul>
                 </div>
               </CardContent>
               <CardFooter>
-                <Button className="w-full" disabled>
-                  <Search className="mr-2 h-5 w-5" />
-                  Consultar Jurisprudência (Em breve)
-                </Button>
+                <Link to="/jurisprudencia" className="w-full">
+                  <Button className="w-full">
+                    <Search className="mr-2 h-5 w-5" />
+                    Acessar Consulta de Jurisprudência
+                  </Button>
+                </Link>
               </CardFooter>
             </Card>
           )}
