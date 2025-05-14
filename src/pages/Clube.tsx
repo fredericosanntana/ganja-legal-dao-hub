@@ -4,8 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, Users, Vote, Crown } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/use-auth";
 
 const Clube = () => {
+  const { isAuthenticated, user } = useAuth();
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
@@ -75,7 +78,7 @@ const Clube = () => {
               </CardContent>
               <CardFooter>
                 <Button variant="outline" className="w-full" asChild>
-                  <Link to="/clube/votacoes">
+                  <Link to={isAuthenticated ? "/clube/iniciativas" : "/clube/votacoes"}>
                     <Vote className="mr-2 h-5 w-5" />
                     Ver Votações Ativas
                   </Link>
@@ -114,17 +117,27 @@ const Clube = () => {
               <CardHeader>
                 <CardTitle>Acesso para Membros</CardTitle>
                 <CardDescription>
-                  Já é membro do Clube GanjaDAO? Faça login para acessar sua conta.
+                  {isAuthenticated 
+                    ? "Bem-vindo de volta! Acesse seu painel para gerenciar sua conta."
+                    : "Já é membro do Clube GanjaDAO? Faça login para acessar sua conta."}
                 </CardDescription>
               </CardHeader>
               <CardFooter>
                 <div className="w-full flex flex-col sm:flex-row gap-2">
-                  <Button className="flex-1" variant="outline" asChild>
-                    <Link to="/clube/login">Login</Link>
-                  </Button>
-                  <Button className="flex-1" variant="secondary" asChild>
-                    <Link to="/clube/cadastro">Cadastro</Link>
-                  </Button>
+                  {isAuthenticated ? (
+                    <Button className="flex-1" asChild>
+                      <Link to="/clube/dashboard">Acessar Painel</Link>
+                    </Button>
+                  ) : (
+                    <>
+                      <Button className="flex-1" variant="outline" asChild>
+                        <Link to="/clube/login">Login</Link>
+                      </Button>
+                      <Button className="flex-1" variant="secondary" asChild>
+                        <Link to="/clube/cadastro">Cadastro</Link>
+                      </Button>
+                    </>
+                  )}
                 </div>
               </CardFooter>
             </Card>

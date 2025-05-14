@@ -15,30 +15,50 @@ import Clube from "./pages/Clube";
 import Votacoes from "./pages/Votacoes";
 import VotacaoDetalhe from "./pages/VotacaoDetalhe";
 import NotFound from "./pages/NotFound";
+import { AuthProvider } from "./hooks/use-auth";
+
+// New Pages
+import Login from "./pages/Login";
+import Cadastro from "./pages/Cadastro";
+import Dashboard from "./pages/Dashboard";
+import Iniciativas from "./pages/Iniciativas";
+import IniciativaDetalhe from "./pages/IniciativaDetalhe";
+import NovaIniciativa from "./pages/NovaIniciativa";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/juridico" element={<Juridico />} />
-          <Route path="/habeas-corpus" element={<HabeasCorpusPage />} />
-          <Route path="/jurisprudencia" element={<Jurisprudencia />} />
-          <Route path="/anvisa" element={<Anvisa />} />
-          <Route path="/calculadoras" element={<Calculadoras />} />
-          <Route path="/conteudo" element={<Conteudo />} />
-          <Route path="/clube" element={<Clube />} />
-          <Route path="/clube/votacoes" element={<Votacoes />} />
-          <Route path="/clube/votacoes/:id" element={<VotacaoDetalhe />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/juridico" element={<Juridico />} />
+            <Route path="/habeas-corpus" element={<HabeasCorpusPage />} />
+            <Route path="/jurisprudencia" element={<Jurisprudencia />} />
+            <Route path="/anvisa" element={<Anvisa />} />
+            <Route path="/calculadoras" element={<Calculadoras />} />
+            <Route path="/conteudo" element={<Conteudo />} />
+            <Route path="/clube" element={<Clube />} />
+            <Route path="/clube/votacoes" element={<Votacoes />} />
+            <Route path="/clube/votacoes/:id" element={<VotacaoDetalhe />} />
+            
+            {/* New Routes */}
+            <Route path="/clube/login" element={<Login />} />
+            <Route path="/clube/cadastro" element={<Cadastro />} />
+            <Route path="/clube/dashboard" element={<Dashboard />} />
+            <Route path="/clube/iniciativas" element={<Iniciativas />} />
+            <Route path="/clube/iniciativas/nova" element={<NovaIniciativa />} />
+            <Route path="/clube/iniciativas/:id" element={<IniciativaDetalhe />} />
+            
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
