@@ -1,0 +1,153 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./ganjadao.db" // Caminho para o arquivo do banco de dados SQLite
+}
+
+// ========= GanjaDAO Clube =========
+
+model User {
+  id                Int      @id @default(autoincrement())
+  username          String   @unique
+  email             String   @unique
+  password          String   // Hashed password
+  is_admin          Boolean  @default(false)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  subscription      Subscription?     // Um usuário pode ter uma assinatura
+  initiatives       Initiative[]      // Um usuário pode criar múltiplas iniciativas
+  votes             Vote[]            // Um usuário pode ter múltiplos votos
+  vote_credits      UserVoteCredit?   // Um usuário tem um saldo de créditos de voto
+  anvisa_manifestations AnvisaManifestation[] // Um usuário pode ter múltiplas manifestações ANVISA salvas
+  // legal_documents LegalDocument[] // (Futuro) Um usuário pode ter documentos jurídicos salvos
+
+  @@map("users") // Mapeia para a tabela existente "users"
+}
+
+model Subscription {
+  id              Int      @id @default(autoincrement())
+  user_id         Int      @unique // Chave estrangeira para User, assinatura é única por usuário
+  status          String   // Ex: "active", "canceled", "pending_payment"
+  started_at      DateTime @default(now())
+  expires_at      DateTime? // Para assinaturas com data de expiração
+  canceled_at     DateTime?
+  payment_details String?  // Pode ser um JSON com detalhes ou ID de um sistema de pagamento
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  user            User     @relation(fields: [user_id], references: [id])
+
+  @@map("subscriptions")
+}
+
+model Initiative {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String   // TEXT
+  user_id     Int      // Autor da iniciativa
+  status      String   @default("open") // Ex: "open", "closed", "canceled"
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  author      User     @relation(fields: [user_id], references: [id])
+  votes       Vote[]   // Uma iniciativa pode ter múltiplos votos
+
+  @@map("initiatives")
+}
+
+model Vote {
+  id                Int      @id @default(autoincrement())
+  user_id           Int
+  initiative_id     Int
+  credits_spent     Int      // Quantos créditos o usuário alocou para esta iniciativa
+  // effective_votes Int?  // (Opcional) Quantos "votos efetivos" isso representa pela Votação Quadrática
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  user              User     @relation(fields: [user_id], references: [id])
+  initiative        Initiative @relation(fields: [initiative_id], references: [id])
+
+  @@unique([user_id, initiative_id]) // Garante que um usuário vote (aloque créditos) apenas uma vez por iniciativa
+  @@map("votes")
+}
+
+model UserVoteCredit {
+  id             Int      @id @default(autoincrement())
+  user_id        Int      @unique
+  total_credits  Int      @default(100) // Créditos iniciais ou saldo atual
+  last_reset_at  DateTime? // Para controle de resets periódicos
+  updated_at     DateTime @updatedAt
+
+  user           User     @relation(fields: [user_id], references: [id])
+
+  @@map("user_vote_credits")
+}
+
+// ========= GanjaDAO App (Módulos Adicionais) =========
+
+model AnvisaManifestation {
+  id                  Int      @id @default(autoincrement())
+  user_id             Int?     // Opcional, se o usuário estiver logado ao salvar
+  name                String
+  email               String
+  cpf_cnpj            String?  // Pode ser CPF ou CNPJ
+  entity_represented  String?  // Nome da entidade, se houver
+  city                String?
+  state               String?
+  manifestation_text  String   // TEXT
+  created_at          DateTime @default(now())
+
+  user                User?    @relation(fields: [user_id], references: [id])
+
+  @@map("anvisa_manifestations")
+}
+
+// (Opcional / Futuro) Modelo para Conteúdo Educacional, se gerenciado via DB
+// model Content {
+//   id          Int      @id @default(autoincrement())
+//   slug        String   @unique
+//   title       String
+//   body        String   // TEXT ou Markdown
+//   author_id   Int?     // Opcional, se tiver um autor logado
+//   category    String?
+//   created_at  DateTime @default(now())
+//   updated_at  DateTime @updatedAt
+// 
+//   author      User?    @relation(fields: [author_id], references: [id])
+// 
+//   @@map("contents")
+// }
+
+// (Opcional / Futuro) Modelo para Documentos Jurídicos Gerados
+// model LegalDocument {
+//   id                  Int      @id @default(autoincrement())
+//   user_id             Int
+//   document_type       String   // Ex: "HC_PREVENTIVO", "NOTIFICACAO_EXTRAJUDICIAL"
+//   form_data           String   // JSON com os dados do formulário que gerou o documento
+//   generated_pdf_path  String?  // Caminho para o PDF salvo, ou poderia ser um Blob
+//   created_at          DateTime @default(now())
+// 
+//   user                User     @relation(fields: [user_id], references: [id])
+// 
+//   @@map("legal_documents")
+// }
+
+// Modelo para Sessões (usado por connect-sqlite3, Prisma não gerencia diretamente, mas para referência)
+// A tabela `sessions` é criada e gerenciada pelo connect-sqlite3.
+// Se fosse usar Prisma para sessões, seria algo como:
+// model Session {
+//   id        String   @id
+//   sid       String   @unique
+//   data      String
+//   expiresAt DateTime
+// 
+//   @@map("sessions")
+// }
+
