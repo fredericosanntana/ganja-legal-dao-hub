@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { Input } from "@/components/ui/input";
@@ -105,7 +106,7 @@ const Jurisprudencia: React.FC = () => {
           })));
           toast({ title: "Busca concluída", description: `Encontrados ${res.data.length} resultados.` });
         } else {
-          toast({ title: "Nenhum resultado", description: "Mantendo jurisprudências padrão.", variant: "warning" });
+          toast({ title: "Nenhum resultado", description: "Mantendo jurisprudências padrão.", variant: "default" });
         }
       } else {
         const res = await searchSTJWebsite(searchTerm);
@@ -113,7 +114,7 @@ const Jurisprudencia: React.FC = () => {
           setStjResults(res.data.map((r: any) => ({ id: r.id, ementa: r.ementa || '' })));
         } else {
           setStjResults([]);
-          toast({ title: "Nenhum resultado STJ", description: "Tente outro termo.", variant: "warning" });
+          toast({ title: "Nenhum resultado STJ", description: "Tente outro termo.", variant: "default" });
         }
       }
     } catch (err: any) {
@@ -137,7 +138,11 @@ const Jurisprudencia: React.FC = () => {
           </Alert>
         )}
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+        <Tabs 
+          value={activeTab} 
+          onValueChange={(value: "datajud" | "stj") => setActiveTab(value)} 
+          className="mb-6"
+        >
           <TabsList className="grid grid-cols-2">
             <TabsTrigger value="datajud" className="flex items-center gap-2">
               <Database className="w-4 h-4" /> API DataJud
