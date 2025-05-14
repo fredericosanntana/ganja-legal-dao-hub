@@ -160,8 +160,8 @@ const Juridico: React.FC = () => {
                 </p>
                 <div className="space-y-4">
                   {[
-                    { title: 'Notificação Extrajudicial', desc: 'Modelo para notificações formais a terceiros' },
-                    { title: 'Declaração de Posse', desc: 'Modelo de declaração para consumo pessoal' },
+                    { title: 'Termo de Responsabilidade', desc: 'Modelo de termo de responsabilidade para cultivo' },
+                    { title: 'Plano de Cultivo', desc: 'Modelo de plano de cultivo' },
                     { title: 'Checklist Jurídico', desc: 'Lista de verificação para proteção jurídica do cultivador' }
                   ].map((tpl, idx) => (
                     <div key={idx} className="flex items-center justify-between p-4 border rounded-lg">
@@ -194,7 +194,7 @@ const Juridico: React.FC = () => {
                 { step: 4, title: 'Protocolar', desc: 'Submeta o Habeas Corpus ao tribunal competente e mantenha cópias dos documentos.' }
               ].map(item => (
                 <div key={item.step} className="workflow-step text-center">
-                  <div className="step-number mx-auto mb-2">{item.step}</div>
+                  <div className="step-number mx-auto mb-2 text-7xl text-primary">{item.step}</div>
                   <div className="step-title font-semibold mb-1">{item.title}</div>
                   <div className="step-desc text-sm text-muted-foreground">{item.desc}</div>
                 </div>

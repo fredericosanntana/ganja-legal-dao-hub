@@ -104,9 +104,11 @@ const Clube = () => {
                 </p>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full" disabled>
-                  <Users className="mr-2 h-5 w-5" />
-                  Acessar Comunidade (Em breve)
+                <Button variant="outline" className="w-full" asChild>
+                  <Link to={isAuthenticated ? "/clube/comunidade" : "/clube/login"}>
+                    <Users className="mr-2 h-5 w-5" />
+                    Acessar Comunidade
+                  </Link>
                 </Button>
               </CardFooter>
             </Card>

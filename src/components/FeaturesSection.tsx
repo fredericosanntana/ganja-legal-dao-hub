@@ -26,18 +26,21 @@ const FeaturesSection = () => {
             title="Módulo ANVISA"
             description="Ferramenta para auxiliar na criação e envio de manifestações para consultas públicas da ANVISA."
             to="/anvisa"
+            variant="featured"
           />
           <ModuleCard
             icon={<Calculator className="h-6 w-6" />}
             title="Calculadoras"
             description="Calculadoras úteis para o cultivo: VPD, DLI, Nutrientes, Ponto de Orvalho e EC Flush."
             to="/calculadoras"
+            variant="featured"
           />
           <ModuleCard
             icon={<Users className="h-6 w-6" />}
             title="Clube GanjaDAO"
             description="Junte-se ao clube de assinaturas para apoiar a causa e participar de votações sobre as iniciativas."
             to="/clube"
+            variant="featured"
           />
         </div>
       </div>

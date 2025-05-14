@@ -6,18 +6,18 @@ const testimonials = [
     name: "Mariana S.",
     avatar: "MS",
     role: "Cultivadora há 1 ano",
-    content: "Graças ao HC preventivo que gerei na GanjaDAO, pude defender meus direitos quando houve uma abordagem policial. Não sei o que teria acontecido sem essa ferramenta."
+    content: "Graças ao HC preventivo, pude defender meus direitos quando houve uma abordagem policial. Não sei o que teria acontecido sem meu salvo conduto."
   },
   {
     name: "João P.",
     avatar: "JP",
-    role: "Ativista canábico",
+    role: "Estudante de Direito",
     content: "Participar das votações do clube me fez sentir que realmente posso ajudar a moldar o futuro do ativismo canábico no Brasil. A GanjaDAO está descentralizando o direito."
   },
   {
     name: "Fernanda M.",
     avatar: "FM",
-    role: "Usuária medicinal",
+    role: "Paciente medicinal",
     content: "As calculadoras são extremamente úteis para otimizar meu cultivo. Minha produção melhorou significativamente após utilizar as ferramentas de VPD e DLI."
   }
 ];
