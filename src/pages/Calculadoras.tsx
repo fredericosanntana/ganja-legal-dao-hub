@@ -234,7 +234,7 @@ const VPDCalculator = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Parâmetros */}
           <div className="space-y-4">
           <div className="space-y-2">
@@ -376,7 +376,7 @@ const VPDCalculator = () => {
           </div>
 
           {/* Gráfico */}
-          <div className="space-y-4 md:col-span-2">
+          <div className="space-y-4">
             <div className="h-64">
               <canvas ref={vpdChartRef}></canvas>
             </div>
@@ -719,7 +719,7 @@ const DewPointCalculator = () => {
         <CardDescription>Secagem e Cura de Cannabis</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Parâmetros */}
           <div className="space-y-4">
             <div className="space-y-2">
@@ -838,7 +838,7 @@ const DewPointCalculator = () => {
           </div>
 
           {/* Gráficos e Cronograma */}
-          <div className="space-y-4 md:col-span-2">
+          <div className="space-y-4">
             <div className="h-64">
               <canvas ref={moldChartRef}></canvas>
             </div>
@@ -1138,7 +1138,7 @@ const DLICalculator = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Parâmetros */}
           <div className="space-y-4">
             <div className="space-y-2">
@@ -1295,7 +1295,7 @@ const DLICalculator = () => {
           </div>
 
           {/* Gráficos */}
-          <div className="space-y-4 md:col-span-2">
+          <div className="space-y-4">
             <div className="h-64">
               <canvas ref={lightCurveChartRef}></canvas>
             </div>
@@ -1649,7 +1649,7 @@ const ECFlushCalculator = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Parâmetros */}
           <div className="space-y-4">
             <div className="space-y-2">
@@ -1760,7 +1760,7 @@ const ECFlushCalculator = () => {
           </div>
 
           {/* Gráficos e Tabela */}
-          <div className="space-y-4 md:col-span-2">
+          <div className="space-y-4">
             <div className="h-64">
               <canvas ref={ecReductionChartRef}></canvas>
             </div>
@@ -2254,9 +2254,9 @@ const NutrientsCalculator = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Parâmetros */}
-          <div className="space-y-4 md:col-span-2">
+          <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="growth-phase">Fase de Crescimento</Label>
               <Select value={growthPhase} onValueChange={setGrowthPhase}>
@@ -2333,7 +2333,7 @@ const NutrientsCalculator = () => {
 
             <div className="space-y-2">
               <Label>Nutrientes Disponíveis</Label>
-              <div className="space-y-2 md:col-span-2">
+              <div className="space-y-2">
                 {Object.entries(selectedNutrients).map(([nutrient, checked]) => (
                   <div key={nutrient} className="flex items-center space-x-2">
                     <Checkbox
@@ -2353,7 +2353,7 @@ const NutrientsCalculator = () => {
           </div>
 
           {/* Resultados */}
-          <div className="space-y-4 md:col-span-2">
+          <div className="space-y-4">
             {showResults && (
               <>
                 <div className="alert alert-info">
@@ -2407,7 +2407,7 @@ const NutrientsCalculator = () => {
           </div>
 
           {/* Gráficos e Deficiências */}
-          <div className="space-y-4 md:col-span-2">
+          <div className="space-y-4">
             <div className="h-64">
               <canvas ref={nutrientLevelsChartRef}></canvas>
             </div>
@@ -2777,7 +2777,7 @@ const DeficiencyIdentifier = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid  gap-4">
           {/* Seleção de Sintomas */}
           <div className="space-y-4">
             <div className="space-y-2">
@@ -2842,7 +2842,7 @@ const DeficiencyIdentifier = () => {
           </div>
 
           {/* Resultados */}
-          <div className="space-y-4 md:col-span-2">
+          <div className="space-y-4">
             {showResults && (
               <>
                 <div className="h-64">
@@ -2865,7 +2865,7 @@ const DeficiencyIdentifier = () => {
             )}
 
             {!showResults && (
-              <div className="text-center space-y-4 md:col-span-2">
+              <div className="text-center py-4">
                 <p className="text-muted">
                   Selecione os sintomas observados e clique em "Identificar Deficiências"
                   para gerar a análise.
@@ -2875,13 +2875,13 @@ const DeficiencyIdentifier = () => {
           </div>
 
           {/* Informações Detalhadas */}
-          <div className="space-y-4 md:col-span-2">
+          <div className="space-y-4">
             <div className="card">
               <div className="card-header">
                 <h5>Guia de Deficiências</h5>
               </div>
               <div className="card-body">
-                <div className="space-y-4 md:col-span-2">
+                <div className="flex flex-wrap gap-6">
                   {Object.entries(DEFICIENCY_TYPES).map(([type, info]) => (
                     <div key={type} className="space-y-2">
                       <h6 className="font-medium">{info.name}</h6>
@@ -2961,7 +2961,7 @@ const Calculadoras = () => {
               Ferramentas matemáticas para otimizar seu cultivo
             </p>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-6 gap-2 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mb-8">
             {calculators.map((calc) => (
               <Button
                 key={calc.id}
