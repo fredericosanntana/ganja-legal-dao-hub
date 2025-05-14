@@ -26,6 +26,11 @@ import IniciativaDetalhe from "./pages/IniciativaDetalhe";
 import NovaIniciativa from "./pages/NovaIniciativa";
 import Perfil from "./pages/Perfil";
 
+// Comunidade (fórum) Pages
+import Comunidade from "./pages/Comunidade";
+import ComunidadePostDetail from "./pages/ComunidadePostDetail";
+import ComunidadeNovoPost from "./pages/ComunidadeNovoPost";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -55,6 +60,11 @@ const App = () => (
             <Route path="/clube/iniciativas/nova" element={<NovaIniciativa />} />
             <Route path="/clube/iniciativas/:id" element={<IniciativaDetalhe />} />
             <Route path="/clube/perfil" element={<Perfil />} />
+            
+            {/* Comunidade (Fórum) Routes */}
+            <Route path="/clube/comunidade" element={<Comunidade />} />
+            <Route path="/clube/comunidade/posts/:postId" element={<ComunidadePostDetail />} />
+            <Route path="/clube/comunidade/novo" element={<ComunidadeNovoPost />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
