@@ -1,3 +1,4 @@
+
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
@@ -27,6 +28,12 @@ model User {
   vote_credits      UserVoteCredit?   // Um usuário tem um saldo de créditos de voto
   anvisa_manifestations AnvisaManifestation[] // Um usuário pode ter múltiplas manifestações ANVISA salvas
   // legal_documents LegalDocument[] // (Futuro) Um usuário pode ter documentos jurídicos salvos
+
+  // Comunidade
+  posts             Post[]           // Um usuário pode criar múltiplos posts
+  comments          Comment[]        // Um usuário pode fazer múltiplos comentários
+  post_likes        PostLike[]       // Um usuário pode curtir múltiplos posts
+  comment_likes     CommentLike[]    // Um usuário pode curtir múltiplos comentários
 
   @@map("users") // Mapeia para a tabela existente "users"
 }
@@ -90,6 +97,68 @@ model UserVoteCredit {
   @@map("user_vote_credits")
 }
 
+// ========= GanjaDAO Comunidade (Fórum) =========
+
+model Post {
+  id           Int       @id @default(autoincrement())
+  title        String
+  content      String    // TEXT
+  user_id      Int
+  category     String?   // Ex: "geral", "jurídico", "política", etc.
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+
+  author       User      @relation(fields: [user_id], references: [id])
+  comments     Comment[] // Um post pode ter múltiplos comentários
+  likes        PostLike[] // Um post pode ter múltiplos likes
+
+  @@map("posts")
+}
+
+model Comment {
+  id           Int       @id @default(autoincrement())
+  content      String    // TEXT
+  user_id      Int
+  post_id      Int
+  parent_id    Int?      // Para comentários aninhados (replies)
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+
+  author       User      @relation(fields: [user_id], references: [id])
+  post         Post      @relation(fields: [post_id], references: [id])
+  parent       Comment?  @relation("CommentToComment", fields: [parent_id], references: [id])
+  replies      Comment[] @relation("CommentToComment")
+  likes        CommentLike[] // Um comentário pode ter múltiplos likes
+
+  @@map("comments")
+}
+
+model PostLike {
+  id           Int       @id @default(autoincrement())
+  user_id      Int
+  post_id      Int
+  created_at   DateTime  @default(now())
+
+  user         User      @relation(fields: [user_id], references: [id])
+  post         Post      @relation(fields: [post_id], references: [id])
+
+  @@unique([user_id, post_id]) // Garante que um usuário curta um post apenas uma vez
+  @@map("post_likes")
+}
+
+model CommentLike {
+  id           Int       @id @default(autoincrement())
+  user_id      Int
+  comment_id   Int
+  created_at   DateTime  @default(now())
+
+  user         User      @relation(fields: [user_id], references: [id])
+  comment      Comment   @relation(fields: [comment_id], references: [id])
+
+  @@unique([user_id, comment_id]) // Garante que um usuário curta um comentário apenas uma vez
+  @@map("comment_likes")
+}
+
 // ========= GanjaDAO App (Módulos Adicionais) =========
 
 model AnvisaManifestation {
@@ -150,4 +219,3 @@ model AnvisaManifestation {
 // 
 //   @@map("sessions")
 // }
-
