@@ -253,7 +253,10 @@ export const mockPosts: Post[] = [
       id: 1,
       username: "admin",
       email: "admin@ganjadao.com",
-      is_admin: true
+      is_admin: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      votes: []
     },
     _count: {
       comments: 2,
@@ -272,7 +275,10 @@ export const mockPosts: Post[] = [
       id: 2,
       username: "maria_silva",
       email: "maria@example.com",
-      is_admin: false
+      is_admin: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      votes: []
     },
     _count: {
       comments: 8,
@@ -291,7 +297,10 @@ export const mockPosts: Post[] = [
       id: 3,
       username: "joao_santos",
       email: "joao@example.com",
-      is_admin: false
+      is_admin: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      votes: []
     },
     _count: {
       comments: 15,
