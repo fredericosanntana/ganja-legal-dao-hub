@@ -17,13 +17,14 @@ import VotacaoDetalhe from "./pages/VotacaoDetalhe";
 import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./hooks/use-auth";
 
-// New Pages
+// Pages
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import Dashboard from "./pages/Dashboard";
 import Iniciativas from "./pages/Iniciativas";
 import IniciativaDetalhe from "./pages/IniciativaDetalhe";
 import NovaIniciativa from "./pages/NovaIniciativa";
+import Perfil from "./pages/Perfil";
 
 const queryClient = new QueryClient();
 
@@ -46,13 +47,14 @@ const App = () => (
             <Route path="/clube/votacoes" element={<Votacoes />} />
             <Route path="/clube/votacoes/:id" element={<VotacaoDetalhe />} />
             
-            {/* New Routes */}
+            {/* Auth Routes */}
             <Route path="/clube/login" element={<Login />} />
             <Route path="/clube/cadastro" element={<Cadastro />} />
             <Route path="/clube/dashboard" element={<Dashboard />} />
             <Route path="/clube/iniciativas" element={<Iniciativas />} />
             <Route path="/clube/iniciativas/nova" element={<NovaIniciativa />} />
             <Route path="/clube/iniciativas/:id" element={<IniciativaDetalhe />} />
+            <Route path="/clube/perfil" element={<Perfil />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

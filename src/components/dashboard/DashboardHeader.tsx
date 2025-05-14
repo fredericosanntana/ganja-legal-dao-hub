@@ -1,11 +1,17 @@
 
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Vote } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Vote, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 const DashboardHeader = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/clube/login");
+  };
 
   return (
     <div>
@@ -22,6 +28,10 @@ const DashboardHeader = () => {
               <Vote className="mr-2 h-4 w-4" />
               Ver votações
             </Link>
+          </Button>
+          <Button variant="outline" className="flex-1 md:flex-auto" onClick={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            Sair
           </Button>
         </div>
       </div>

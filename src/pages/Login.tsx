@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Leaf } from "lucide-react";
 import { login } from "@/services/authService";
+import { useAuth } from "@/hooks/use-auth";
 
 const loginSchema = z.object({
   usernameOrEmail: z.string().min(1, "Username or email is required"),
@@ -24,6 +25,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const { refreshUser } = useAuth();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -40,10 +42,15 @@ const Login = () => {
       const success = await login(values.usernameOrEmail, values.password);
       
       if (success) {
+        // Refresh user data after successful login
+        await refreshUser();
+        
         toast({
           title: "Login realizado com sucesso",
           description: "Bem-vindo ao Clube GanjaDAO!",
         });
+        
+        // Redirect to dashboard
         navigate("/clube/dashboard");
       } else {
         toast({

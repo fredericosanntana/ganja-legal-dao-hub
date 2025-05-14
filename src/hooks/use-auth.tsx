@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User } from "@/types/auth";
 import { getCurrentUser, logout as authLogout } from "@/services/authService";
+import { toast } from "@/hooks/use-toast";
 
 interface AuthContextType {
   user: User | null;
@@ -28,6 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const currentUser = await getCurrentUser();
       setUser(currentUser);
+      console.log("User loaded:", currentUser);
     } catch (error) {
       console.error("Error loading user:", error);
       setUser(null);
@@ -41,11 +43,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const logout = async () => {
-    await authLogout();
-    setUser(null);
+    try {
+      await authLogout();
+      setUser(null);
+      toast({
+        title: "Logout realizado",
+        description: "Você foi desconectado com sucesso",
+      });
+    } catch (error) {
+      console.error("Error during logout:", error);
+      toast({
+        title: "Erro ao fazer logout",
+        description: "Ocorreu um problema ao desconectar sua conta",
+        variant: "destructive",
+      });
+    }
   };
 
   const refreshUser = async () => {
+    console.log("Refreshing user data...");
     await loadUser();
   };
 

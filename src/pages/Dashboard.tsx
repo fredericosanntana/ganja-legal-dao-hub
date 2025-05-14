@@ -5,11 +5,12 @@ import Layout from "@/components/Layout";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Vote, Crown, Plus, User } from "lucide-react";
+import { Vote, Crown, Plus, User, Key, CreditCard } from "lucide-react";
 import { useInitiatives } from "@/hooks/use-initiatives";
 import { useAuth } from "@/hooks/use-auth";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import CreditStats from "@/components/dashboard/CreditStats";
+import { toast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -19,8 +20,14 @@ const Dashboard = () => {
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       navigate("/clube/login");
+    } else if (!authLoading && isAuthenticated) {
+      // Successfully logged in and loaded user data
+      toast({
+        title: "Bem-vindo",
+        description: `Olá ${user?.username}, você está conectado!`,
+      });
     }
-  }, [authLoading, isAuthenticated, navigate]);
+  }, [authLoading, isAuthenticated, navigate, user]);
 
   if (authLoading) {
     return (
@@ -137,7 +144,10 @@ const Dashboard = () => {
                 </CardContent>
                 <CardFooter>
                   <Button variant="outline" className="w-full" asChild>
-                    <Link to="/clube/votacoes">Ver histórico de votos</Link>
+                    <Link to="/clube/votacoes">
+                      <Vote className="mr-2 h-4 w-4" />
+                      Ver histórico de votos
+                    </Link>
                   </Button>
                 </CardFooter>
               </Card>
@@ -163,7 +173,8 @@ const Dashboard = () => {
                       {new Date(user.subscription.expires_at || "").toLocaleDateString()}
                     </p>
                     <div className="mt-4">
-                      <Button variant="outline" size="sm" className="w-full">
+                      <Button variant="outline" size="sm" className="w-full" onClick={() => window.open("https://buy.stripe.com/dR65lA6DX0s6bEQ28c", "_blank")}>
+                        <CreditCard className="mr-2 h-4 w-4" />
                         Gerenciar assinatura
                       </Button>
                     </div>
@@ -202,11 +213,18 @@ const Dashboard = () => {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full" asChild>
-                  <Link to="/clube/perfil">
-                    Editar perfil
-                  </Link>
-                </Button>
+                <div className="w-full space-y-2">
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link to="/clube/perfil">
+                      <User className="mr-2 h-4 w-4" />
+                      Editar perfil
+                    </Link>
+                  </Button>
+                  <Button variant="outline" className="w-full">
+                    <Key className="mr-2 h-4 w-4" />
+                    Alterar senha
+                  </Button>
+                </div>
               </CardFooter>
             </Card>
           </div>
