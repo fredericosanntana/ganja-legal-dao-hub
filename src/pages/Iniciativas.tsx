@@ -4,10 +4,18 @@ import { Link, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Vote } from "lucide-react";
+import { Plus, Vote, HelpCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useInitiatives } from "@/hooks/use-initiatives";
 import InitiativeCard from "@/components/initiatives/InitiativeCard";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger, 
+  DialogDescription 
+} from "@/components/ui/dialog";
 
 const Iniciativas = () => {
   const navigate = useNavigate();
@@ -42,7 +50,56 @@ const Iniciativas = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-5xl mx-auto">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold">Iniciativas</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-3xl font-bold">Iniciativas</h1>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="icon" className="rounded-full" aria-label="Como funciona a votação">
+                    <HelpCircle className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Como funciona a votação de iniciativas</DialogTitle>
+                    <DialogDescription>
+                      <div className="mt-4 space-y-4">
+                        <div>
+                          <h3 className="text-base font-semibold mb-1">Votação Quadrática</h3>
+                          <p className="text-sm text-muted-foreground">
+                            A GanjaDAO utiliza um sistema de votação quadrática, onde o custo em créditos é o quadrado 
+                            da intensidade do seu voto. Isso permite que você demonstre sua preferência de forma mais precisa.
+                          </p>
+                        </div>
+                        
+                        <div>
+                          <h3 className="text-base font-semibold mb-1">Como funcionam os créditos</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Cada membro recebe uma quantidade de créditos para utilizar nas votações. Quanto maior a 
+                            intensidade do seu voto, mais créditos serão gastos.
+                          </p>
+                          <ul className="list-disc list-inside text-sm text-muted-foreground mt-2">
+                            <li>Um voto de intensidade 1 custa 1 crédito</li>
+                            <li>Um voto de intensidade 2 custa 4 créditos</li>
+                            <li>Um voto de intensidade 3 custa 9 créditos</li>
+                            <li>Um voto de intensidade 4 custa 16 créditos</li>
+                            <li>E assim por diante...</li>
+                          </ul>
+                        </div>
+                        
+                        <div>
+                          <h3 className="text-base font-semibold mb-1">Vantagens da votação quadrática</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Este método permite que os membros expressem a intensidade de suas preferências de forma 
+                            mais democrática, evitando que grupos majoritários dominem todas as decisões e permitindo 
+                            que minorias tenham voz em questões que consideram muito importantes.
+                          </p>
+                        </div>
+                      </div>
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            </div>
             {user?.subscription && (
               <Button asChild>
                 <Link to="/clube/iniciativas/nova">

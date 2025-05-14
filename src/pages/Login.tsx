@@ -134,6 +134,12 @@ const Login = () => {
                     )}
                   />
 
+                  <div className="flex justify-end">
+                    <Button variant="link" className="px-0" asChild>
+                      <Link to="/clube/recuperar-senha">Esqueci minha senha</Link>
+                    </Button>
+                  </div>
+
                   <Button
                     type="submit"
                     className="w-full"
