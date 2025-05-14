@@ -9,7 +9,7 @@ const Anvisa: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     name: '', email: '', cpf: '', profession: '', additionalComments: '',
-    point1: true, point2: true, point3: true, point4: true, point5: false
+    point1: true, point2: true, point3: true, point4: true, point5: false, point6: false
   });
   const [previewHtml, setPreviewHtml] = useState('');
   const [toast, setToast] = useState<{ title: string; message: string; type: 'success'|'error'|'warning' } | null>(null);
@@ -37,8 +37,9 @@ Pior: ao desconsiderar expressamente as experiências concretas de quem já plan
 </p>`;
     
     if(additionalComments) html += `<h5>Comentários Adicionais</h5><p>${additionalComments}</p>`;
-    <div className="mb-4" />
+    
     html += `<p><p><strong>Conclusão:</strong> Por fim, reitero que a proposta normativa da Anvisa, ao não reconhecer o autocultivo e ao proibir a comercialização da planta in natura, não apenas ignora a realidade de milhares de brasileiros, mas também perpetua um modelo de acesso elitizado e excludente. É fundamental que a Anvisa considere as experiências concretas de quem já cultiva com base no reconhecimento judicial e busque regulamentar o autocultivo individual e associativo, garantindo o direito à saúde e à liberdade de escolha sobre o próprio corpo. Negar o autocultivo em 2025 não é apenas uma omissão técnica, é uma forma de reforçar desigualdades sociais, criminalizar práticas legítimas e silenciar a realidade de milhares de brasileiros que cultivam como ato de cuidado, sobrevivência e dignidade.</p>Atenciosamente,<br/>${name}</p>`;
+    
     if(point6) html += `<h5>6. Referências Bibliográficas</h5><p>"1. REsp 2.121.548/SP – STJ: https://ww2.stj.jus.br/processo/revista/documento/mediado/?componente=ITA&sequencial=2119057&num_registro=202101139627&data=20230821&formato=PDF",
     "2. RE 635659 – STF: https://redir.stf.jus.br/paginadorpub/paginador.jsp?docTP=TP&docID=7537390",
     "3. ADPF 187 – STF: https://redir.stf.jus.br/paginadorpub/paginador.jsp?docTP=TP&docID=601404",
@@ -50,12 +51,9 @@ Pior: ao desconsiderar expressamente as experiências concretas de quem já plan
     "9. Entrevista com Luciana Boiteux – IHU Unisinos: https://www.ihu.unisinos.br/78-noticias/621389-cannabis-e-direitos-fundamentais-entrevista-com-luciana-boiteux",
     "10. Lei nº 9.782/1999 – Criação da Anvisa: https://www.planalto.gov.br/ccivil_03/leis/l9782.htm",
     "11. Lei nº 12.527/2011 – Lei de Acesso à Informação: https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2011/lei/l12527.htm",
-    "12. Nota Técnica ANVISA nº 01/2017: https://www.gov.br/anvisa/pt-br/assuntos/medicamentos/categorias/fitoterapicos/cannabis/nota-tecnica-01-2017"
-
-Pior: ao desconsiderar expressamente as experiências concretas de quem já planta com base no reconhecimento judicial, a proposta invalida conquistas legítimas e gera grave insegurança jurídica, ameaçando a liberdade e a saúde de pessoas que agem de forma transparente, ética e responsável.
-</p>`;
-    return html;
+    "12. Nota Técnica ANVISA nº 01/2017: https://www.gov.br/anvisa/pt-br/assuntos/medicamentos/categorias/fitoterapicos/cannabis/nota-tecnica-01-2017"</p>`;
     
+    return html;
   };
 
   const validateForm = (): boolean => {
