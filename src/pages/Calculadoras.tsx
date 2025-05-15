@@ -2875,13 +2875,13 @@ const DeficiencyIdentifier = () => {
           </div>
 
           {/* Informações Detalhadas */}
-          <div className="space-y-4 md:col-span-2">
+          <div className="mt-8">
             <div className="card">
               <div className="card-header">
                 <h5>Guia de Deficiências</h5>
               </div>
-              <div className="card-body">
-                <div className="space-y-4 md:col-span-2">
+              <div className="wrap gap-4">
+                <div className=" mt-8 flex center">
                   {Object.entries(DEFICIENCY_TYPES).map(([type, info]) => (
                     <div key={type} className="space-y-2">
                       <h6 className="font-medium">{info.name}</h6>
@@ -2961,7 +2961,7 @@ const Calculadoras = () => {
               Ferramentas matemáticas para otimizar seu cultivo
             </p>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-6 gap-2 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 mb-8">
             {calculators.map((calc) => (
               <Button
                 key={calc.id}
