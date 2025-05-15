@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, FileText, Search, Download } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { disableGlobalCursorStyles } from "react-resizable-panels";
 
 const Juridico: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("habeas-corpus");
@@ -17,17 +18,9 @@ const Juridico: React.FC = () => {
       action: () => {
         // Substitua pelo caminho do seu arquivo PDF
         window.open('/downloads/termo-responsabilidade.pdf', '_blank');
-      },  
-      label: 'Download',
-    },      
-    {
-      title: 'Notificação Extrajudicial',
-      desc: 'Modelo de notificação extrajudicial para vizinhos',
-      action: () => {
-        // Substitua pelo caminho do seu arquivo PDF
-        window.open('/downloads/notificacao-extrajudicial.pdf', '_blank');
       },
       label: 'Download',
+      disabled: true,
     },
     {
       title: 'Plano de Cultivo',
@@ -36,6 +29,7 @@ const Juridico: React.FC = () => {
         navigate('/plano-cultivo');
       },
       label: 'Acessar',
+      disabled: false
     },
     {
       title: 'Checklist Jurídico',
@@ -45,6 +39,7 @@ const Juridico: React.FC = () => {
         window.open('/downloads/checklist-juridico.pdf', '_blank');
       },
       label: 'Download',
+      disabled: true
     },  
   ];
 
@@ -213,7 +208,9 @@ const Juridico: React.FC = () => {
                         onClick={tpl.action}
                       >
                         {tpl.label}
-                        {tpl.label === 'Download' && <Download className="h-4 w-4 ml-1" />}
+                        {tpl.label === 'Download' && !tpl.disabled && (
+                          <Download className="h-4 w-4 ml-1" />
+                        )}
                       </Button>
                     </div>
                   ))}
