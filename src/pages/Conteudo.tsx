@@ -91,6 +91,13 @@ const articles = [
 const Conteudo = () => {
   return (
     <Layout>
+      {user?.isAdmin && (
+       <li>
+        <Link to="/conteudo/editor" className="text-primary hover:underline">
+      Novo Artigo
+    </Link>
+  </li>
+)}  
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold mb-2">Conteúdo Educacional</h1>
