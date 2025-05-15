@@ -1,11 +1,14 @@
 
 // Temporary mock implementation - would connect to backend in production
 import { User } from "@/types/auth";
+// Import Post interface, assuming it's relevant for the structure
+import { Post } from "@/types/forum"; // Or define a local Post interface if preferred
 
 // Store user in localStorage for persistence
-const STORAGE_KEY = "ganjadao_user";
+const USER_STORAGE_KEY = "ganjadao_user";
+const POSTS_STORAGE_KEY = "ganjadao_posts"; // Key for storing posts
 
-// Mock database
+// Mock user database
 let users: User[] = [
   {
     id: 1,
@@ -40,7 +43,6 @@ try {
   if (storedUsers) {
     users = JSON.parse(storedUsers);
   } else {
-    // First run - save the initial users
     localStorage.setItem("ganjadao_users", JSON.stringify(users));
   }
 } catch (error) {
@@ -60,9 +62,9 @@ const saveUsers = () => {
 const saveCurrentUser = (user: User | null) => {
   try {
     if (user) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
     } else {
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(USER_STORAGE_KEY);
     }
   } catch (error) {
     console.error("Error saving current user to localStorage:", error);
@@ -71,55 +73,41 @@ const saveCurrentUser = (user: User | null) => {
 
 // Register a new user
 export const register = async (username: string, email: string, password: string): Promise<boolean> => {
-  // Check if username or email already exists
   if (users.some(u => u.username === username || u.email === email)) {
     return false;
   }
-
-  // Create new user
   const newUser: User = {
-    id: users.length + 1,
+    id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
     username,
     email,
-    password, // In real app, this would be hashed
+    password,
     is_admin: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     vote_credits: {
-      id: users.length + 1,
-      user_id: users.length + 1,
-      total_credits: 100, // Initial credits
+      id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1, // Ensure unique ID for vote_credits
+      user_id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
+      total_credits: 100,
       updated_at: new Date().toISOString(),
     },
     votes: []
   };
-
-  // Add user to "database"
   users.push(newUser);
   saveUsers();
-  
   return true;
 };
 
 // Login user
 export const login = async (usernameOrEmail: string, password: string): Promise<boolean> => {
-  // Find user by username or email
   const user = users.find(
     u => (u.username === usernameOrEmail || u.email === usernameOrEmail) && u.password === password
   );
-
   if (user) {
-    // Clone user object to avoid reference issues
     const userClone = JSON.parse(JSON.stringify(user));
-    
-    // Remove password for security
     delete userClone.password;
-    
-    // Save user to localStorage
     saveCurrentUser(userClone);
     return true;
   }
-  
   return false;
 };
 
@@ -131,44 +119,35 @@ export const logout = async (): Promise<void> => {
 // Get current user
 export const getCurrentUser = async (): Promise<User | null> => {
   try {
-    const userData = localStorage.getItem(STORAGE_KEY);
+    const userData = localStorage.getItem(USER_STORAGE_KEY);
     if (userData) {
       return JSON.parse(userData);
     }
   } catch (error) {
     console.error("Error getting current user from localStorage:", error);
   }
-  
   return null;
 };
 
-// Update user credits (after voting)
+// Update user credits
 export const updateUserCredits = async (userId: number, newCredits: number): Promise<boolean> => {
-  // Update in local storage for current user if it's them
   try {
     const currentUser = await getCurrentUser();
-    if (currentUser && currentUser.id === userId) {
-      if (currentUser.vote_credits) {
-        currentUser.vote_credits.total_credits = newCredits;
-        currentUser.vote_credits.updated_at = new Date().toISOString();
-        saveCurrentUser(currentUser);
-      }
+    if (currentUser && currentUser.id === userId && currentUser.vote_credits) {
+      currentUser.vote_credits.total_credits = newCredits;
+      currentUser.vote_credits.updated_at = new Date().toISOString();
+      saveCurrentUser(currentUser);
     }
-
-    // Update in the "database"
     const userIndex = users.findIndex(u => u.id === userId);
-    if (userIndex !== -1) {
-      if (users[userIndex].vote_credits) {
-        users[userIndex].vote_credits.total_credits = newCredits;
-        users[userIndex].vote_credits.updated_at = new Date().toISOString();
-        saveUsers();
-      }
+    if (userIndex !== -1 && users[userIndex].vote_credits) {
+      users[userIndex].vote_credits!.total_credits = newCredits;
+      users[userIndex].vote_credits!.updated_at = new Date().toISOString();
+      saveUsers();
       return true;
     }
   } catch (error) {
     console.error("Error updating user credits:", error);
   }
-  
   return false;
 };
 
@@ -180,8 +159,6 @@ export const updateUserVotes = async (userId: number, votes: any[]): Promise<boo
       currentUser.votes = votes;
       saveCurrentUser(currentUser);
     }
-
-    // Update in the "database"
     const userIndex = users.findIndex(u => u.id === userId);
     if (userIndex !== -1) {
       users[userIndex].votes = votes;
@@ -191,6 +168,71 @@ export const updateUserVotes = async (userId: number, votes: any[]): Promise<boo
   } catch (error) {
     console.error("Error updating user votes:", error);
   }
-  
   return false;
 };
+
+// Define a type for the post data to be created, similar to forum.ts Post but simpler for this context
+interface AuthServicePostInput {
+  title: string;
+  content: string;
+  published: boolean;
+  userId: number; // Or use user_id to match forum.ts
+}
+
+// Define the structure of a post stored by authService
+// Re-using Post from forum.ts might be good if it fits, or define a specific one here.
+// For simplicity, let's define a structure based on what BlogEditor will send + metadata.
+export interface AuthServicePost extends AuthServicePostInput {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  // category?: string; // Add if you want category selection in BlogEditor
+}
+
+// Function to create and store a post using localStorage
+export const createAuthServicePost = async (postData: AuthServicePostInput): Promise<AuthServicePost | null> => {
+  try {
+    const currentUser = await getCurrentUser();
+    // Теперь любой залогиненный пользователь может создавать посты
+    if (!currentUser) {
+      console.error("User is not logged in.");
+      return null; // Or throw an error
+    }
+
+    let posts: AuthServicePost[] = [];
+    const storedPosts = localStorage.getItem(POSTS_STORAGE_KEY);
+    if (storedPosts) {
+      posts = JSON.parse(storedPosts);
+    }
+
+    const newPost: AuthServicePost = {
+      ...postData,
+      id: posts.length > 0 ? Math.max(...posts.map(p => p.id)) + 1 : 1,
+      userId: currentUser.id, // Ensure the post is associated with the logged-in user
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    posts.push(newPost);
+    localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(posts));
+    return newPost;
+  } catch (error) {
+    console.error("Error creating post in authService:", error);
+    return null; // Or throw the error
+  }
+};
+
+// Optional: Function to get all posts (if needed for display elsewhere)
+export const getAllAuthServicePosts = async (): Promise<AuthServicePost[]> => {
+  try {
+    const storedPosts = localStorage.getItem(POSTS_STORAGE_KEY);
+    if (storedPosts) {
+      return JSON.parse(storedPosts);
+    }
+    return [];
+  } catch (error) {
+    console.error("Error fetching posts from authService:", error);
+    return [];
+  }
+};
+

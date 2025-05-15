@@ -1,11 +1,25 @@
-
+import React, { useEffect, useState } from 'react';
 import Layout from "@/components/Layout";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, FileText, Users, Award, AlertTriangle, Scale, Tag, Book, Map, User } from "lucide-react";
+import { BookOpen, FileText, Users, Award, AlertTriangle, Scale, Tag, Book, Map, User, PlusCircle, Edit3 } from "lucide-react"; // Adicionado Edit3 para artigos dinâmicos
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/use-auth";
+import { getAllAuthServicePosts, AuthServicePost } from "@/services/authService"; // Importando o serviço e o tipo
 
-const articles = [
+// Interface para o formato unificado dos artigos a serem exibidos
+interface DisplayArticle {
+  id: string | number; // IDs podem ser string (estáticos) ou number (dinâmicos)
+  title: string;
+  description: string;
+  icon: JSX.Element;
+  category: string;
+  categoryColor: string;
+  isDynamic?: boolean; // Flag para diferenciar artigos dinâmicos
+  createdAt?: string; // Para possível ordenação
+}
+
+const staticArticles: DisplayArticle[] = [
   {
     id: "checklist-juridico",
     title: "Checklist Jurídico GanjaDAO",
@@ -22,6 +36,7 @@ const articles = [
     category: "Institucional",
     categoryColor: "bg-purple-100 text-purple-800"
   },
+  // ... (outros artigos estáticos permanecem aqui, copiados da versão anterior)
   {
     id: "caso-mariana",
     title: "Caso Real: Mariana e GanjaDAO",
@@ -55,14 +70,6 @@ const articles = [
     categoryColor: "bg-amber-100 text-amber-800"
   },
   {
-    id: "oferta-dao",
-    title: "Oferta DAO Ativa (HC Digital com Desconto)",
-    description: "Promoção especial para membros do clube GanjaDAO",
-    icon: <Tag className="h-5 w-5" />,
-    category: "Oferta",
-    categoryColor: "bg-red-100 text-red-800"
-  },
-  {
     id: "manual-cultivador",
     title: "Manual do Cultivador Autônomo",
     description: "Guia completo para o autocultivo responsável e seguro",
@@ -89,15 +96,39 @@ const articles = [
 ];
 
 const Conteudo = () => {
+  const { user } = useAuth();
+  const [allArticles, setAllArticles] = useState<DisplayArticle[]>(staticArticles);
+
+  useEffect(() => {
+    const fetchDynamicArticles = async () => {
+      const dynamicPosts: AuthServicePost[] = await getAllAuthServicePosts();
+      const formattedDynamicArticles: DisplayArticle[] = dynamicPosts
+        .filter(post => post.published) // Mostra apenas os publicados
+        .map(post => ({
+          id: post.id, // ID numérico do localStorage
+          title: post.title,
+          description: post.content.substring(0, 150) + (post.content.length > 150 ? "..." : ""),
+          icon: <Edit3 className="h-5 w-5" />, // Ícone para artigos criados
+          category: "Comunidade", // Categoria padrão
+          categoryColor: "bg-yellow-100 text-yellow-800", // Cor padrão
+          isDynamic: true,
+          createdAt: post.createdAt
+        }));
+      
+      // Combina e ordena (mais recentes primeiro)
+      setAllArticles([...formattedDynamicArticles, ...staticArticles].sort((a, b) => {
+        if (a.createdAt && b.createdAt) return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        if (a.createdAt) return -1; // Artigos com data vêm antes
+        if (b.createdAt) return 1;  // Artigos com data vêm antes
+        return 0;
+      }));
+    };
+
+    fetchDynamicArticles();
+  }, []); // Roda uma vez ao montar o componente
+
   return (
     <Layout>
-      {user?.isAdmin && (
-       <li>
-        <Link to="/conteudo/editor" className="text-primary hover:underline">
-      Novo Artigo
-    </Link>
-  </li>
-)}  
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold mb-2">Conteúdo Educacional</h1>
@@ -106,33 +137,68 @@ const Conteudo = () => {
           </p>
         </div>
 
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {articles.map((article) => (
-              <Card key={article.id} className="card-hover">
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${article.categoryColor}`}>
-                      {article.category}
-                    </span>
-                  </div>
-                  <CardTitle className="flex items-center gap-2">
-                    {article.icon}
-                    {article.title}
-                  </CardTitle>
-                  <CardDescription>{article.description}</CardDescription>
-                </CardHeader>
-                <div className="px-6 pb-6">
-                  <Button variant="outline" asChild className="w-full">
-                    <Link to={`/conteudo/${article.id}`}>
-                      <BookOpen className="mr-2 h-4 w-4" />
-                      Ler Artigo
-                    </Link>
-                  </Button>
-                </div>
-              </Card>
-            ))}
+        {user && (
+          <div className="mb-6 text-center md:text-right">
+            <Button asChild variant="outline" className="border-green-600 text-green-600 hover:bg-green-50 hover:text-green-700">
+              <Link to="/conteudo/editor">
+                <PlusCircle className="mr-2 h-5 w-5" />
+                Novo Artigo
+              </Link>
+            </Button>
           </div>
+        )}
+
+        <div className="max-w-5xl mx-auto">
+          {allArticles.length === 0 ? (
+            <p className='text-center text-slate-500'>Nenhum artigo encontrado.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {allArticles.map((article) => (
+                <Card key={article.isDynamic ? `dynamic-${article.id}` : `static-${article.id}`} className="card-hover flex flex-col">
+                  <CardHeader className='flex-grow'>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${article.categoryColor}`}>
+                        {article.category}
+                      </span>
+                    </div>
+                    <CardTitle className="flex items-center gap-2">
+                      {article.icon}
+                      {article.title}
+                    </CardTitle>
+                    <CardDescription>{article.description}</CardDescription>
+                  </CardHeader>
+                  <div className="px-6 pb-6 mt-auto">
+                    {/* 
+                      Para artigos dinâmicos, o link de "Ler Artigo" precisaria de uma rota 
+                      que saiba como renderizar o conteúdo completo do localStorage.
+                      Por enquanto, vamos fazer o link para o editor para artigos dinâmicos 
+                      ou um placeholder se não houver página de visualização.
+                      Se o artigo dinâmico não tiver uma página de visualização, o botão "Ler Artigo" pode ser omitido ou levar a outro lugar.
+                      Assumindo que não há visualizador de post dinâmico ainda, o botão pode ser diferente.
+                    */}
+                    {article.isDynamic ? (
+                       <Button variant="outline" asChild className="w-full bg-yellow-50 hover:bg-yellow-100">
+                        {/* Idealmente, aqui seria um link para visualizar o post completo */}
+                        {/* <Link to={`/conteudo/view/${article.id}`}> */}
+                        <span className='flex items-center'>
+                           <BookOpen className="mr-2 h-4 w-4" />
+                           Ver Conteúdo (Em Breve)
+                        </span>
+                        {/* </Link> */}
+                      </Button>
+                    ) : (
+                      <Button variant="outline" asChild className="w-full">
+                        <Link to={`/conteudo/${article.id}`}>
+                          <BookOpen className="mr-2 h-4 w-4" />
+                          Ler Artigo
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </Layout>
@@ -140,3 +206,4 @@ const Conteudo = () => {
 };
 
 export default Conteudo;
+

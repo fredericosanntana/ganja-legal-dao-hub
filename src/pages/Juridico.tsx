@@ -16,10 +16,10 @@ const Juridico: React.FC = () => {
       desc: 'Modelo de termo de responsabilidade para cultivo',
       action: () => {
         // Substitua pelo caminho do seu arquivo PDF
-        window.open('/downloads/termo-responsabilidade.pdf', '_blank');
+        navigate('/termo-responsabilidade');
       },
-      label: 'Download',
-      disabled: true,
+      label: 'Acessar',
+      disabled: false,
     },
     {
       title: 'Plano de Cultivo',
@@ -31,14 +31,14 @@ const Juridico: React.FC = () => {
       disabled: false
     },
     {
-      title: 'Checklist Jurídico',
-      desc: 'Lista de verificação para proteção jurídica do cultivador',
+      title: 'Declaração de Origem Genética',
+      desc: 'Modelo de declaração de origem genética',
       action: () => {
         // Substitua pelo caminho do seu arquivo PDF
-        window.open('/downloads/checklist-juridico.pdf', '_blank');
+        navigate('/origem-genetica');
       },
-      label: 'Download',
-      disabled: true
+      label: 'Acessar',
+      disabled: false
     },  
   ];
 
