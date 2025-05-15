@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
@@ -204,6 +205,7 @@ const Juridico: React.FC = () => {
                         variant="outline"
                         size="sm"
                         onClick={tpl.action}
+                        disabled={tpl.disabled}
                       >
                         {tpl.label}
                         {tpl.label === 'Download' && !tpl.disabled && (
