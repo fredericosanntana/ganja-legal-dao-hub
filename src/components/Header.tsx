@@ -37,10 +37,6 @@ const Header = () => {
             <Calculator className="h-4 w-4" />
             Calculadoras
           </Link>
-          <Link to="/plano-cultivo" className="px-3 py-2 text-sm font-medium rounded-md hover:bg-muted transition-colors duration-200 flex items-center gap-1.5">
-            <Leaf className="h-4 w-4" />
-            Plano de Cultivo
-          </Link>
           <Link to="/conteudo" className="px-3 py-2 text-sm font-medium rounded-md hover:bg-muted transition-colors duration-200 flex items-center gap-1.5">
             <BookOpen className="h-4 w-4" />
             Conteúdo
