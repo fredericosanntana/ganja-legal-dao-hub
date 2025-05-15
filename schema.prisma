@@ -7,8 +7,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./ganjadao.db" // Caminho para o arquivo do banco de dados SQLite
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // ========= GanjaDAO Clube =========
@@ -27,7 +27,7 @@ model User {
   votes             Vote[]            // Um usuário pode ter múltiplos votos
   vote_credits      UserVoteCredit?   // Um usuário tem um saldo de créditos de voto
   anvisa_manifestations AnvisaManifestation[] // Um usuário pode ter múltiplas manifestações ANVISA salvas
-  // legal_documents LegalDocument[] // (Futuro) Um usuário pode ter documentos jurídicos salvos
+  legal_documents   LegalDocument[]   // Um usuário pode ter documentos jurídicos salvos
 
   // Comunidade
   posts             Post[]           // Um usuário pode criar múltiplos posts
@@ -74,7 +74,6 @@ model Vote {
   user_id           Int
   initiative_id     Int
   credits_spent     Int      // Quantos créditos o usuário alocou para esta iniciativa
-  // effective_votes Int?  // (Opcional) Quantos "votos efetivos" isso representa pela Votação Quadrática
   created_at        DateTime @default(now())
   updated_at        DateTime @updatedAt
 
@@ -178,35 +177,62 @@ model AnvisaManifestation {
   @@map("anvisa_manifestations")
 }
 
-// (Opcional / Futuro) Modelo para Conteúdo Educacional, se gerenciado via DB
-// model Content {
-//   id          Int      @id @default(autoincrement())
-//   slug        String   @unique
-//   title       String
-//   body        String   // TEXT ou Markdown
-//   author_id   Int?     // Opcional, se tiver um autor logado
-//   category    String?
-//   created_at  DateTime @default(now())
-//   updated_at  DateTime @updatedAt
-// 
-//   author      User?    @relation(fields: [author_id], references: [id])
-// 
-//   @@map("contents")
-// }
+// Modelo para Conteúdo Educacional
+model Content {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  title       String
+  body        String   // TEXT ou Markdown
+  author_id   Int?     // Opcional, se tiver um autor logado
+  category    String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+ 
+  author      User?    @relation(fields: [author_id], references: [id])
+ 
+  @@map("contents")
+}
 
-// (Opcional / Futuro) Modelo para Documentos Jurídicos Gerados
-// model LegalDocument {
-//   id                  Int      @id @default(autoincrement())
-//   user_id             Int
-//   document_type       String   // Ex: "HC_PREVENTIVO", "NOTIFICACAO_EXTRAJUDICIAL"
-//   form_data           String   // JSON com os dados do formulário que gerou o documento
-//   generated_pdf_path  String?  // Caminho para o PDF salvo, ou poderia ser um Blob
-//   created_at          DateTime @default(now())
-// 
-//   user                User     @relation(fields: [user_id], references: [id])
-// 
-//   @@map("legal_documents")
-// }
+// Modelo para Documentos Jurídicos Gerados
+model LegalDocument {
+  id                  Int      @id @default(autoincrement())
+  user_id             Int
+  document_type       String   // Ex: "HC_PREVENTIVO", "NOTIFICACAO_EXTRAJUDICIAL"
+  form_data           String   // JSON com os dados do formulário que gerou o documento
+  generated_pdf_path  String?  // Caminho para o PDF salvo, ou poderia ser um Blob
+  created_at          DateTime @default(now())
+ 
+  user                User     @relation(fields: [user_id], references: [id])
+ 
+  @@map("legal_documents")
+}
+
+// Modelo para templates de documentos jurídicos
+model LegalTemplate {
+  id              Int       @id @default(autoincrement())
+  name            String    @unique
+  document_type   String    // Categoria do documento
+  template_content String    // Conteúdo do template em formato compatível com sistema de templates
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+  
+  @@map("legal_templates")
+}
+
+// Modelo para jurisprudências e decisões judiciais
+model Jurisprudence {
+  id              Int       @id @default(autoincrement())
+  title           String
+  court           String    // Tribunal que emitiu a decisão
+  decision_date   DateTime
+  summary         String    // Resumo da decisão
+  full_text       String    // Texto completo da decisão
+  tags            String    // Tags para classificação, separadas por vírgula
+  source_url      String?   // URL da fonte da decisão, se disponível
+  created_at      DateTime  @default(now())
+  
+  @@map("jurisprudences")
+}
 
 // Modelo para Sessões (usado por connect-sqlite3, Prisma não gerencia diretamente, mas para referência)
 // A tabela `sessions` é criada e gerenciada pelo connect-sqlite3.
