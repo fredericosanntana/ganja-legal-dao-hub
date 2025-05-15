@@ -1,11 +1,9 @@
-
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, FileText, Search, Download } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { disableGlobalCursorStyles } from "react-resizable-panels";
 
 const Juridico: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("habeas-corpus");
