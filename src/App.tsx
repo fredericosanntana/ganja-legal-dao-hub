@@ -16,6 +16,7 @@ import Votacoes from "./pages/Votacoes";
 import VotacaoDetalhe from "./pages/VotacaoDetalhe";
 import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./hooks/use-auth";
+import PlanoCultivo from "./pages/PlanoCultivo";
 
 // Pages
 import Login from "./pages/Login";
@@ -47,6 +48,7 @@ const App = () => (
             <Route path="/jurisprudencia" element={<Jurisprudencia />} />
             <Route path="/anvisa" element={<Anvisa />} />
             <Route path="/calculadoras" element={<Calculadoras />} />
+            <Route path="/plano-cultivo" element={<PlanoCultivo />} />
             <Route path="/conteudo" element={<Conteudo />} />
             <Route path="/clube" element={<Clube />} />
             <Route path="/clube/votacoes" element={<Votacoes />} />
