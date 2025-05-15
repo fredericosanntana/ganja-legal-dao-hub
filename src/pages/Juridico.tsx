@@ -4,10 +4,49 @@ import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, FileText, Search, Download } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Juridico: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("habeas-corpus");
+  const navigate = useNavigate();
+  
+  const templates = [
+    {
+      title: 'Termo de Responsabilidade',
+      desc: 'Modelo de termo de responsabilidade para cultivo',
+      action: () => {
+        // Substitua pelo caminho do seu arquivo PDF
+        window.open('/downloads/termo-responsabilidade.pdf', '_blank');
+      },  
+      label: 'Download',
+    },      
+    {
+      title: 'Notificação Extrajudicial',
+      desc: 'Modelo de notificação extrajudicial para vizinhos',
+      action: () => {
+        // Substitua pelo caminho do seu arquivo PDF
+        window.open('/downloads/notificacao-extrajudicial.pdf', '_blank');
+      },
+      label: 'Download',
+    },
+    {
+      title: 'Plano de Cultivo',
+      desc: 'Modelo de plano de cultivo',
+      action: () => {
+        navigate('/plano-cultivo');
+      },
+      label: 'Acessar',
+    },
+    {
+      title: 'Checklist Jurídico',
+      desc: 'Lista de verificação para proteção jurídica do cultivador',
+      action: () => {
+        // Substitua pelo caminho do seu arquivo PDF
+        window.open('/downloads/checklist-juridico.pdf', '_blank');
+      },
+      label: 'Download',
+    },  
+  ];
 
   return (
     <Layout>
@@ -159,72 +198,29 @@ const Juridico: React.FC = () => {
                   posse para consumo pessoal.
                 </p>
                 <div className="space-y-4">
-                 const templates = [
-                {
-                   title: 'Termo de Responsabilidade',
-                   desc: 'Modelo de termo de responsabilidade para cultivo',
-                    action: () => {
-        // Substitua pelo caminho do seu arquivo PDF
-                    window.open('/downloads/termo-responsabilidade.pdf', '_blank');
-                  },  
-                    label: 'Download',
-                },      
-                {
-                  title: 'Notificação Extrajudicial',
-                  desc: 'Modelo de notificação extrajudicial para vizinhos',
-                  action: () => {
-                    // Substitua pelo caminho do seu arquivo PDF
-                    window.open('/downloads/notificacao-extrajudicial.pdf', '_blank');
-                  },
-                  label: 'Download',
-                },
-                {
-                  title: 'Plano de Cultivo',
-                   desc: 'Modelo de plano de cultivo',
-                    action: () => {
-                   router.push('/plano-cultivo');
-               },
-                    label: 'Acessar',
-         },
-               {
-                  title: 'Checklist Jurídico',
-                   desc: 'Lista de verificação para proteção jurídica do cultivador',
-                    action: () => {
-                    // Substitua pelo caminho do seu arquivo PDF
-                   window.open('/downloads/checklist-juridico.pdf', '_blank');
-             },
-                    label: 'Download',
-                },  
-               ];
-
-                  return (
-                    <Card>
-                      <CardContent>
-                        <div className="mt-8 space-y-4">
-                          {templates.map((tpl) => (
-                            <div
-                              key={tpl.title}
-                              className="flex items-center justify-between p-4 border rounded-lg"
-                            >
-                              <div>
-                                <h3 className="font-medium">{tpl.title}</h3>
-                                <p className="text-sm text-muted-foreground">{tpl.desc}</p>
-                              </div>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={tpl.action}
-                              >
-                                {tpl.label}
-                                {tpl.label === 'Download' && <Download className="h-4 w-4 ml-1" />}
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                };
+                  {templates.map((tpl) => (
+                    <div
+                      key={tpl.title}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
+                      <div>
+                        <h3 className="font-medium">{tpl.title}</h3>
+                        <p className="text-sm text-muted-foreground">{tpl.desc}</p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={tpl.action}
+                      >
+                        {tpl.label}
+                        {tpl.label === 'Download' && <Download className="h-4 w-4 ml-1" />}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Fluxo de Trabalho Recomendado */}
           <section className="workflow-section mt-8">
