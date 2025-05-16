@@ -96,7 +96,7 @@ const Documentos = () => {
         </div>
 
         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="mb-4 flex flex-wrap">
+          <TabsList className="mb-12 nowrap overflow-x-9 border-b">
             <TabsTrigger value="all" className="mb-1">
               Todos
             </TabsTrigger>
