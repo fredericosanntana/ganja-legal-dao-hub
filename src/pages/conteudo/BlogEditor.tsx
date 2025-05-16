@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+
+import React, { useState, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -10,6 +9,16 @@ import { toast } from "sonner";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/hooks/use-auth";
 import { createAuthServicePost } from "@/services/authService";
+import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Lazy load ReactQuill to avoid build-time issues
+const ReactQuill = lazy(() => import('react-quill'));
+// Lazy load the CSS as well
+const QuillCSS = lazy(() => {
+  import('react-quill/dist/quill.snow.css');
+  return Promise.resolve({ default: () => null });
+});
 
 const BlogEditor = () => {
   const [title, setTitle] = useState('');
@@ -71,6 +80,21 @@ const BlogEditor = () => {
     }
   };
 
+  const EditorComponent = () => (
+    <Suspense fallback={
+      <Skeleton className="w-full h-64" /> 
+    }>
+      <QuillCSS />
+      <ReactQuill
+        theme="snow"
+        value={editorContent}
+        onChange={handleContentChange}
+        modules={modules}
+        formats={formats}
+      />
+    </Suspense>
+  );
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
@@ -91,13 +115,7 @@ const BlogEditor = () => {
 
           <div>
             <Label>Conteúdo do Artigo</Label>
-            <ReactQuill
-              theme="snow"
-              value={editorContent}
-              onChange={handleContentChange}
-              modules={modules}
-              formats={formats}
-            />
+            <EditorComponent />
           </div>
 
           <div className="flex items-center space-x-2">
