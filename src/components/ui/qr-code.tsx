@@ -6,7 +6,7 @@ interface QRCodeProps {
   size?: number;
   bgColor?: string;
   fgColor?: string;
-  level?: string;
+  level?: 'L' | 'M' | 'Q' | 'H';
   includeMargin?: boolean;
 }
 
@@ -33,7 +33,7 @@ const QRCode: React.FC<QRCodeProps> = ({
               dark: fgColor,
               light: bgColor,
             },
-            errorCorrectionLevel: level as any,
+            errorCorrectionLevel: level,
           });
         }
       } catch (error) {

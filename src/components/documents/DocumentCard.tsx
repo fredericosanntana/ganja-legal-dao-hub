@@ -53,9 +53,7 @@ const DocumentCard = ({ document, onDelete }: DocumentCardProps) => {
       const a = document.createElement("a");
       a.href = url;
       a.download = document.name;
-      document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error downloading file:", error);

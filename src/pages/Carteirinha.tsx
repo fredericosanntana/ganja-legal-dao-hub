@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { User, Download, Share2, UserCheck, Shield } from "lucide-react";
+import { User, Download, Share2, UserCheck, Shield, Eye } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -139,6 +139,8 @@ const Carteirinha = () => {
     );
   }
 
+  const userName = user.user_metadata?.name || user.email;
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-6">
@@ -152,7 +154,7 @@ const Carteirinha = () => {
                 Informações Pessoais
               </h2>
               <div className="space-y-2">
-                <p><span className="font-medium">Nome:</span> {user.user_metadata?.name || user.email}</p>
+                <p><span className="font-medium">Nome:</span> {userName}</p>
                 <p><span className="font-medium">Email:</span> {user.email}</p>
               </div>
             </div>
