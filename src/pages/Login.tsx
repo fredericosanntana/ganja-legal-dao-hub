@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from "@/hooks/use-auth";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +7,6 @@ import { Link } from 'react-router-dom';
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -23,17 +21,12 @@ const Login = () => {
 
     try {
       await signIn(email, password);
-      const userData = await refreshUser();
-      
-      if (userData) {
-        toast.success("Login realizado com sucesso!");
-        navigate("/clube/dashboard");
-      } else {
-        toast.error("Falha ao obter dados do usuário. Tente novamente.");
-      }
-    } catch (error: any) {
+      await refreshUser();
+      toast.success("Login realizado com sucesso!");
+      navigate("/clube/dashboard");
+    } catch (error) {
       console.error("Login error:", error);
-      toast.error(error.message || "Falha no login. Verifique suas credenciais.");
+      toast.error("Falha no login. Verifique suas credenciais.");
     } finally {
       setIsLoading(false);
     }
@@ -42,54 +35,43 @@ const Login = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <Card className="max-w-md mx-auto">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-semibold">Login</CardTitle>
-            <CardDescription>Entre com sua conta para acessar o GanjaDAO Clube</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  type="email"
-                  id="email"
-                  placeholder="seu@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full"
-                  disabled={isLoading}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Senha</Label>
-                <Input
-                  type="password"
-                  id="password"
-                  placeholder="********"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full"
-                  disabled={isLoading}
-                />
-              </div>
-              <Button 
-                type="submit" 
-                disabled={isLoading} 
+        <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
+          <h2 className="text-2xl font-semibold text-center mb-6">Login</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                type="email"
+                id="email"
                 className="w-full"
-              >
-                {isLoading ? "Entrando..." : "Entrar"}
-              </Button>
-            </form>
-          </CardContent>
-          <CardFooter className="flex justify-center">
-            <Link to="/clube/cadastro" className="text-sm text-primary hover:underline">
+                placeholder="seu@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="password">Senha</Label>
+              <Input
+                type="password"
+                id="password"
+                className="w-full"
+                placeholder="********"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <Button disabled={isLoading} className="w-full bg-green-600 text-white hover:bg-green-700">
+              {isLoading ? "Entrando..." : "Entrar"}
+            </Button>
+          </form>
+          <div className="mt-4 text-center">
+            <Link to="/clube/cadastro" className="text-sm text-gray-600 hover:text-gray-800">
               Não tem uma conta? Cadastre-se
             </Link>
-          </CardFooter>
-        </Card>
+          </div>
+        </div>
       </div>
     </Layout>
   );
