@@ -9,7 +9,7 @@ const Anvisa: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     name: '', email: '', cpf: '', profession: '', additionalComments: '',
-    point1: true, point2: true, point3: true, point4: true, point5: false, point6: false
+    point1: true, point2: true, point3: true, point4: true, point5: true, point6: true
   });
   const [previewHtml, setPreviewHtml] = useState('');
   const [toast, setToast] = useState<{ title: string; message: string; type: 'success'|'error'|'warning' } | null>(null);
@@ -114,17 +114,21 @@ Pior: ao desconsiderar expressamente as experiências concretas de quem já plan
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="mb-4">
-                Esta ferramenta permite que você crie manifestações formais para consultas públicas da ANVISA
-                relacionadas à regulamentação da Cannabis.
-              </p>
-            </CardContent>
+  <p className="mb-4">
+    <strong>Participe da Consulta Pública da Anvisa sobre Cannabis!</strong><br /><br />
+    A Agência Nacional de Vigilância Sanitária (Anvisa) abriu uma <strong>Consulta Pública</strong> sobre normas que impactam diretamente o acesso e a regulamentação de produtos à base de Cannabis no Brasil. <br /><br />
+    <strong>O prazo para participar termina às 23h59 do dia 02/06/2025.</strong><br /><br />
+    Esse é o momento de exercer seu direito de voz e influenciar decisões que podem transformar o acesso ao tratamento, à pesquisa e à produção de Cannabis medicinal no país.<br /><br />
+    Para participar é fácil: <br />
+    1. Leia o texto completo da proposta: <a href="https://anexosportal.datalegis.net/arquivos/1887747.pdf" target="_blank" rel="noopener noreferrer" className="text-purple-700 underline">Clique aqui para acessar o texto oficial</a>.<br />
+    2. Envie sua manifestação até o prazo final através do formulário oficial da Anvisa: <a href="https://pesquisa.anvisa.gov.br/index.php/162726?lang=pt-BR" target="_blank" rel="noopener noreferrer" className="text-green-700 underline">Acesse o formulário da Consulta Pública</a>.<br /><br />
+    <strong>Sua participação é fundamental para garantir direitos, segurança e avanços na política de Cannabis no Brasil. Mobilize, compartilhe e faça parte desta construção coletiva!</strong><br /><br />
+    <span className="text-sm text-muted-foreground">*Dúvidas? Conte com a GanjaDAO para apoiar sua manifestação e fortalecer nossa luta por liberdade e autocuidado!</span>
+  </p>
+</CardContent>
             <CardFooter className="flex flex-col sm:flex-row gap-2">
               <Button className="w-full sm:flex-1" onClick={() => setShowForm(true)}>
                 <FileEdit className="mr-2 h-5 w-5" /> Criar Nova Manifestação
-              </Button>
-              <Button variant="outline" className="w-full sm:flex-1">
-                <Save className="mr-2 h-5 w-5" /> Minhas Manifestações
               </Button>
             </CardFooter>
           </Card>
@@ -223,7 +227,7 @@ Pior: ao desconsiderar expressamente as experiências concretas de quem já plan
                     Atualizar Prévia
                   </Button>
                   <Button onClick={generatePDF}>Baixar PDF</Button>
-                  <Button onClick={sendEmail} variant="secondary">Enviar por E-mail</Button>
+                  <Button onClick={sendEmail} variant="secondary" disabled={true}>Enviar por E-mail</Button>
                 </div>
               </CardContent>
             </Card>
@@ -247,7 +251,7 @@ Pior: ao desconsiderar expressamente as experiências concretas de quem já plan
                 </p>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" disabled={true}>
                   <Mail className="mr-2 h-5 w-5" /> Cadastrar para Alertas
                 </Button>
               </CardFooter>

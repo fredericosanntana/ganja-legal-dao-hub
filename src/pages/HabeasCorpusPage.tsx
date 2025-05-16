@@ -22,17 +22,17 @@ const HabeasCorpusPage: React.FC = () => {
     nacionalidade: '',
     estadoCivil: '',
     profissao: '',
-    cpf: '',
-    rg: '',
-    email: '',
-    telefone: '',
-    endereco: '',
-    cidade: '',
-    uf: '',
-    quantidadePlantas: 1,
-    finalidadeUso: '',
-    fundamentosJuridicos: [] as string[],
-    motivacao: ''
+    CPF: '',
+    RG: '',
+    Email: '',
+    Telefone: '',
+    Endereco: '',
+    Cidade: '',
+    UF: '',
+    QuantidadePlantas: 1,
+    FinalidadeUso: '',
+    FundamentosJuridicos: [] as string[],
+    Motivacao: ''
   });
 
   const handleChange = (field: string, value: any) => {
@@ -40,7 +40,7 @@ const HabeasCorpusPage: React.FC = () => {
   };
 
   const handleFundamentoToggle = (id: string) => {
-    const list = formData.fundamentosJuridicos as string[];
+    const list = formData.FundamentosJuridicos as string[];
     setFormData(prev => ({
       ...prev,
       fundamentosJuridicos: list.includes(id) ? list.filter(i => i !== id) : [...list, id]
@@ -122,7 +122,7 @@ const HabeasCorpusPage: React.FC = () => {
             <fieldset className="border rounded-lg p-4">
               <legend className="text-lg font-semibold px-2">Dados Pessoais</legend>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {['nome','nacionalidade','estadoCivil','profissao','cpf','rg','email','telefone','cidade','uf'].map(field => (
+                {['nome','nacionalidade','estado Civil','profissao','CPF','RG','Email','Telefone','Endereco','Cidade','UF'].map(field => (
                   <div key={field}>
                     <label htmlFor={field} className="block text-sm font-medium mb-1">
                       {field.charAt(0).toUpperCase()+field.slice(1)}
@@ -226,7 +226,7 @@ const HabeasCorpusPage: React.FC = () => {
             {/* Ações */}
             <div className="flex justify-end gap-2 mt-4">
               <Button variant="outline" type="reset" onClick={() => setFormData({
-                nome:'', nacionalidade:'', estadoCivil:'', profissao:'', cpf:'', rg:'', email:'', telefone:'', endereco:'', cidade:'', uf:'', quantidadePlantas:1, finalidadeUso:'', fundamentosJuridicos:[], motivacao:''
+                nome:'', nacionalidade:'', estadoCivil:'', profissao:'', CPF:'', RG:'', Email:'', Telefone:'', Endereco:'', Cidade:'', UF:'', QuantidadePlantas:1, FinalidadeUso:'', FundamentosJuridicos:[], Motivacao:''
               })}>
                 Limpar
               </Button>
