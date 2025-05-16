@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,7 +15,7 @@ import BlogEditor from "./pages/conteudo/BlogEditor";
 // Importar os componentes de página específicos para artigos estáticos
 import CheckListJuridicoPage from "./pages/conteudo/CheckListJuridico";
 import BastidoresGanjadaoPage from "./pages/conteudo/BastidoresGanjadao";
-import CasoRealMarianaPage from "./pages/conteudo/CasoRealMariana"; // Nova importação
+import CasoRealMarianaPage from "./pages/conteudo/CasoRealMariana";
 import ConvocacaoDaoPage from "./pages/conteudo/convocacaoDao";
 import MitosVerdadesHcDigitalPage from "./pages/conteudo/MitosVerdadesHcDigital";
 import CultivoLegalPage from "./pages/conteudo/CultivoLegal";
@@ -38,6 +39,9 @@ import Iniciativas from "./pages/Iniciativas";
 import IniciativaDetalhe from "./pages/IniciativaDetalhe";
 import NovaIniciativa from "./pages/NovaIniciativa";
 import Perfil from "./pages/Perfil";
+import Documentos from "./pages/Documentos";
+import Carteirinha from "./pages/Carteirinha";
+import CardView from "./pages/CardView";
 
 // Comunidade (fórum) Pages
 import Comunidade from "./pages/Comunidade";
@@ -92,6 +96,11 @@ const App = () => (
             <Route path="/clube/iniciativas/:id" element={<IniciativaDetalhe />} />
             <Route path="/clube/perfil" element={<Perfil />} />
             
+            {/* Document Routes */}
+            <Route path="/clube/documentos" element={<Documentos />} />
+            <Route path="/clube/carteirinha" element={<Carteirinha />} />
+            <Route path="/card/:linkId" element={<CardView />} />
+            
             {/* Comunidade (Fórum) Routes */}
             <Route path="/clube/comunidade" element={<Comunidade />} />
             <Route path="/clube/comunidade/posts/:postId" element={<ComunidadePostDetail />} />
@@ -106,4 +115,3 @@ const App = () => (
 );
 
 export default App;
-

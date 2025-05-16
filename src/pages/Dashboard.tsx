@@ -5,7 +5,7 @@ import Layout from "@/components/Layout";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Vote, Crown, Plus, User, Key, CreditCard } from "lucide-react";
+import { Vote, Crown, Plus, User, Key, CreditCard, File } from "lucide-react";
 import { useInitiatives } from "@/hooks/use-initiatives";
 import { useAuth } from "@/hooks/use-auth";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
@@ -87,6 +87,41 @@ const Dashboard = () => {
                   </CardContent>
                 </Card>
               )}
+            </div>
+
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold">Meus Documentos</h2>
+                <Button size="sm" variant="outline" asChild>
+                  <Link to="/clube/documentos">
+                    <File className="mr-1 h-4 w-4" />
+                    Gerenciar
+                  </Link>
+                </Button>
+              </div>
+              <Card>
+                <CardContent className="py-6">
+                  <div className="text-center">
+                    <p className="mb-4">
+                      Gerencie seus documentos de cultivo de forma segura.
+                    </p>
+                    <div className="flex justify-center gap-3">
+                      <Button asChild>
+                        <Link to="/clube/documentos">
+                          <File className="mr-2 h-4 w-4" />
+                          Meus Documentos
+                        </Link>
+                      </Button>
+                      <Button variant="outline" asChild>
+                        <Link to="/clube/carteirinha">
+                          <User className="mr-2 h-4 w-4" />
+                          Carteirinha Digital
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             <div>
