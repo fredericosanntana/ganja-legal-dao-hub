@@ -47,6 +47,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .eq('user_id', currentSession.user.id)
             .single();
           
+          // Separately fetch subscription data
+          const { data: subscriptionData } = await supabase
+            .from('subscriptions')
+            .select('*')
+            .eq('user_id', currentSession.user.id)
+            .single();
+          
           if (!error && userData) {
             // Transform the raw data into our User type
             const userObj: User = {
@@ -58,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               updated_at: userData.updated_at,
               votes: userData.votes || [],
               vote_credits: voteCreditsData || { total_credits: 0 },
-              subscription: userData.subscription || undefined
+              subscription: subscriptionData || undefined
             };
             setUser(userObj);
           } else {
@@ -104,6 +111,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq('user_id', currentSession.user.id)
           .single();
         
+        // Separately fetch subscription data
+        const { data: subscriptionData } = await supabase
+          .from('subscriptions')
+          .select('*')
+          .eq('user_id', currentSession.user.id)
+          .single();
+        
         if (!error && userData) {
           // Transform the raw data into our User type
           const userObj: User = {
@@ -115,7 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             updated_at: userData.updated_at,
             votes: userData.votes || [],
             vote_credits: voteCreditsData || { total_credits: 0 },
-            subscription: userData.subscription || undefined
+            subscription: subscriptionData || undefined
           };
           setUser(userObj);
         } else {
@@ -144,9 +158,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data } = await supabase.auth.getUser();
       if (data.user) {
-        setUser(data.user);
+        // Instead of directly setting the user data, we need to fetch the full user profile
+        const { data: userData, error } = await supabase
+          .from('users')
+          .select(`
+            *,
+            votes(*)
+          `)
+          .eq('id', data.user.id)
+          .single();
+        
+        // Separately fetch vote_credits
+        const { data: voteCreditsData } = await supabase
+          .from('user_vote_credits')
+          .select('*')
+          .eq('user_id', data.user.id)
+          .single();
+        
+        // Separately fetch subscription data
+        const { data: subscriptionData } = await supabase
+          .from('subscriptions')
+          .select('*')
+          .eq('user_id', data.user.id)
+          .single();
+        
+        if (!error && userData) {
+          const updatedUser: User = {
+            id: data.user.id,
+            email: userData.email,
+            username: userData.username,
+            is_admin: userData.is_admin,
+            created_at: userData.created_at,
+            updated_at: userData.updated_at,
+            votes: userData.votes || [],
+            vote_credits: voteCreditsData || { total_credits: 0 },
+            subscription: subscriptionData || undefined
+          };
+          
+          setUser(updatedUser);
+          return updatedUser;
+        }
       }
-      return data.user;
+      return null;
     } catch (error) {
       console.error('Error refreshing user:', error);
       return null;
