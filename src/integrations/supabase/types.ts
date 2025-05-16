@@ -395,6 +395,33 @@ export type Database = {
           },
         ]
       }
+      stripe_events: {
+        Row: {
+          created_at: string
+          id: string
+          object: Json
+          processed_at: string | null
+          processing_error: string | null
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          object: Json
+          processed_at?: string | null
+          processing_error?: string | null
+          type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          object?: Json
+          processed_at?: string | null
+          processing_error?: string | null
+          type?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           canceled_at: string | null
@@ -548,7 +575,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      migrate_existing_users: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

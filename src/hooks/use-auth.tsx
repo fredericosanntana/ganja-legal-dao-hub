@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { supabase } from '../integrations/supabase/client';
@@ -37,116 +36,100 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    let mounted = true;
+    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
-        setSession(currentSession);
-        if (currentSession?.user) {
-          // Fetch full user data including votes, subscription, etc.
-          const { data: userData, error } = await supabase
-            .from('users')
-            .select(`
-              *,
-              votes(*)
-            `)
-            .eq('id', currentSession.user.id)
-            .single();
+        console.log('Auth state changed:', event);
+        
+        if (mounted) {
+          setSession(currentSession);
           
-          // Separately fetch vote_credits to handle potential relation errors
-          const { data: voteCreditsData } = await supabase
-            .from('user_vote_credits')
-            .select('*')
-            .eq('user_id', currentSession.user.id)
-            .single();
-          
-          // Separately fetch subscription data
-          const { data: subscriptionData } = await supabase
-            .from('subscriptions')
-            .select('*')
-            .eq('user_id', currentSession.user.id)
-            .single();
-          
-          if (!error && userData) {
-            // Transform the raw data into our User type
-            const userObj: User = {
-              id: currentSession.user.id,
-              email: userData.email,
-              username: userData.username,
-              is_admin: userData.is_admin,
-              created_at: userData.created_at,
-              updated_at: userData.updated_at,
-              votes: userData.votes || [],
-              vote_credits: voteCreditsData || { total_credits: 0 },
-              subscription: transformSubscriptionData(subscriptionData)
-            };
-            setUser(userObj);
+          if (currentSession?.user) {
+            try {
+              // Fetch full user data in a non-blocking way
+              setTimeout(async () => {
+                if (!mounted) return;
+                
+                // Fetch full user data in a separate operation
+                const { data: userData, error } = await supabase
+                  .from('users')
+                  .select(`
+                    *,
+                    votes(*)
+                  `)
+                  .eq('id', currentSession.user.id)
+                  .single();
+                
+                if (error) {
+                  console.error('Error fetching user data:', error);
+                  // Even with error, set basic user info
+                  setUser({
+                    id: currentSession.user.id,
+                    email: currentSession.user.email || '',
+                    username: '',
+                    is_admin: false,
+                    created_at: '',
+                    updated_at: '',
+                    votes: [],
+                    vote_credits: { total_credits: 0 },
+                    subscription: undefined
+                  });
+                } else if (userData && mounted) {
+                  // Set complete user data
+                  const { data: voteCreditsData } = await supabase
+                    .from('user_vote_credits')
+                    .select('*')
+                    .eq('user_id', currentSession.user.id)
+                    .single();
+                  
+                  const { data: subscriptionData } = await supabase
+                    .from('subscriptions')
+                    .select('*')
+                    .eq('user_id', currentSession.user.id)
+                    .single();
+                  
+                  setUser({
+                    id: currentSession.user.id,
+                    email: userData.email,
+                    username: userData.username,
+                    is_admin: userData.is_admin,
+                    created_at: userData.created_at,
+                    updated_at: userData.updated_at,
+                    votes: userData.votes || [],
+                    vote_credits: voteCreditsData || { total_credits: 0 },
+                    subscription: subscriptionData ? {
+                      status: subscriptionData.status,
+                      plan: subscriptionData.payment_details || 'basic',
+                      current_period_end: subscriptionData.expires_at || subscriptionData.updated_at,
+                      expires_at: subscriptionData.expires_at
+                    } : undefined
+                  });
+                }
+                setLoading(false);
+              }, 0);
+            } catch (error) {
+              console.error('Error in auth state change handler:', error);
+              setLoading(false);
+            }
           } else {
-            // Fallback to basic user data if detailed fetch fails
-            const basicUser: User = {
-              id: currentSession.user.id,
-              email: currentSession.user.email || '',
-              username: '',
-              is_admin: false,
-              created_at: '',
-              updated_at: '',
-              votes: [],
-              vote_credits: { total_credits: 0 },
-              subscription: undefined
-            };
-            setUser(basicUser);
+            setUser(null);
+            setLoading(false);
           }
-        } else {
-          setUser(null);
         }
-        setLoading(false);
       }
     );
 
     // THEN check for existing session
     supabase.auth.getSession().then(async ({ data: { session: currentSession } }) => {
+      if (!mounted) return;
+      
       setSession(currentSession);
       if (currentSession?.user) {
-        // Fetch full user data including votes, subscription, etc.
-        const { data: userData, error } = await supabase
-          .from('users')
-          .select(`
-            *,
-            votes(*)
-          `)
-          .eq('id', currentSession.user.id)
-          .single();
-        
-        // Separately fetch vote_credits to handle potential relation errors
-        const { data: voteCreditsData } = await supabase
-          .from('user_vote_credits')
-          .select('*')
-          .eq('user_id', currentSession.user.id)
-          .single();
-        
-        // Separately fetch subscription data
-        const { data: subscriptionData } = await supabase
-          .from('subscriptions')
-          .select('*')
-          .eq('user_id', currentSession.user.id)
-          .single();
-        
-        if (!error && userData) {
-          // Transform the raw data into our User type
-          const userObj: User = {
-            id: currentSession.user.id,
-            email: userData.email,
-            username: userData.username,
-            is_admin: userData.is_admin,
-            created_at: userData.created_at,
-            updated_at: userData.updated_at,
-            votes: userData.votes || [],
-            vote_credits: voteCreditsData || { total_credits: 0 },
-            subscription: transformSubscriptionData(subscriptionData)
-          };
-          setUser(userObj);
-        } else {
-          // Fallback to basic user data if detailed fetch fails
-          const basicUser: User = {
+        try {
+          // Set basic user data immediately
+          setUser({
             id: currentSession.user.id,
             email: currentSession.user.email || '',
             username: '',
@@ -156,14 +139,77 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             votes: [],
             vote_credits: { total_credits: 0 },
             subscription: undefined
-          };
-          setUser(basicUser);
+          });
+          
+          // Fetch complete user data
+          setTimeout(async () => {
+            if (!mounted) return;
+            
+            // Detailed data fetch
+            const { data: userData, error } = await supabase
+              .from('users')
+              .select(`
+                *,
+                votes(*)
+              `)
+              .eq('id', currentSession.user.id)
+              .single();
+            
+            // Separately fetch vote_credits to handle potential relation errors
+            const { data: voteCreditsData } = await supabase
+              .from('user_vote_credits')
+              .select('*')
+              .eq('user_id', currentSession.user.id)
+              .single();
+            
+            // Separately fetch subscription data
+            const { data: subscriptionData } = await supabase
+              .from('subscriptions')
+              .select('*')
+              .eq('user_id', currentSession.user.id)
+              .single();
+            
+            if (!error && userData) {
+              // Transform the raw data into our User type
+              const userObj: User = {
+                id: currentSession.user.id,
+                email: userData.email,
+                username: userData.username,
+                is_admin: userData.is_admin,
+                created_at: userData.created_at,
+                updated_at: userData.updated_at,
+                votes: userData.votes || [],
+                vote_credits: voteCreditsData || { total_credits: 0 },
+                subscription: transformSubscriptionData(subscriptionData)
+              };
+              setUser(userObj);
+            } else {
+              // Fallback to basic user data if detailed fetch fails
+              const basicUser: User = {
+                id: currentSession.user.id,
+                email: currentSession.user.email || '',
+                username: '',
+                is_admin: false,
+                created_at: '',
+                updated_at: '',
+                votes: [],
+                vote_credits: { total_credits: 0 },
+                subscription: undefined
+              };
+              setUser(basicUser);
+            }
+          }, 0);
+        } catch (error) {
+          console.error('Error fetching initial session:', error);
         }
       }
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const refreshUser = async () => {
@@ -280,6 +326,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      setUser(null);
+      setSession(null);
     } catch (error) {
       console.error('Error signing out:', error);
       throw error;
@@ -293,7 +341,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     session,
     loading,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user && !!session,
     isLoading: loading,
     signIn,
     signUp,

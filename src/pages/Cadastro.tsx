@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { Link } from 'react-router-dom';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Cadastro = () => {
   const [email, setEmail] = useState("");
@@ -11,8 +17,20 @@ const Cadastro = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signUp } = useAuth();
+  const { signUp, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data?.session) {
+        navigate('/clube/dashboard');
+      }
+    };
+    
+    checkAuth();
+  }, [navigate, isAuthenticated]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,9 +46,10 @@ const Cadastro = () => {
       await signUp(email, password, username);
       toast.success("Cadastro realizado com sucesso! Faça login para continuar.");
       navigate("/clube/login");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Registration error:", error);
-      toast.error("Erro no cadastro. Verifique os dados e tente novamente.");
+      const errorMessage = error?.message || "Erro no cadastro. Verifique os dados e tente novamente.";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -45,80 +64,61 @@ const Cadastro = () => {
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label
-                htmlFor="username"
-                className="block text-gray-700 text-sm font-bold mb-2"
-              >
-                Nome de usuário:
-              </label>
-              <input
+              <Label htmlFor="username">Nome de usuário</Label>
+              <Input
                 id="username"
                 type="text"
                 placeholder="Digite seu nome de usuário"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>
             <div>
-              <label
-                htmlFor="email"
-                className="block text-gray-700 text-sm font-bold mb-2"
-              >
-                Email:
-              </label>
-              <input
+              <Label htmlFor="email">Email</Label>
+              <Input
                 id="email"
                 type="email"
                 placeholder="Digite seu email"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
             <div>
-              <label
-                htmlFor="password"
-                className="block text-gray-700 text-sm font-bold mb-2"
-              >
-                Senha:
-              </label>
-              <input
+              <Label htmlFor="password">Senha</Label>
+              <Input
                 id="password"
                 type="password"
                 placeholder="Digite sua senha"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
             <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-gray-700 text-sm font-bold mb-2"
-              >
-                Confirmar Senha:
-              </label>
-              <input
+              <Label htmlFor="confirmPassword">Confirmar Senha</Label>
+              <Input
                 id="confirmPassword"
                 type="password"
                 placeholder="Confirme sua senha"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
               />
             </div>
-            <button
+            <Button
               type="submit"
-              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              className="w-full bg-green-500 hover:bg-green-700 text-white"
               disabled={isLoading}
             >
-              {isLoading ? "Cadastrando..." : "Cadastrar"}
-            </button>
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" /> 
+                  Cadastrando...
+                </span>
+              ) : "Cadastrar"}
+            </Button>
           </form>
           <div className="mt-6 text-center">
             Já tem uma conta?{" "}

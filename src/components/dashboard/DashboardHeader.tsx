@@ -4,14 +4,25 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
 import { MessageSquare, Vote, Crown, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const DashboardHeader = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await logout();
-    navigate("/clube/login");
+    try {
+      await logout();
+      toast.success("Logout realizado com sucesso!");
+      navigate("/clube/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Erro ao fazer logout. Tente novamente.");
+      // Force navigation even if there's an error
+      setTimeout(() => {
+        navigate("/clube/login");
+      }, 1000);
+    }
   };
 
   return (
@@ -20,7 +31,7 @@ const DashboardHeader = () => {
         <div className="space-y-1.5">
           <h1 className="text-2xl font-bold">Dashboard</h1>
           <p className="text-muted-foreground">
-            Bem-vindo ao GanjaDAO Clube, {user?.username}!
+            Bem-vindo ao GanjaDAO Clube, {user?.username || 'usuário'}!
           </p>
         </div>
         <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">

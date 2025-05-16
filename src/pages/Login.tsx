@@ -1,36 +1,81 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useAuth } from "@/hooks/use-auth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
 import { Link } from 'react-router-dom';
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, refreshUser } = useAuth();
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const { signIn, refreshUser, isAuthenticated, session } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Check if user is already authenticated
+  useEffect(() => {
+    const checkAuth = async () => {
+      // Get session directly from supabase
+      const { data } = await supabase.auth.getSession();
+      if (data?.session) {
+        setIsRedirecting(true);
+        navigate('/clube/dashboard');
+      }
+    };
+    
+    checkAuth();
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      await signIn(email, password);
-      await refreshUser();
+      const { error } = await signIn(email, password);
+      
+      if (error) throw error;
+      
       toast.success("Login realizado com sucesso!");
-      navigate("/clube/dashboard");
+      setIsRedirecting(true);
+      
+      // Use a short timeout to ensure the session is properly set
+      setTimeout(() => {
+        navigate("/clube/dashboard");
+      }, 500);
     } catch (error) {
       console.error("Login error:", error);
       toast.error("Falha no login. Verifique suas credenciais.");
-    } finally {
       setIsLoading(false);
+      setIsRedirecting(false);
     }
   };
+
+  if (isRedirecting) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8 flex flex-col items-center justify-center min-h-[60vh]">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+            <p className="text-lg">Redirecionando para o dashboard...</p>
+            <Button 
+              onClick={() => navigate("/clube/dashboard")} 
+              variant="outline"
+            >
+              Continuar manualmente
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -62,8 +107,17 @@ const Login = () => {
                 required
               />
             </div>
-            <Button disabled={isLoading} className="w-full bg-green-600 text-white hover:bg-green-700">
-              {isLoading ? "Entrando..." : "Entrar"}
+            <Button 
+              disabled={isLoading} 
+              className="w-full bg-green-600 text-white hover:bg-green-700"
+              type="submit"
+            >
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" /> 
+                  Entrando...
+                </span>
+              ) : "Entrar"}
             </Button>
           </form>
           <div className="mt-4 text-center">

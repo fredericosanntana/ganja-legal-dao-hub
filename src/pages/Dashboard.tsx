@@ -1,46 +1,73 @@
-
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Vote, Crown, Plus, User, Key, CreditCard } from "lucide-react";
+import { Vote, Crown, Plus, User, Key, CreditCard, Loader2 } from "lucide-react";
 import { useInitiatives } from "@/hooks/use-initiatives";
 import { useAuth } from "@/hooks/use-auth";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import CreditStats from "@/components/dashboard/CreditStats";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading, session } = useAuth();
   const { initiatives, isLoading: initiativesLoading } = useInitiatives();
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      navigate("/clube/login");
-    } else if (!authLoading && isAuthenticated) {
-      // Successfully logged in and loaded user data
-      toast({
-        title: "Bem-vindo",
-        description: `Olá ${user?.username}, você está conectado!`,
-      });
-    }
-  }, [authLoading, isAuthenticated, navigate, user]);
+    const checkAuthentication = async () => {
+      // Wait briefly to allow auth state to resolve
+      setTimeout(async () => {
+        // Direct check from supabase
+        const { data } = await supabase.auth.getSession();
+        
+        if (!data?.session) {
+          toast.error("Sessão expirada ou inválida. Por favor, faça login novamente.");
+          navigate("/clube/login");
+        } else {
+          setIsCheckingAuth(false);
+        }
+      }, 500);
+    };
 
-  if (authLoading) {
+    checkAuthentication();
+  }, [navigate]);
+  
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated && !isCheckingAuth) {
+      toast.error("Por favor faça login para acessar o dashboard");
+      navigate("/clube/login");
+    } else if (!authLoading && isAuthenticated && user) {
+      // Successfully logged in and loaded user data
+      toast.success(`Bem-vindo ${user?.username || 'ao GanjaDAO'}!`);
+    }
+  }, [authLoading, isAuthenticated, navigate, user, isCheckingAuth]);
+
+  if (authLoading || isCheckingAuth) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-8 text-center">
-          <p>Carregando...</p>
+        <div className="container mx-auto px-4 py-8 flex flex-col items-center justify-center min-h-[60vh]">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+            <p className="text-lg">Verificando autenticação...</p>
+            <Button 
+              onClick={() => navigate("/clube/login")} 
+              variant="outline"
+            >
+              Voltar para login
+            </Button>
+          </div>
         </div>
       </Layout>
     );
   }
 
   if (!isAuthenticated || !user) {
-    return null; // Redirect happens in the useEffect, this prevents flash of content
+    return null; // Redirect happens in the useEffect
   }
 
   return (
