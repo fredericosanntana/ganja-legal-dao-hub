@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -43,7 +43,7 @@ const ComunidadePostDetail = () => {
 
   const handleDelete = () => {
     if (window.confirm("Tem certeza que deseja excluir este post?")) {
-      deletePost(Number(postId), {
+      deletePost(postId, {
         onSuccess: () => {
           navigate("/clube/comunidade");
         }

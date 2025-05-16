@@ -1,14 +1,18 @@
+
 import { User } from "./auth";
 
 export interface Post {
-  id: string;  // Changed to string (UUID) to match Supabase
+  id: string;
   title: string;
   content: string;
-  user_id: string;  // Changed to string (UUID) to match Supabase
+  user_id: string;
   category?: string;
   created_at: string;
   updated_at: string;
-  author?: User;
+  author?: {
+    id: string;
+    username: string;
+  } | User;
   comments?: Comment[];
   likes?: PostLike[];
   _count?: {
@@ -18,14 +22,17 @@ export interface Post {
 }
 
 export interface Comment {
-  id: string;  // Changed to string (UUID) to match Supabase
+  id: string;
   content: string;
-  user_id: string;  // Changed to string (UUID) to match Supabase
-  post_id: string;  // Changed to string (UUID) to match Supabase
-  parent_id?: string;  // Changed to string (UUID) to match Supabase
+  user_id: string;
+  post_id: string;
+  parent_id?: string;
   created_at: string;
   updated_at: string;
-  author?: User;
+  author?: {
+    id: string;
+    username: string;
+  } | User;
   replies?: Comment[];
   likes?: CommentLike[];
   _count?: {
@@ -35,16 +42,16 @@ export interface Comment {
 }
 
 export interface PostLike {
-  id: string;  // Changed to string (UUID) to match Supabase
-  user_id: string;  // Changed to string (UUID) to match Supabase
-  post_id: string;  // Changed to string (UUID) to match Supabase
+  id: string;
+  user_id: string;
+  post_id: string;
   created_at: string;
 }
 
 export interface CommentLike {
-  id: string;  // Changed to string (UUID) to match Supabase
-  user_id: string;  // Changed to string (UUID) to match Supabase
-  comment_id: string;  // Changed to string (UUID) to match Supabase
+  id: string;
+  user_id: string;
+  comment_id: string;
   created_at: string;
 }
 

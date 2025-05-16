@@ -1,104 +1,147 @@
 
-import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { Initiative, InitiativeStatus } from '@/types/initiatives';
+import type { Initiative } from '@/types/initiatives';
+import { toast } from 'sonner';
 
-// Get all initiatives
-export const getAllInitiatives = async (): Promise<Initiative[]> => {
+// Mock data for initiatives
+const mockInitiatives: Initiative[] = [
+  {
+    id: '1',
+    title: 'Regulamentação da Cannabis Medicinal',
+    description: 'Proposta para a regulamentação completa da cannabis medicinal no Brasil.',
+    status: 'open',
+    created_at: '2023-04-10T10:00:00Z',
+    updated_at: '2023-04-10T10:00:00Z',
+    user_id: '1',
+    author: {
+      id: '1',
+      username: 'joaosilva',
+    },
+    votes: []
+  },
+  {
+    id: '2',
+    title: 'Programa de Educação sobre Cannabis',
+    description: 'Iniciativa para criar um programa educacional sobre os benefícios e riscos da cannabis.',
+    status: 'open',
+    created_at: '2023-04-15T14:30:00Z',
+    updated_at: '2023-04-15T14:30:00Z',
+    user_id: '2',
+    author: {
+      id: '2',
+      username: 'mariaoliver',
+    },
+    votes: []
+  }
+];
+
+export const getInitiatives = async (): Promise<Initiative[]> => {
+  // Using mock data for now
+  const useMockData = true;
+  
+  if (useMockData) {
+    return Promise.resolve(mockInitiatives);
+  }
+
   try {
     const { data, error } = await supabase
       .from('initiatives')
       .select(`
         *,
-        author:user_id(id, username),
-        votes(*)
+        author: user_id (id, username),
+        votes (*)
       `)
       .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Error fetching initiatives:', error);
-      toast.error('Failed to fetch initiatives');
       return [];
     }
 
-    // Convert the data to match our Initiative type
-    const initiatives: Initiative[] = data.map(item => ({
-      id: item.id,
-      title: item.title,
-      description: item.description,
-      user_id: item.user_id,
-      status: item.status as InitiativeStatus, // Cast to our enum type
-      created_at: item.created_at,
-      updated_at: item.updated_at,
-      author: item.author,
-      votes: item.votes || []
-    }));
-
-    return initiatives;
+    return data as unknown as Initiative[];
   } catch (error) {
     console.error('Exception fetching initiatives:', error);
-    toast.error('An unexpected error occurred');
     return [];
   }
 };
 
-// Get initiative by ID
 export const getInitiativeById = async (id: string): Promise<Initiative | null> => {
+  // Using mock data for now
+  const useMockData = true;
+  
+  if (useMockData) {
+    const initiative = mockInitiatives.find(i => i.id === id);
+    return initiative ? Promise.resolve(initiative) : Promise.resolve(null);
+  }
+
   try {
     const { data, error } = await supabase
       .from('initiatives')
       .select(`
         *,
-        author:user_id(id, username),
-        votes(*)
+        author: user_id (id, username),
+        votes (*)
       `)
       .eq('id', id)
       .single();
 
     if (error) {
       console.error('Error fetching initiative:', error);
-      toast.error('Failed to fetch initiative');
       return null;
     }
 
-    // Convert the data to match our Initiative type
-    const initiative: Initiative = {
-      id: data.id,
-      title: data.title,
-      description: data.description,
-      user_id: data.user_id,
-      status: data.status as InitiativeStatus, // Cast to our enum type
-      created_at: data.created_at,
-      updated_at: data.updated_at,
-      author: data.author,
-      votes: data.votes || []
-    };
-
-    return initiative;
+    return data as unknown as Initiative;
   } catch (error) {
     console.error('Exception fetching initiative:', error);
-    toast.error('An unexpected error occurred');
     return null;
   }
 };
 
-// Create initiative
 export const createInitiative = async (title: string, description: string): Promise<Initiative | null> => {
-  try {
-    const { data: user } = await supabase.auth.getUser();
+  // Using mock data for now
+  const useMockData = true;
+  
+  if (useMockData) {
+    const user = await supabase.auth.getUser();
+    if (!user.data.user) {
+      toast.error('Você precisa estar logado para criar uma iniciativa');
+      return null;
+    }
     
-    if (!user?.user) {
-      toast.error('You must be logged in to create an initiative');
-      throw new Error('User not authenticated');
+    const newId = (mockInitiatives.length + 1).toString();
+    const newInitiative: Initiative = {
+      id: newId,
+      title,
+      description,
+      status: 'open',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      user_id: user.data.user.id,
+      author: {
+        id: user.data.user.id,
+        username: 'current_user'
+      },
+      votes: []
+    };
+    
+    mockInitiatives.push(newInitiative);
+    return Promise.resolve(newInitiative);
+  }
+
+  try {
+    const { data: userData } = await supabase.auth.getUser();
+    
+    if (!userData.user) {
+      toast.error('Você precisa estar logado para criar uma iniciativa');
+      return null;
     }
 
-    // Create the initiative
     const { data, error } = await supabase
       .from('initiatives')
       .insert({
         title,
         description,
-        user_id: user.user.id,
+        user_id: userData.user.id,
         status: 'open'
       })
       .select()
@@ -106,169 +149,100 @@ export const createInitiative = async (title: string, description: string): Prom
 
     if (error) {
       console.error('Error creating initiative:', error);
-      toast.error('Failed to create initiative');
-      throw error;
+      toast.error('Falha ao criar iniciativa');
+      return null;
     }
 
-    toast.success('Initiative created successfully!');
-    
+    // Return the created initiative
     return {
-      id: data.id,
-      title: data.title,
-      description: data.description,
-      user_id: data.user_id,
-      status: data.status as InitiativeStatus,
-      created_at: data.created_at,
-      updated_at: data.updated_at,
+      ...data,
+      author: {
+        id: userData.user.id,
+        username: 'current_user'
+      },
       votes: []
-    };
+    } as Initiative;
   } catch (error) {
     console.error('Exception creating initiative:', error);
-    throw error;
+    toast.error('Erro ao criar iniciativa');
+    return null;
   }
 };
 
-// Vote on initiative
-export const voteOnInitiative = async (initiativeId: string, creditsSpent: number) => {
+export const voteOnInitiative = async (
+  initiativeId: string, 
+  creditsToSpend: number
+): Promise<boolean> => {
+  // Using mock data for now
+  const useMockData = true;
+  
+  if (useMockData) {
+    // In mock mode, just simulate a successful vote
+    return true;
+  }
+
   try {
-    const { data: user } = await supabase.auth.getUser();
+    const { data: userData } = await supabase.auth.getUser();
     
-    if (!user?.user) {
-      toast.error('You must be logged in to vote');
-      throw new Error('User not authenticated');
+    if (!userData.user) {
+      toast.error('Você precisa estar logado para votar');
+      return false;
     }
 
-    // Add the vote
+    // Check user's available credits
+    const { data: userCredits, error: creditsError } = await supabase
+      .from('user_vote_credits')
+      .select('total_credits')
+      .eq('user_id', userData.user.id)
+      .single();
+
+    if (creditsError || !userCredits) {
+      console.error('Error fetching user credits:', creditsError);
+      toast.error('Falha ao verificar seus créditos disponíveis');
+      return false;
+    }
+
+    if (userCredits.total_credits < creditsToSpend) {
+      toast.error('Você não tem créditos suficientes para este voto');
+      return false;
+    }
+
+    // Begin transaction
+    // 1. Create the vote
     const { error: voteError } = await supabase
       .from('votes')
-      .insert({
-        user_id: user.user.id,
-        initiative_id: initiativeId,
-        credits_spent: creditsSpent
-      });
+      .upsert(
+        {
+          user_id: userData.user.id,
+          initiative_id: initiativeId,
+          credits_spent: creditsToSpend
+        },
+        { onConflict: 'user_id,initiative_id' }
+      );
 
     if (voteError) {
       console.error('Error creating vote:', voteError);
-      toast.error('Failed to record your vote');
-      throw voteError;
+      toast.error('Falha ao registrar seu voto');
+      return false;
     }
 
-    // Update user's credits using a direct query
-    const { data: userData, error: userError } = await supabase
+    // 2. Update user's credits
+    const { error: updateError } = await supabase
       .from('user_vote_credits')
-      .select('total_credits')
-      .eq('user_id', user.user.id)
-      .single();
+      .update({ total_credits: userCredits.total_credits - creditsToSpend })
+      .eq('user_id', userData.user.id);
 
-    if (userError) {
-      console.error('Error getting user credits:', userError);
-      toast.error('Vote recorded but failed to update credits');
-      return { success: true };
+    if (updateError) {
+      console.error('Error updating user credits:', updateError);
+      toast.error('Falha ao atualizar seus créditos');
+      return false;
     }
 
-    const currentCredits = userData?.total_credits || 0;
-    const newCredits = Math.max(0, currentCredits - creditsSpent);
-
-    const { error: creditError } = await supabase
-      .from('user_vote_credits')
-      .update({ total_credits: newCredits })
-      .eq('user_id', user.user.id);
-
-    if (creditError) {
-      console.error('Error updating credits:', creditError);
-      toast.error('Vote recorded but failed to update credits');
-    }
-
-    toast.success('Your vote has been recorded!');
-    return { 
-      success: true,
-      votes: [{
-        id: 'temp-id', // This would be replaced with the actual ID from the database
-        user_id: user.user.id,
-        initiative_id: initiativeId,
-        credits_spent: creditsSpent,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }] 
-    };
+    toast.success('Voto registrado com sucesso!');
+    return true;
   } catch (error) {
-    console.error('Exception voting on initiative:', error);
-    throw error;
-  }
-};
-
-// Remove vote from initiative
-export const removeVoteFromInitiative = async (initiativeId: string) => {
-  try {
-    const { data: user } = await supabase.auth.getUser();
-    
-    if (!user?.user) {
-      toast.error('You must be logged in to manage votes');
-      throw new Error('User not authenticated');
-    }
-
-    // Get the vote to determine credits spent
-    const { data: voteData, error: fetchError } = await supabase
-      .from('votes')
-      .select('credits_spent')
-      .eq('user_id', user.user.id)
-      .eq('initiative_id', initiativeId)
-      .single();
-
-    if (fetchError) {
-      console.error('Error fetching vote:', fetchError);
-      toast.error('Failed to retrieve your vote information');
-      throw fetchError;
-    }
-
-    const creditsToRefund = voteData?.credits_spent || 0;
-
-    // Remove the vote
-    const { error: deleteError } = await supabase
-      .from('votes')
-      .delete()
-      .eq('user_id', user.user.id)
-      .eq('initiative_id', initiativeId);
-
-    if (deleteError) {
-      console.error('Error removing vote:', deleteError);
-      toast.error('Failed to remove your vote');
-      throw deleteError;
-    }
-
-    // Update user's credits if there were any to refund
-    if (creditsToRefund > 0) {
-      // Get current credits
-      const { data: userData, error: userError } = await supabase
-        .from('user_vote_credits')
-        .select('total_credits')
-        .eq('user_id', user.user.id)
-        .single();
-
-      if (userError) {
-        console.error('Error getting user credits:', userError);
-        toast.error('Vote removed but failed to refund credits');
-        return { success: true };
-      }
-      
-      const currentCredits = userData?.total_credits || 0;
-      const newCredits = currentCredits + creditsToRefund;
-
-      const { error: creditError } = await supabase
-        .from('user_vote_credits')
-        .update({ total_credits: newCredits })
-        .eq('user_id', user.user.id);
-
-      if (creditError) {
-        console.error('Error updating credits:', creditError);
-        toast.error('Vote removed but failed to refund credits');
-      }
-    }
-
-    toast.success('Your vote has been removed and credits refunded');
-    return { success: true };
-  } catch (error) {
-    console.error('Exception removing vote:', error);
-    throw error;
+    console.error('Exception in voting process:', error);
+    toast.error('Erro ao processar seu voto');
+    return false;
   }
 };

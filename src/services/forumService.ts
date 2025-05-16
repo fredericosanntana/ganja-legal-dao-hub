@@ -1,92 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-
-export type Post = {
-  id: string;
-  title: string;
-  content: string;
-  user_id: string;
-  category?: string;
-  created_at: string;
-  updated_at: string;
-  author?: {
-    id: string;
-    username: string;
-  };
-  _count?: {
-    comments: number;
-    likes: number;
-  };
-  comments?: Comment[];
-  likes?: Like[];
-};
-
-export type Comment = {
-  id: string;
-  content: string;
-  user_id: string;
-  post_id: string;
-  parent_id?: string | null;
-  created_at: string;
-  updated_at: string;
-  author?: {
-    id: string;
-    username: string;
-  };
-  replies?: Comment[];
-  _count?: {
-    likes: number;
-  };
-  likes?: Like[];
-};
-
-export type Like = {
-  id: string;
-  user_id: string;
-  post_id?: string;
-  comment_id?: string;
-  created_at: string;
-};
-
-// Mock data for development
-export const mockPosts: Post[] = [
-  {
-    id: '1',
-    title: 'Novo estudo sobre cannabis medicinal',
-    content: 'Lorem ipsum dolor sit amet...',
-    user_id: '1',
-    category: 'Medicinal',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    author: {
-      id: '1',
-      username: 'drmedicinal'
-    },
-    _count: {
-      comments: 5,
-      likes: 12
-    }
-  },
-  // Add a few more mock posts
-  {
-    id: '2',
-    title: 'Discussão sobre legislação',
-    content: 'Atualmente no Brasil...',
-    user_id: '2',
-    category: 'Legal',
-    created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-    updated_at: new Date(Date.now() - 86400000).toISOString(),
-    author: {
-      id: '2',
-      username: 'advogado420'
-    },
-    _count: {
-      comments: 8,
-      likes: 7
-    }
-  }
-];
+import { Post, Comment, PostLike as Like } from '@/types/forum';
 
 // Get all posts
 export const getAllPosts = async (): Promise<Post[]> => {
@@ -484,3 +399,41 @@ export const deletePost = async (postId: string): Promise<{ success: boolean }> 
     throw error;
   }
 };
+
+// Mock data for development
+export const mockPosts: Post[] = [
+  {
+    id: '1',
+    title: 'Novo estudo sobre cannabis medicinal',
+    content: 'Lorem ipsum dolor sit amet...',
+    user_id: '1',
+    category: 'Medicinal',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    author: {
+      id: '1',
+      username: 'drmedicinal'
+    },
+    _count: {
+      comments: 5,
+      likes: 12
+    }
+  },
+  {
+    id: '2',
+    title: 'Discussão sobre legislação',
+    content: 'Atualmente no Brasil...',
+    user_id: '2',
+    category: 'Legal',
+    created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+    updated_at: new Date(Date.now() - 86400000).toISOString(),
+    author: {
+      id: '2',
+      username: 'advogado420'
+    },
+    _count: {
+      comments: 8,
+      likes: 7
+    }
+  }
+];
