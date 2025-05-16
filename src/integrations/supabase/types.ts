@@ -466,6 +466,66 @@ export type Database = {
           },
         ]
       }
+      user_cards: {
+        Row: {
+          created_at: string
+          document_ids: string[]
+          id: string
+          link_id: string
+          user_id: string
+          valid_until: string
+        }
+        Insert: {
+          created_at?: string
+          document_ids: string[]
+          id?: string
+          link_id: string
+          user_id: string
+          valid_until: string
+        }
+        Update: {
+          created_at?: string
+          document_ids?: string[]
+          id?: string
+          link_id?: string
+          user_id?: string
+          valid_until?: string
+        }
+        Relationships: []
+      }
+      user_documents: {
+        Row: {
+          category: string
+          created_at: string
+          expiry_date: string | null
+          file_path: string
+          id: string
+          mime_type: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          expiry_date?: string | null
+          file_path: string
+          id?: string
+          mime_type: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          expiry_date?: string | null
+          file_path?: string
+          id?: string
+          mime_type?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_vote_credits: {
         Row: {
           id: string

@@ -15,14 +15,16 @@ interface Document {
   mime_type: string;
 }
 
+interface UserDetails {
+  username: string;
+  email: string;
+}
+
 interface CardData {
   user_id: string;
   document_ids: string[];
   valid_until: string;
-  user_details?: {
-    username: string;
-    email: string;
-  };
+  user_details?: UserDetails;
   documents?: Document[];
 }
 
@@ -82,12 +84,13 @@ const CardView = () => {
           console.error("Error fetching documents:", docsError);
         }
 
-        setCardData({
+        const formattedCardData: CardData = {
           ...cardData,
           user_details: userData || undefined,
           documents: documents || []
-        });
+        };
 
+        setCardData(formattedCardData);
       } catch (error) {
         console.error("Error loading card:", error);
         setError("Erro ao carregar a carteirinha");

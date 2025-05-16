@@ -35,7 +35,6 @@ const Documentos = () => {
     
     setIsLoading(true);
     try {
-      // Using storage to fetch from documents
       const { data, error } = await supabase
         .from("user_documents")
         .select("*")
@@ -87,7 +86,7 @@ const Documentos = () => {
           </div>
           <div className="flex gap-2 mt-4 md:mt-0">
             <Button variant="outline" asChild>
-              <a href="/clube/carteirinha" target="_blank">
+              <a href="/clube/carteirinha">
                 <QrCode className="mr-2 h-4 w-4" />
                 Carteirinha Digital
               </a>
