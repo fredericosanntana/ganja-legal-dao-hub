@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from "@/hooks/use-auth";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -15,33 +15,9 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isRedirecting, setIsRedirecting] = useState(false);
-  const { signIn, refreshUser, isAuthenticated } = useAuth();
+  const { signIn } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
   
-  // Check if user is already authenticated only once on mount
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        if (data?.session) {
-          setIsRedirecting(true);
-          navigate('/clube/dashboard');
-        }
-      } catch (error) {
-        console.error("Auth check error:", error);
-      } finally {
-        setHasCheckedAuth(true);
-      }
-    };
-    
-    if (!hasCheckedAuth) {
-      checkAuth();
-    }
-  }, [navigate, hasCheckedAuth]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -52,49 +28,14 @@ const Login = () => {
       if (error) throw error;
       
       toast.success("Login realizado com sucesso!");
-      setIsRedirecting(true);
-      
-      // Use a short timeout to ensure the session is properly set
-      setTimeout(() => {
-        navigate("/clube/dashboard");
-      }, 500);
+      navigate("/clube/dashboard");
     } catch (error) {
       console.error("Login error:", error);
       toast.error("Falha no login. Verifique suas credenciais.");
+    } finally {
       setIsLoading(false);
-      setIsRedirecting(false);
     }
   };
-
-  if (isRedirecting) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8 flex flex-col items-center justify-center min-h-[60vh]">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-green-600" />
-            <p className="text-lg">Redirecionando para o dashboard...</p>
-            <Button 
-              onClick={() => navigate("/clube/dashboard")} 
-              variant="outline"
-            >
-              Continuar manualmente
-            </Button>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
-
-  // Don't render login form until we've checked authentication to prevent flashing
-  if (!hasCheckedAuth) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8 flex flex-col items-center justify-center min-h-[60vh]">
-          <Loader2 className="h-8 w-8 animate-spin text-green-600" />
-        </div>
-      </Layout>
-    );
-  }
 
   return (
     <Layout>

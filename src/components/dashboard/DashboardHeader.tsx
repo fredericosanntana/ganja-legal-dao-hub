@@ -19,14 +19,11 @@ const DashboardHeader = () => {
     try {
       await logout();
       toast.success("Logout realizado com sucesso!");
-      // Clear any lingering state
-      localStorage.removeItem('supabase.auth.token');
-      setTimeout(() => {
-        navigate("/clube/login");
-      }, 300);
+      navigate("/clube/login");
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("Erro ao fazer logout. Tente novamente.");
+    } finally {
       setIsLoggingOut(false);
     }
   };

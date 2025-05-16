@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 
 const Cadastro = () => {
   const [email, setEmail] = useState("");
@@ -17,27 +16,8 @@ const Cadastro = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const { signUp, isAuthenticated } = useAuth();
+  const { signUp } = useAuth();
   const navigate = useNavigate();
-
-  // Check if user is already authenticated
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        if (data?.session) {
-          navigate('/clube/dashboard');
-        }
-      } catch (error) {
-        console.error("Auth check error:", error);
-      } finally {
-        setIsCheckingAuth(false);
-      }
-    };
-    
-    checkAuth();
-  }, [navigate, isAuthenticated]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,11 +34,7 @@ const Cadastro = () => {
       await signUp(email, password, username);
       
       toast.success("Cadastro realizado com sucesso! Faça login para continuar.");
-      
-      // Short delay to ensure data is saved before redirecting
-      setTimeout(() => {
-        navigate("/clube/login");
-      }, 300);
+      navigate("/clube/login");
     } catch (error: any) {
       console.error("Registration error:", error);
       const errorMessage = error?.message || "Erro no cadastro. Verifique os dados e tente novamente.";
@@ -67,16 +43,6 @@ const Cadastro = () => {
       setIsLoading(false);
     }
   };
-
-  if (isCheckingAuth) {
-    return (
-      <Layout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="h-8 w-8 animate-spin text-green-600" />
-        </div>
-      </Layout>
-    );
-  }
 
   return (
     <Layout>
