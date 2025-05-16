@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from "@/hooks/use-auth";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
 import { Link } from 'react-router-dom';
@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -28,7 +27,10 @@ const Login = () => {
       if (error) throw error;
       
       toast.success("Login realizado com sucesso!");
-      navigate("/clube/dashboard");
+      // Ensure navigation happens after successful login
+      setTimeout(() => {
+        navigate("/clube/dashboard", { replace: true });
+      }, 100);
     } catch (error) {
       console.error("Login error:", error);
       toast.error("Falha no login. Verifique suas credenciais.");
