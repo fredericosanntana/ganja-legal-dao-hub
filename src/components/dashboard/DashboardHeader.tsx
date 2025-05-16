@@ -2,26 +2,16 @@
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
-import { MessageSquare, Vote, User, LogOut } from "lucide-react";
+import { MessageSquare, Vote, Crown, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 
 const DashboardHeader = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    try {
-      await logout();
-      toast.success("Logout realizado com sucesso!");
-      // Forçar navegação imediatamente após o logout
-      navigate("/clube/login");
-    } catch (error) {
-      console.error("Erro ao fazer logout:", error);
-      toast.error("Falha ao fazer logout. Tente novamente.");
-      // Forçar navegação mesmo se houver erro
-      navigate("/clube/login");
-    }
+    await logout();
+    navigate("/clube/login");
   };
 
   return (
@@ -30,7 +20,7 @@ const DashboardHeader = () => {
         <div className="space-y-1.5">
           <h1 className="text-2xl font-bold">Dashboard</h1>
           <p className="text-muted-foreground">
-            Bem-vindo ao GanjaDAO Clube, {user?.username || 'Usuário'}!
+            Bem-vindo ao GanjaDAO Clube, {user?.username}!
           </p>
         </div>
         <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">

@@ -3,7 +3,6 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { supabase } from '../integrations/supabase/client';
 import { User } from '@/types/auth';
-import { toast } from "sonner";
 
 interface AuthContextType {
   user: User | null;
@@ -16,9 +15,6 @@ interface AuthContextType {
   signOut: () => Promise<any>;
   logout: () => Promise<any>; // Alias for signOut for consistency
   refreshUser: () => Promise<any>;
-  checkSubscription: () => Promise<any>;
-  createCheckoutSession: () => Promise<string | null>;
-  openCustomerPortal: () => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,104 +34,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       current_period_end: subscriptionData.expires_at || subscriptionData.updated_at,
       expires_at: subscriptionData.expires_at
     };
-  };
-
-  // Função para verificar assinatura no Stripe
-  const checkSubscription = async () => {
-    try {
-      if (!session?.access_token) {
-        console.error('Sem token de acesso para verificar assinatura');
-        return null;
-      }
-
-      const { data, error } = await supabase.functions.invoke('check-subscription', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
-
-      if (error) {
-        console.error('Erro ao verificar assinatura:', error);
-        return null;
-      }
-
-      // Se a assinatura for verificada com sucesso, atualizar usuário
-      if (data && user) {
-        setUser({
-          ...user,
-          subscription: {
-            status: data.subscribed ? 'active' : 'inactive',
-            plan: data.subscription_tier,
-            current_period_end: data.subscription_end,
-            expires_at: data.subscription_end
-          }
-        });
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Erro ao verificar assinatura:', error);
-      return null;
-    }
-  };
-
-  // Função para criar sessão de checkout do Stripe
-  const createCheckoutSession = async (): Promise<string | null> => {
-    try {
-      if (!session?.access_token) {
-        toast.error("Você precisa estar logado para assinar");
-        return null;
-      }
-
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
-
-      if (error) {
-        console.error('Erro ao criar checkout:', error);
-        toast.error("Erro ao iniciar o checkout: " + error.message);
-        return null;
-      }
-
-      return data.url;
-    } catch (error) {
-      console.error('Erro ao criar checkout:', error);
-      toast.error("Erro ao iniciar o checkout");
-      return null;
-    }
-  };
-
-  // Função para abrir o portal de cliente do Stripe
-  const openCustomerPortal = async (): Promise<string | null> => {
-    try {
-      if (!session?.access_token) {
-        toast.error("Você precisa estar logado para gerenciar sua assinatura");
-        return null;
-      }
-
-      const { data, error } = await supabase.functions.invoke('customer-portal', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
-
-      if (error) {
-        console.error('Erro ao abrir portal de cliente:', error);
-        toast.error("Erro ao abrir o portal de gestão de assinatura: " + error.message);
-        return null;
-      }
-
-      return data.url;
-    } catch (error) {
-      console.error('Erro ao abrir portal de cliente:', error);
-      toast.error("Erro ao abrir o portal de gestão de assinatura");
-      return null;
-    }
   };
 
   useEffect(() => {
@@ -182,13 +80,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               subscription: transformSubscriptionData(subscriptionData)
             };
             setUser(userObj);
-            
-            // Verificar assinatura no Stripe depois de configurar usuário inicial
-            if (event === 'SIGNED_IN') {
-              setTimeout(() => {
-                checkSubscription();
-              }, 1000); // Pequeno delay para garantir que o token esteja disponível
-            }
           } else {
             // Fallback to basic user data if detailed fetch fails
             const basicUser: User = {
@@ -253,11 +144,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             subscription: transformSubscriptionData(subscriptionData)
           };
           setUser(userObj);
-          
-          // Verificar assinatura no Stripe depois de configurar usuário
-          setTimeout(() => {
-            checkSubscription();
-          }, 1000); // Pequeno delay para garantir que o token esteja disponível
         } else {
           // Fallback to basic user data if detailed fetch fails
           const basicUser: User = {
@@ -322,10 +208,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           };
           
           setUser(updatedUser);
-          
-          // Verificar assinatura no Stripe
-          await checkSubscription();
-          
           return updatedUser;
         }
       }
@@ -417,10 +299,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signUp,
     signOut,
     logout,
-    refreshUser,
-    checkSubscription,
-    createCheckoutSession,
-    openCustomerPortal
+    refreshUser
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

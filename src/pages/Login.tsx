@@ -1,90 +1,44 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from "@/hooks/use-auth";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Layout from "@/components/Layout";
 import { Link } from 'react-router-dom';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, refreshUser, isAuthenticated, loading } = useAuth();
+  const { signIn, refreshUser } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [loadingTimeout, setLoadingTimeout] = useState(false);
-
-  // Define um timeout para evitar espera infinita
-  useEffect(() => {
-    if (loading) {
-      const timer = setTimeout(() => {
-        setLoadingTimeout(true);
-      }, 3000); // Reduzido para 3 segundos
-      
-      return () => clearTimeout(timer);
-    }
-  }, [loading]);
-
-  // Verifique se o usuário já está autenticado e redirecione
-  useEffect(() => {
-    if (isAuthenticated && !loading) {
-      console.log("Usuário já autenticado, redirecionando para o dashboard");
-      navigate("/clube/dashboard");
-    }
-  }, [isAuthenticated, loading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // Registra tentativa de login
-      console.log("Tentando fazer login com:", email);
+      await signIn(email, password);
+      const userData = await refreshUser();
       
-      const authResult = await signIn(email, password);
-      console.log("Resultado da autenticação:", authResult);
-      
-      // Redirecionar para o dashboard mesmo sem aguardar o refreshUser
-      navigate("/clube/dashboard");
-      
-      // Atualizar dados do usuário em segundo plano
-      refreshUser().catch(error => {
-        console.error("Erro ao atualizar dados do usuário:", error);
-      });
-      
-      toast.success("Login realizado com sucesso!");
-      
+      if (userData) {
+        toast.success("Login realizado com sucesso!");
+        navigate("/clube/dashboard");
+      } else {
+        toast.error("Falha ao obter dados do usuário. Tente novamente.");
+      }
     } catch (error: any) {
-      console.error("Erro no login:", error);
-      setIsLoading(false);
+      console.error("Login error:", error);
       toast.error(error.message || "Falha no login. Verifique suas credenciais.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Se estiver carregando a autenticação por muito tempo, mostre opção de continuar
-  if (loading && !loadingTimeout) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8 text-center">
-          <p>Verificando autenticação...</p>
-          <Button 
-            variant="outline" 
-            className="mt-4" 
-            onClick={() => setLoadingTimeout(true)}
-          >
-            Continuar mesmo assim
-          </Button>
-        </div>
-      </Layout>
-    );
-  }
-
-  // Se o timeout ocorreu ou o usuário optou por continuar, mostre o formulário de login
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
