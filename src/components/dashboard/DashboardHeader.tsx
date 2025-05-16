@@ -18,6 +18,10 @@ const DashboardHeader = () => {
     } catch (error) {
       console.error("Erro ao fazer logout:", error);
       toast.error("Falha ao fazer logout. Tente novamente.");
+      // Forçar navegação mesmo se houver erro
+      setTimeout(() => {
+        navigate("/clube/login");
+      }, 1000);
     }
   };
 
