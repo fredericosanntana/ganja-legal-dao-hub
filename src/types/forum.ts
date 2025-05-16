@@ -12,7 +12,7 @@ export interface Post {
   author?: {
     id: string;
     username: string;
-  } | User;
+  };
   comments?: Comment[];
   likes?: PostLike[];
   _count?: {
@@ -26,18 +26,18 @@ export interface Comment {
   content: string;
   user_id: string;
   post_id: string;
-  parent_id?: string;
+  parent_id?: string | null;
   created_at: string;
   updated_at: string;
   author?: {
     id: string;
     username: string;
-  } | User;
-  replies?: Comment[];
+  };
   likes?: CommentLike[];
+  replies?: Comment[];
   _count?: {
-    replies: number;
     likes: number;
+    replies?: number;
   };
 }
 
@@ -54,14 +54,3 @@ export interface CommentLike {
   comment_id: string;
   created_at: string;
 }
-
-export type PostCategory = "geral" | "jurídico" | "política" | "cultivo" | "medicinal" | "outros";
-
-export const POST_CATEGORIES: {label: string, value: PostCategory}[] = [
-  { label: "Geral", value: "geral" },
-  { label: "Jurídico", value: "jurídico" },
-  { label: "Política", value: "política" },
-  { label: "Cultivo", value: "cultivo" },
-  { label: "Medicinal", value: "medicinal" },
-  { label: "Outros", value: "outros" }
-];

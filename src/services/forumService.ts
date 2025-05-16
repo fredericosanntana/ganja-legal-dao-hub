@@ -1,6 +1,7 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Post, Comment, PostLike as Like } from '@/types/forum';
+import { Post, Comment, PostLike } from '@/types/forum';
 
 // Get all posts
 export const getAllPosts = async (): Promise<Post[]> => {
@@ -91,7 +92,7 @@ export const getPostById = async (postId: string): Promise<Post | null> => {
       created_at: post.created_at,
       updated_at: post.updated_at,
       author: post.author,
-      comments: post.comments?.map(comment => ({
+      comments: post.comments?.map((comment: any) => ({
         id: comment.id,
         content: comment.content,
         user_id: comment.user_id,
@@ -103,7 +104,7 @@ export const getPostById = async (postId: string): Promise<Post | null> => {
         _count: {
           likes: comment.likes?.length || 0
         },
-        replies: comment.replies?.map(reply => ({
+        replies: comment.replies?.map((reply: any) => ({
           id: reply.id,
           content: reply.content,
           user_id: reply.user_id,
@@ -191,7 +192,7 @@ export const createComment = async (data: {
     }
 
     toast.success('Comentário adicionado com sucesso!');
-    return comment;
+    return comment as Comment;
   } catch (error) {
     console.error('Exception creating comment:', error);
     throw error;
@@ -372,7 +373,7 @@ export const updatePost = async (postId: string, data: {
     }
 
     toast.success('Post atualizado com sucesso!');
-    return post;
+    return post as Post;
   } catch (error) {
     console.error('Exception updating post:', error);
     throw error;
