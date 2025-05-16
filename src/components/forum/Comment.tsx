@@ -14,7 +14,7 @@ import CommentForm from "./CommentForm";
 
 interface CommentProps {
   comment: CommentType;
-  postId: number;
+  postId: string;
 }
 
 const Comment = ({ comment, postId }: CommentProps) => {

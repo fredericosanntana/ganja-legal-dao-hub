@@ -82,12 +82,58 @@ export const getInitiativeById = async (id: string): Promise<Initiative | null> 
   }
 };
 
+// Create initiative
+export const createInitiative = async (title: string, description: string): Promise<Initiative | null> => {
+  try {
+    const { data: user } = await supabase.auth.getUser();
+    
+    if (!user?.user) {
+      toast.error('You must be logged in to create an initiative');
+      throw new Error('User not authenticated');
+    }
+
+    // Create the initiative
+    const { data, error } = await supabase
+      .from('initiatives')
+      .insert({
+        title,
+        description,
+        user_id: user.user.id,
+        status: 'open'
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating initiative:', error);
+      toast.error('Failed to create initiative');
+      throw error;
+    }
+
+    toast.success('Initiative created successfully!');
+    
+    return {
+      id: data.id,
+      title: data.title,
+      description: data.description,
+      user_id: data.user_id,
+      status: data.status as InitiativeStatus,
+      created_at: data.created_at,
+      updated_at: data.updated_at,
+      votes: []
+    };
+  } catch (error) {
+    console.error('Exception creating initiative:', error);
+    throw error;
+  }
+};
+
 // Vote on initiative
 export const voteOnInitiative = async (initiativeId: string, creditsSpent: number) => {
   try {
     const { data: user } = await supabase.auth.getUser();
     
-    if (!user.user) {
+    if (!user?.user) {
       toast.error('You must be logged in to vote');
       throw new Error('User not authenticated');
     }
@@ -107,17 +153,29 @@ export const voteOnInitiative = async (initiativeId: string, creditsSpent: numbe
       throw voteError;
     }
 
-    // Update user's credits
+    // Update user's credits using a direct query
+    const { data: userData, error: userError } = await supabase
+      .from('user_vote_credits')
+      .select('total_credits')
+      .eq('user_id', user.user.id)
+      .single();
+
+    if (userError) {
+      console.error('Error getting user credits:', userError);
+      toast.error('Vote recorded but failed to update credits');
+      return { success: true };
+    }
+
+    const currentCredits = userData?.total_credits || 0;
+    const newCredits = Math.max(0, currentCredits - creditsSpent);
+
     const { error: creditError } = await supabase
       .from('user_vote_credits')
-      .update({ 
-        total_credits: supabase.rpc('get_user_credits', { user_id: user.user.id }) - creditsSpent 
-      })
+      .update({ total_credits: newCredits })
       .eq('user_id', user.user.id);
 
     if (creditError) {
       console.error('Error updating credits:', creditError);
-      // We should try to rollback the vote if credits update fails
       toast.error('Vote recorded but failed to update credits');
     }
 
@@ -144,7 +202,7 @@ export const removeVoteFromInitiative = async (initiativeId: string) => {
   try {
     const { data: user } = await supabase.auth.getUser();
     
-    if (!user.user) {
+    if (!user?.user) {
       toast.error('You must be logged in to manage votes');
       throw new Error('User not authenticated');
     }
@@ -180,11 +238,25 @@ export const removeVoteFromInitiative = async (initiativeId: string) => {
 
     // Update user's credits if there were any to refund
     if (creditsToRefund > 0) {
+      // Get current credits
+      const { data: userData, error: userError } = await supabase
+        .from('user_vote_credits')
+        .select('total_credits')
+        .eq('user_id', user.user.id)
+        .single();
+
+      if (userError) {
+        console.error('Error getting user credits:', userError);
+        toast.error('Vote removed but failed to refund credits');
+        return { success: true };
+      }
+      
+      const currentCredits = userData?.total_credits || 0;
+      const newCredits = currentCredits + creditsToRefund;
+
       const { error: creditError } = await supabase
         .from('user_vote_credits')
-        .update({ 
-          total_credits: supabase.rpc('get_user_credits', { user_id: user.user.id }) + creditsToRefund 
-        })
+        .update({ total_credits: newCredits })
         .eq('user_id', user.user.id);
 
       if (creditError) {

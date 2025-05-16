@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -48,7 +49,51 @@ export type Like = {
   created_at: string;
 };
 
+// Mock data for development
+export const mockPosts: Post[] = [
+  {
+    id: '1',
+    title: 'Novo estudo sobre cannabis medicinal',
+    content: 'Lorem ipsum dolor sit amet...',
+    user_id: '1',
+    category: 'Medicinal',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    author: {
+      id: '1',
+      username: 'drmedicinal'
+    },
+    _count: {
+      comments: 5,
+      likes: 12
+    }
+  },
+  // Add a few more mock posts
+  {
+    id: '2',
+    title: 'Discussão sobre legislação',
+    content: 'Atualmente no Brasil...',
+    user_id: '2',
+    category: 'Legal',
+    created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+    updated_at: new Date(Date.now() - 86400000).toISOString(),
+    author: {
+      id: '2',
+      username: 'advogado420'
+    },
+    _count: {
+      comments: 8,
+      likes: 7
+    }
+  }
+];
+
 // Get all posts
+export const getAllPosts = async (): Promise<Post[]> => {
+  return getPosts();
+};
+
+// Get all posts - implementation
 export const getPosts = async (): Promise<Post[]> => {
   try {
     const { data, error } = await supabase
@@ -92,7 +137,7 @@ export const getPosts = async (): Promise<Post[]> => {
 };
 
 // Get a single post with comments
-export const getPost = async (postId: string): Promise<Post | null> => {
+export const getPostById = async (postId: string): Promise<Post | null> => {
   try {
     // Get the post with author
     const { data: post, error: postError } = await supabase
@@ -153,7 +198,7 @@ export const getPost = async (postId: string): Promise<Post | null> => {
           author: reply.author
         }))
       })) || [],
-      likes: post.likes,
+      likes: post.likes || [],
       _count: {
         comments: post.comments?.length || 0,
         likes: post.likes?.length || 0
@@ -174,7 +219,7 @@ export const createPost = async (data: {
   content: string;
   user_id: string;
   category?: string;
-}) => {
+}): Promise<Post | null> => {
   try {
     const { data: post, error } = await supabase
       .from('posts')
@@ -207,7 +252,7 @@ export const createComment = async (data: {
   user_id: string;
   post_id: string;
   parent_id?: string | null;
-}) => {
+}): Promise<Comment | null> => {
   try {
     const { data: comment, error } = await supabase
       .from('comments')
@@ -237,150 +282,151 @@ export const createComment = async (data: {
   }
 };
 
-// Toggle like on post
-export const togglePostLike = async (postId: string, userId: string) => {
+// Like post
+export const likePost = async (postId: string): Promise<{ success: boolean }> => {
   try {
-    // Check if like already exists
-    const { data: existingLike, error: checkError } = await supabase
-      .from('post_likes')
-      .select()
-      .eq('post_id', postId)
-      .eq('user_id', userId);
-
-    if (checkError) {
-      console.error('Error checking post like:', checkError);
-      toast.error('Falha ao verificar curtida');
-      throw checkError;
+    const { data: user } = await supabase.auth.getUser();
+    
+    if (!user?.user) {
+      toast.error('Você precisa estar logado para curtir posts');
+      throw new Error('User not authenticated');
     }
 
-    // If like exists, remove it
-    if (existingLike && existingLike.length > 0) {
-      const { error: unlikeError } = await supabase
-        .from('post_likes')
-        .delete()
-        .eq('post_id', postId)
-        .eq('user_id', userId);
-
-      if (unlikeError) {
-        console.error('Error removing like:', unlikeError);
-        toast.error('Falha ao remover curtida');
-        throw unlikeError;
-      }
-
-      return { 
-        action: 'unliked',
-        like: null
-      };
-    } 
-    // Otherwise, add like
-    else {
-      const { data: newLike, error: likeError } = await supabase
-        .from('post_likes')
-        .insert({
-          post_id: postId,
-          user_id: userId
-        })
-        .select()
-        .single();
-
-      if (likeError) {
-        console.error('Error adding like:', likeError);
-        toast.error('Falha ao curtir');
-        throw likeError;
-      }
-
-      return {
-        action: 'liked',
-        like: newLike
-      };
-    }
-  } catch (error) {
-    console.error('Exception toggling post like:', error);
-    throw error;
-  }
-};
-
-// Toggle like on comment
-export const toggleCommentLike = async (commentId: string, userId: string) => {
-  try {
-    // Check if like already exists
-    const { data: existingLike, error: checkError } = await supabase
-      .from('comment_likes')
-      .select()
-      .eq('comment_id', commentId)
-      .eq('user_id', userId);
-
-    if (checkError) {
-      console.error('Error checking comment like:', checkError);
-      toast.error('Falha ao verificar curtida');
-      throw checkError;
-    }
-
-    // If like exists, remove it
-    if (existingLike && existingLike.length > 0) {
-      const { error: unlikeError } = await supabase
-        .from('comment_likes')
-        .delete()
-        .eq('comment_id', commentId)
-        .eq('user_id', userId);
-
-      if (unlikeError) {
-        console.error('Error removing like:', unlikeError);
-        toast.error('Falha ao remover curtida');
-        throw unlikeError;
-      }
-
-      return { 
-        action: 'unliked',
-        like: null
-      };
-    } 
-    // Otherwise, add like
-    else {
-      const { data: newLike, error: likeError } = await supabase
-        .from('comment_likes')
-        .insert({
-          comment_id: commentId,
-          user_id: userId
-        })
-        .select()
-        .single();
-
-      if (likeError) {
-        console.error('Error adding like:', likeError);
-        toast.error('Falha ao curtir');
-        throw likeError;
-      }
-
-      return {
-        action: 'liked',
-        like: newLike
-      };
-    }
-  } catch (error) {
-    console.error('Exception toggling comment like:', error);
-    throw error;
-  }
-};
-
-// Delete post
-export const deletePost = async (postId: string) => {
-  try {
     const { error } = await supabase
-      .from('posts')
-      .delete()
-      .eq('id', postId);
+      .from('post_likes')
+      .insert({
+        post_id: postId,
+        user_id: user.user.id
+      });
 
     if (error) {
-      console.error('Error deleting post:', error);
-      toast.error('Falha ao excluir post');
+      if (error.code === '23505') {
+        // Duplicate key value violates unique constraint
+        toast.error('Você já curtiu este post');
+      } else {
+        console.error('Error liking post:', error);
+        toast.error('Falha ao curtir post');
+      }
       throw error;
     }
 
-    toast.success('Post excluído com sucesso!');
     return { success: true };
   } catch (error) {
-    console.error('Exception deleting post:', error);
+    console.error('Exception liking post:', error);
+    throw error;
+  }
+};
+
+// Unlike post
+export const unlikePost = async (postId: string): Promise<{ success: boolean }> => {
+  try {
+    const { data: user } = await supabase.auth.getUser();
+    
+    if (!user?.user) {
+      toast.error('Você precisa estar logado para descurtir posts');
+      throw new Error('User not authenticated');
+    }
+
+    const { error } = await supabase
+      .from('post_likes')
+      .delete()
+      .eq('post_id', postId)
+      .eq('user_id', user.user.id);
+
+    if (error) {
+      console.error('Error unliking post:', error);
+      toast.error('Falha ao descurtir post');
+      throw error;
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Exception unliking post:', error);
+    throw error;
+  }
+};
+
+// Delete comment
+export const deleteComment = async (commentId: string): Promise<{ success: boolean }> => {
+  try {
+    const { error } = await supabase
+      .from('comments')
+      .delete()
+      .eq('id', commentId);
+
+    if (error) {
+      console.error('Error deleting comment:', error);
+      toast.error('Falha ao excluir comentário');
+      throw error;
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Exception deleting comment:', error);
+    throw error;
+  }
+};
+
+// Like comment
+export const likeComment = async (commentId: string): Promise<{ success: boolean }> => {
+  try {
+    const { data: user } = await supabase.auth.getUser();
+    
+    if (!user?.user) {
+      toast.error('Você precisa estar logado para curtir comentários');
+      throw new Error('User not authenticated');
+    }
+
+    const { error } = await supabase
+      .from('comment_likes')
+      .insert({
+        comment_id: commentId,
+        user_id: user.user.id
+      });
+
+    if (error) {
+      if (error.code === '23505') {
+        // Duplicate key value violates unique constraint
+        toast.error('Você já curtiu este comentário');
+      } else {
+        console.error('Error liking comment:', error);
+        toast.error('Falha ao curtir comentário');
+      }
+      throw error;
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Exception liking comment:', error);
+    throw error;
+  }
+};
+
+// Unlike comment
+export const unlikeComment = async (commentId: string): Promise<{ success: boolean }> => {
+  try {
+    const { data: user } = await supabase.auth.getUser();
+    
+    if (!user?.user) {
+      toast.error('Você precisa estar logado para descurtir comentários');
+      throw new Error('User not authenticated');
+    }
+
+    const { error } = await supabase
+      .from('comment_likes')
+      .delete()
+      .eq('comment_id', commentId)
+      .eq('user_id', user.user.id);
+
+    if (error) {
+      console.error('Error unliking comment:', error);
+      toast.error('Falha ao descurtir comentário');
+      throw error;
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Exception unliking comment:', error);
     throw error;
   }
 };
@@ -390,7 +436,7 @@ export const updatePost = async (postId: string, data: {
   title: string;
   content: string;
   category?: string;
-}) => {
+}): Promise<Post | null> => {
   try {
     const { data: post, error } = await supabase
       .from('posts')
@@ -413,6 +459,28 @@ export const updatePost = async (postId: string, data: {
     return post;
   } catch (error) {
     console.error('Exception updating post:', error);
+    throw error;
+  }
+};
+
+// Delete post
+export const deletePost = async (postId: string): Promise<{ success: boolean }> => {
+  try {
+    const { error } = await supabase
+      .from('posts')
+      .delete()
+      .eq('id', postId);
+
+    if (error) {
+      console.error('Error deleting post:', error);
+      toast.error('Falha ao excluir post');
+      throw error;
+    }
+
+    toast.success('Post excluído com sucesso!');
+    return { success: true };
+  } catch (error) {
+    console.error('Exception deleting post:', error);
     throw error;
   }
 };

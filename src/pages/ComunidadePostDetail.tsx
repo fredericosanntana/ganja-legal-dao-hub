@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
@@ -19,7 +18,7 @@ const ComunidadePostDetail = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const { data: post, isLoading, error } = usePost(postId);
-  const { like, unlike, isLiking, isUnliking } = usePostLike(Number(postId));
+  const { like, unlike, isLiking, isUnliking } = usePostLike(postId);
   const { mutate: deletePost, isPending: isDeleting } = useDeletePost();
 
   const isAuthor = user?.id === post?.user_id;
@@ -170,7 +169,7 @@ const ComunidadePostDetail = () => {
               <h2 className="text-xl font-bold">Comentários</h2>
               
               {isAuthenticated ? (
-                <CommentForm postId={Number(postId)} />
+                <CommentForm postId={postId} />
               ) : (
                 <Card>
                   <CardContent className="p-6 text-center">
@@ -183,14 +182,14 @@ const ComunidadePostDetail = () => {
               )}
               
               <div className="space-y-4">
-                {post.comments && post.comments.length > 0 ? (
+                {post?.comments && post.comments.length > 0 ? (
                   post.comments
                     .filter(comment => !comment.parent_id) // Show only top-level comments
                     .map(comment => (
                       <Comment 
                         key={comment.id} 
                         comment={comment} 
-                        postId={Number(postId)} 
+                        postId={postId} 
                       />
                     ))
                 ) : (

@@ -31,10 +31,10 @@ export const usePosts = () => {
 };
 
 // Hook for fetching a single post
-export const usePost = (postId: number | string | undefined) => {
+export const usePost = (postId: string | undefined) => {
   return useQuery({
     queryKey: ["post", postId],
-    queryFn: () => getPostById(postId as number),
+    queryFn: () => getPostById(postId as string),
     enabled: !!postId,
   });
 };
@@ -44,7 +44,12 @@ export const useCreatePost = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (newPost: Partial<Post>) => createPost(newPost),
+    mutationFn: (newPost: {
+      title: string;
+      content: string;
+      user_id: string;
+      category?: string;
+    }) => createPost(newPost),
     onSuccess: () => {
       // Invalidate posts query to refetch
       queryClient.invalidateQueries({ queryKey: ["posts"] });
@@ -64,11 +69,15 @@ export const useCreatePost = () => {
 };
 
 // Hook for updating a post
-export const useUpdatePost = (postId: number) => {
+export const useUpdatePost = (postId: string) => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (updatedPost: Partial<Post>) => updatePost(postId, updatedPost),
+    mutationFn: (updatedPost: {
+      title: string;
+      content: string;
+      category?: string;
+    }) => updatePost(postId, updatedPost),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["post", postId] });
@@ -92,7 +101,7 @@ export const useDeletePost = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (postId: number) => deletePost(postId),
+    mutationFn: (postId: string) => deletePost(postId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       toast({
@@ -111,7 +120,7 @@ export const useDeletePost = () => {
 };
 
 // Hook for liking/unliking a post
-export const usePostLike = (postId: number) => {
+export const usePostLike = (postId: string) => {
   const queryClient = useQueryClient();
   
   const likeMutation = useMutation({
@@ -157,9 +166,14 @@ export const useCreateComment = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (newComment: Partial<Comment>) => createComment(newComment),
+    mutationFn: (newComment: {
+      content: string;
+      user_id: string;
+      post_id: string;
+      parent_id?: string;
+    }) => createComment(newComment),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["post", data.post_id] });
+      queryClient.invalidateQueries({ queryKey: ["post", data?.post_id] });
       toast({
         title: "Comentário adicionado",
         description: "Seu comentário foi adicionado com sucesso",
@@ -176,11 +190,11 @@ export const useCreateComment = () => {
 };
 
 // Hook for deleting a comment
-export const useDeleteComment = (postId: number) => {
+export const useDeleteComment = (postId: string) => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (commentId: number) => deleteComment(commentId),
+    mutationFn: (commentId: string) => deleteComment(commentId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["post", postId] });
       toast({
@@ -199,7 +213,7 @@ export const useDeleteComment = (postId: number) => {
 };
 
 // Hook for liking/unliking a comment
-export const useCommentLike = (postId: number, commentId: number) => {
+export const useCommentLike = (postId: string, commentId: string) => {
   const queryClient = useQueryClient();
   
   const likeMutation = useMutation({
