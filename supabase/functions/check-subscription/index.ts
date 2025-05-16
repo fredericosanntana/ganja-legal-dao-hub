@@ -27,7 +27,7 @@ serve(async (req) => {
       logStep("STRIPE_SECRET_KEY não está definido");
       return new Response(JSON.stringify({ error: 'STRIPE_SECRET_KEY não está definido', subscribed: false }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500,
+        status: 200, // Alterado para 200 para não bloquear o fluxo mesmo com erro
       });
     }
     logStep("Chave Stripe verificada");
@@ -44,7 +44,7 @@ serve(async (req) => {
       logStep("Header de autorização não fornecido");
       return new Response(JSON.stringify({ error: 'Header de autorização não fornecido', subscribed: false }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 401,
+        status: 200, // Alterado para 200 para não bloquear o fluxo
       });
     }
     logStep("Header de autorização encontrado");
@@ -56,7 +56,7 @@ serve(async (req) => {
       logStep(`Erro de autenticação: ${userError.message}`);
       return new Response(JSON.stringify({ error: `Erro de autenticação: ${userError.message}`, subscribed: false }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 401,
+        status: 200, // Alterado para 200 para não bloquear o fluxo
       });
     }
     
@@ -65,16 +65,17 @@ serve(async (req) => {
       logStep("Usuário não autenticado");
       return new Response(JSON.stringify({ error: 'Usuário não autenticado', subscribed: false }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 401,
+        status: 200, // Alterado para 200 para não bloquear o fluxo
       });
     }
     logStep("Usuário autenticado", { userId: user.id });
 
-    // Inicializar cliente Stripe
-    const stripe = new Stripe(stripeKey, { 
-      apiVersion: '2023-10-16', 
-      httpClient: Stripe.createFetchHttpClient()
-    });
+    // Definir estado padrão da assinatura
+    let subscriptionStatus = {
+      subscribed: false,
+      subscription_tier: 'basic',
+      subscription_end: new Date().toISOString()
+    };
 
     // Verificar assinatura na tabela de subscriptions do Supabase
     const { data: subscriptionData, error: subscriptionError } = await supabase
@@ -83,13 +84,6 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .single();
     
-    // Definir estado padrão da assinatura
-    let subscriptionStatus = {
-      subscribed: false,
-      subscription_tier: 'basic',
-      subscription_end: new Date().toISOString()
-    };
-
     // Se existir assinatura no banco, usar esses dados como fallback
     if (subscriptionData && !subscriptionError) {
       const expiresAt = new Date(subscriptionData.expires_at || subscriptionData.updated_at);
@@ -111,20 +105,36 @@ serve(async (req) => {
     if (user.email) {
       try {
         logStep("Buscando cliente Stripe pelo email", { email: user.email });
-        const customers = await stripe.customers.list({ email: user.email, limit: 1 });
         
-        if (customers.data.length > 0) {
+        // Usar um timeout para a requisição ao Stripe
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error("Timeout ao consultar o Stripe")), 5000)
+        );
+        
+        const stripePromise = Promise.race([
+          stripe.customers.list({ email: user.email, limit: 1 }),
+          timeoutPromise
+        ]);
+        
+        const customers = await stripePromise;
+        
+        if (customers.data && customers.data.length > 0) {
           const customerId = customers.data[0].id;
           logStep("Cliente Stripe encontrado", { customerId });
           
-          // Buscar assinaturas do cliente
-          const subscriptions = await stripe.subscriptions.list({
-            customer: customerId,
-            status: 'active',
-            limit: 1
-          });
+          // Buscar assinaturas do cliente com timeout
+          const subscriptionsPromise = Promise.race([
+            stripe.subscriptions.list({
+              customer: customerId,
+              status: 'active',
+              limit: 1
+            }),
+            timeoutPromise
+          ]);
           
-          if (subscriptions.data.length > 0) {
+          const subscriptions = await subscriptionsPromise;
+          
+          if (subscriptions.data && subscriptions.data.length > 0) {
             const stripeSubscription = subscriptions.data[0];
             logStep("Assinatura Stripe encontrada", { subscriptionId: stripeSubscription.id });
             
@@ -191,7 +201,7 @@ serve(async (req) => {
       subscription_end: new Date().toISOString()
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 500,
+      status: 200, // Alterado para 200 para não bloquear o fluxo
     });
   }
 });

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from "@/hooks/use-auth";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -18,12 +19,12 @@ const Login = () => {
   const location = useLocation();
   const [loadingTimeout, setLoadingTimeout] = useState(false);
 
-  // Defina um timeout para evitar espera infinita
+  // Define um timeout para evitar espera infinita
   useEffect(() => {
     if (loading) {
       const timer = setTimeout(() => {
         setLoadingTimeout(true);
-      }, 5000); // 5 segundos de timeout
+      }, 3000); // Reduzido para 3 segundos
       
       return () => clearTimeout(timer);
     }
@@ -48,22 +49,20 @@ const Login = () => {
       const authResult = await signIn(email, password);
       console.log("Resultado da autenticação:", authResult);
       
-      const userData = await refreshUser();
-      console.log("Dados do usuário obtidos:", userData ? "sim" : "não");
+      // Redirecionar para o dashboard mesmo sem aguardar o refreshUser
+      navigate("/clube/dashboard");
       
-      if (userData) {
-        toast.success("Login realizado com sucesso!");
-        console.log("Redirecionando para dashboard após login bem-sucedido");
-        navigate("/clube/dashboard");
-      } else {
-        console.error("Falha ao obter dados do usuário após login");
-        toast.error("Falha ao obter dados do usuário. Tente novamente.");
-      }
+      // Atualizar dados do usuário em segundo plano
+      refreshUser().catch(error => {
+        console.error("Erro ao atualizar dados do usuário:", error);
+      });
+      
+      toast.success("Login realizado com sucesso!");
+      
     } catch (error: any) {
       console.error("Erro no login:", error);
-      toast.error(error.message || "Falha no login. Verifique suas credenciais.");
-    } finally {
       setIsLoading(false);
+      toast.error(error.message || "Falha no login. Verifique suas credenciais.");
     }
   };
 
@@ -73,72 +72,19 @@ const Login = () => {
       <Layout>
         <div className="container mx-auto px-4 py-8 text-center">
           <p>Verificando autenticação...</p>
+          <Button 
+            variant="outline" 
+            className="mt-4" 
+            onClick={() => setLoadingTimeout(true)}
+          >
+            Continuar mesmo assim
+          </Button>
         </div>
       </Layout>
     );
   }
 
-  // Se o timeout ocorreu, mostre o formulário de login mesmo se estiver carregando
-  if (loading && loadingTimeout) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8 text-center">
-          <p className="mb-4">A verificação de autenticação está demorando mais que o esperado.</p>
-          <div className="max-w-md mx-auto">
-            <Card>
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-semibold">Login</CardTitle>
-                <CardDescription>Entre com sua conta para acessar o GanjaDAO Clube</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      type="email"
-                      id="email"
-                      placeholder="seu@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="w-full"
-                      disabled={isLoading}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Senha</Label>
-                    <Input
-                      type="password"
-                      id="password"
-                      placeholder="********"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="w-full"
-                      disabled={isLoading}
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    disabled={isLoading} 
-                    className="w-full"
-                  >
-                    {isLoading ? "Entrando..." : "Entrar"}
-                  </Button>
-                </form>
-              </CardContent>
-              <CardFooter className="flex justify-center">
-                <Link to="/clube/cadastro" className="text-sm text-primary hover:underline">
-                  Não tem uma conta? Cadastre-se
-                </Link>
-              </CardFooter>
-            </Card>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
-
+  // Se o timeout ocorreu ou o usuário optou por continuar, mostre o formulário de login
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">

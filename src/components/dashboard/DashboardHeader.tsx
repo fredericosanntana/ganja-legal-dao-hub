@@ -14,14 +14,13 @@ const DashboardHeader = () => {
     try {
       await logout();
       toast.success("Logout realizado com sucesso!");
+      // Forçar navegação imediatamente após o logout
       navigate("/clube/login");
     } catch (error) {
       console.error("Erro ao fazer logout:", error);
       toast.error("Falha ao fazer logout. Tente novamente.");
       // Forçar navegação mesmo se houver erro
-      setTimeout(() => {
-        navigate("/clube/login");
-      }, 1000);
+      navigate("/clube/login");
     }
   };
 
