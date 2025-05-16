@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import type { Initiative } from '@/types/initiatives';
+import type { Initiative, InitiativeStatus } from '@/types/initiatives';
 import { toast } from 'sonner';
 
 // Mock data for initiatives

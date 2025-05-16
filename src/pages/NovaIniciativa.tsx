@@ -1,88 +1,36 @@
-
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from "sonner";
 import Layout from "@/components/Layout";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { useAuth } from "@/hooks/use-auth";
 import { createInitiative } from "@/services/initiativeService";
 
-const iniciativaSchema = z.object({
-  title: z.string()
-    .min(5, "O título deve ter pelo menos 5 caracteres")
-    .max(100, "O título deve ter no máximo 100 caracteres"),
-  description: z.string()
-    .min(20, "A descrição deve ter pelo menos 20 caracteres")
-    .max(2000, "A descrição deve ter no máximo 2000 caracteres"),
-});
-
-type IniciativaFormValues = z.infer<typeof iniciativaSchema>;
-
 const NovaIniciativa = () => {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<IniciativaFormValues>({
-    resolver: zodResolver(iniciativaSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-    },
-  });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
 
-  // Check if user is authenticated and has subscription
-  if (authLoading) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8 text-center">
-          <p>Carregando...</p>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (!authLoading && (!isAuthenticated || !user?.subscription)) {
-    navigate("/clube/dashboard");
-    return null;
-  }
-
-  const onSubmit = async (values: IniciativaFormValues) => {
-    setIsSubmitting(true);
-    
     try {
-      const created = await createInitiative(values.title, values.description);
-      
-      if (created) {
-        toast({
-          title: "Iniciativa criada com sucesso",
-          description: "Sua iniciativa foi publicada para votação",
-        });
-        navigate(`/clube/iniciativas/${created.id}`);
+      const newInitiative = await createInitiative(title, description);
+      if (newInitiative) {
+        toast.success('Iniciativa criada com sucesso!');
+        navigate('/clube/iniciativas');
       } else {
-        toast({
-          title: "Erro ao criar iniciativa",
-          description: "Não foi possível criar sua iniciativa",
-          variant: "destructive",
-        });
+        toast.error('Falha ao criar iniciativa.');
       }
     } catch (error) {
-      toast({
-        title: "Erro ao criar iniciativa",
-        description: "Ocorreu um erro ao processar sua solicitação",
-        variant: "destructive",
-      });
       console.error("Create initiative error:", error);
+      toast.error("Erro ao criar iniciativa. Tente novamente.");
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
@@ -90,77 +38,33 @@ const NovaIniciativa = () => {
     <Layout>
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold">Nova Iniciativa</h1>
-            <p className="text-muted-foreground">
-              Crie uma nova proposta para ser votada pelos membros do clube
-            </p>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Detalhes da iniciativa</CardTitle>
-              <CardDescription>
-                Preencha as informações da sua proposta
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Título</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="Título da sua iniciativa"
-                            disabled={isSubmitting}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Descrição</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            {...field}
-                            placeholder="Descreva em detalhes sua proposta..."
-                            className="min-h-[200px]"
-                            disabled={isSubmitting}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="flex justify-end space-x-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      disabled={isSubmitting}
-                      asChild
-                    >
-                      <Link to="/clube/iniciativas">Cancelar</Link>
-                    </Button>
-                    <Button type="submit" disabled={isSubmitting}>
-                      {isSubmitting ? "Criando..." : "Criar Iniciativa"}
-                    </Button>
-                  </div>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
+          <h1 className="text-3xl font-bold mb-6">Nova Iniciativa</h1>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="title">Título:</Label>
+              <Input
+                type="text"
+                id="title"
+                placeholder="Título da iniciativa"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="description">Descrição:</Label>
+              <Textarea
+                id="description"
+                placeholder="Descrição detalhada da iniciativa"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+              />
+            </div>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Criando..." : "Criar Iniciativa"}
+            </Button>
+          </form>
         </div>
       </div>
     </Layout>

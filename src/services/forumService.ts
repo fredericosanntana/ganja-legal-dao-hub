@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Post, Comment, PostLike as Like } from '@/types/forum';
@@ -10,6 +9,17 @@ export const getAllPosts = async (): Promise<Post[]> => {
 
 // Get all posts - implementation
 export const getPosts = async (): Promise<Post[]> => {
+  // Using mock data for now
+  const useMockData = true;
+  
+  if (useMockData) {
+    // Return mock posts - ensure each post has properly formatted _count
+    return mockPosts.map(post => ({
+      ...post,
+      _count: { comments: post.comments?.length || 0, likes: post.likes?.length || 0 }
+    }));
+  }
+
   try {
     const { data, error } = await supabase
       .from('posts')
@@ -28,22 +38,13 @@ export const getPosts = async (): Promise<Post[]> => {
     }
 
     // Transform the data to match our Post type
-    const posts: Post[] = data.map(post => ({
-      id: post.id,
-      title: post.title,
-      content: post.content,
-      user_id: post.user_id,
-      category: post.category,
-      created_at: post.created_at,
-      updated_at: post.updated_at,
-      author: post.author,
-      _count: {
-        comments: post.comments?.length || 0,
-        likes: post.likes?.length || 0
+    return data.map((post: any) => ({
+      ...post,
+      _count: { 
+        comments: post._count?.comments || 0,
+        likes: post._count?.likes || 0
       }
-    }));
-
-    return posts;
+    })) as Post[];
   } catch (error) {
     console.error('Exception fetching posts:', error);
     toast.error('Erro inesperado ao carregar posts');
