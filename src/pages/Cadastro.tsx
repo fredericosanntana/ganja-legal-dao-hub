@@ -16,7 +16,7 @@ const Cadastro = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signUp } = useAuth();
+  const { signUp, checkSubscription } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,6 +39,14 @@ const Cadastro = () => {
       
       if (result.error) {
         throw new Error(result.error.message);
+      }
+      
+      // Verificar o status de assinatura se o cadastro for bem-sucedido
+      try {
+        await checkSubscription();
+      } catch (subscriptionError) {
+        // Se houver erro na verificação da assinatura, apenas logamos mas não impedimos o processo
+        console.error("Erro ao verificar assinatura inicial:", subscriptionError);
       }
       
       toast.success("Cadastro realizado com sucesso! Faça login para continuar.");
