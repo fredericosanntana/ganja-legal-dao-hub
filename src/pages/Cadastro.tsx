@@ -43,7 +43,12 @@ const Cadastro = () => {
     setIsLoading(true);
 
     try {
+      // Register user with inactive subscription by default
       await signUp(email, password, username);
+      
+      // Ensure the subscription is set to inactive (this is now handled by the database trigger)
+      // We'll update the handle_new_user database function separately
+      
       toast.success("Cadastro realizado com sucesso! Faça login para continuar.");
       navigate("/clube/login");
     } catch (error: any) {

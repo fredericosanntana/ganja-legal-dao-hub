@@ -46,6 +46,24 @@ export const getAllAuthServicePosts = async (): Promise<AuthServicePost[]> => {
   }
 };
 
+// New function to update the user trigger function (to be called on app initialization)
+export const updateUserTriggerFunction = async () => {
+  try {
+    // Call the edge function to update the trigger
+    const { data, error } = await supabase.functions.invoke('update-user-trigger');
+    
+    if (error) {
+      console.error('Error updating user trigger:', error);
+      return false;
+    }
+    
+    return data.success;
+  } catch (error) {
+    console.error('Exception updating user trigger:', error);
+    return false;
+  }
+};
+
 // New function to create a post with authenticated user
 export const createAuthServicePost = async (postData: {
   title: string;

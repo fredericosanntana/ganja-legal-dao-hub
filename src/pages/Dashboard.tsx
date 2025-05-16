@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -70,6 +71,9 @@ const Dashboard = () => {
     return null; // Redirect happens in the useEffect
   }
 
+  // Check for subscription status
+  const hasActiveSubscription = user.subscription && user.subscription.status === 'active';
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-6">
@@ -80,7 +84,7 @@ const Dashboard = () => {
             <div>
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold">Iniciativas Ativas</h2>
-                {user.subscription && (
+                {hasActiveSubscription && (
                   <Button size="sm" asChild>
                     <Link to="/clube/iniciativas/nova">
                       <Plus className="mr-1 h-4 w-4" />
@@ -128,7 +132,7 @@ const Dashboard = () => {
                     <p className="text-muted-foreground">
                       Nenhuma iniciativa ativa no momento.
                     </p>
-                    {user.subscription && (
+                    {hasActiveSubscription && (
                       <Button className="mt-4" asChild>
                         <Link to="/clube/iniciativas/nova">
                           <Plus className="mr-1 h-4 w-4" />
@@ -150,7 +154,7 @@ const Dashboard = () => {
                       {user.votes.slice(0, 3).map((vote) => (
                         <div key={vote.id} className="flex justify-between items-center">
                           <div>
-                            <p className="font-medium">{vote.initiative.title}</p>
+                            <p className="font-medium">{vote.initiative?.title}</p>
                             <p className="text-sm text-muted-foreground">
                               {vote.credits_spent} créditos alocados
                             </p>
@@ -192,7 +196,7 @@ const Dashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {user.subscription ? (
+                {hasActiveSubscription ? (
                   <div>
                     <Badge className="mb-2 bg-green-500">Ativa</Badge>
                     <p className="text-sm text-muted-foreground mb-2">

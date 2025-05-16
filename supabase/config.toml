@@ -1,1 +1,8 @@
+
 project_id = "regozquxnqhcnziyyuvv"
+
+[functions.update-user-trigger]
+verify_jwt = true
+
+[functions.update-subscription-status]
+verify_jwt = true

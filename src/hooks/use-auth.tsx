@@ -1,7 +1,9 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { supabase } from '../integrations/supabase/client';
 import { User } from '@/types/auth';
+import { updateUserTriggerFunction } from '@/services/authService';
 
 interface AuthContextType {
   user: User | null;
@@ -34,6 +36,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       expires_at: subscriptionData.expires_at
     };
   };
+
+  // Update user trigger function to ensure inactive subscription by default
+  useEffect(() => {
+    // Call the updateUserTriggerFunction to ensure new users get inactive subscriptions
+    updateUserTriggerFunction().then(success => {
+      if (success) {
+        console.log('User trigger function updated successfully');
+      } else {
+        console.warn('Failed to update user trigger function');
+      }
+    });
+  }, []);
 
   useEffect(() => {
     let mounted = true;
