@@ -24,6 +24,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Helper function to transform subscription data
+  const transformSubscriptionData = (subscriptionData: any) => {
+    if (!subscriptionData) return undefined;
+    
+    return {
+      status: subscriptionData.status,
+      plan: subscriptionData.payment_details || 'basic', // Default to 'basic' if not specified
+      current_period_end: subscriptionData.expires_at || subscriptionData.updated_at,
+      expires_at: subscriptionData.expires_at
+    };
+  };
+
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -65,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               updated_at: userData.updated_at,
               votes: userData.votes || [],
               vote_credits: voteCreditsData || { total_credits: 0 },
-              subscription: subscriptionData || undefined
+              subscription: transformSubscriptionData(subscriptionData)
             };
             setUser(userObj);
           } else {
@@ -129,7 +141,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             updated_at: userData.updated_at,
             votes: userData.votes || [],
             vote_credits: voteCreditsData || { total_credits: 0 },
-            subscription: subscriptionData || undefined
+            subscription: transformSubscriptionData(subscriptionData)
           };
           setUser(userObj);
         } else {
@@ -192,7 +204,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             updated_at: userData.updated_at,
             votes: userData.votes || [],
             vote_credits: voteCreditsData || { total_credits: 0 },
-            subscription: subscriptionData || undefined
+            subscription: transformSubscriptionData(subscriptionData)
           };
           
           setUser(updatedUser);
