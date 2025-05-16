@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Post, Comment, PostLike, CommentLike } from '@/types/forum';
@@ -101,7 +102,8 @@ export const getPostById = async (postId: string): Promise<Post | null> => {
         updated_at: comment.updated_at,
         author: comment.author,
         _count: {
-          likes: comment.likes?.length || 0
+          likes: comment.likes?.length || 0,
+          replies: comment.replies?.length || 0
         },
         replies: comment.replies?.map((reply: any) => ({
           id: reply.id,
@@ -114,7 +116,7 @@ export const getPostById = async (postId: string): Promise<Post | null> => {
           author: reply.author
         }))
       })) || [],
-      likes: post.likes || [],
+      likes: (post.likes || []) as PostLike[],
       _count: {
         comments: post.comments?.length || 0,
         likes: post.likes?.length || 0
