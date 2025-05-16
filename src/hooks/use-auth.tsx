@@ -35,15 +35,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .from('users')
             .select(`
               *,
-              votes(*),
-              vote_credits(*)
+              votes(*)
             `)
             .eq('id', currentSession.user.id)
             .single();
           
+          // Separately fetch vote_credits to handle potential relation errors
+          const { data: voteCreditsData } = await supabase
+            .from('user_vote_credits')
+            .select('*')
+            .eq('user_id', currentSession.user.id)
+            .single();
+          
           if (!error && userData) {
             // Transform the raw data into our User type
-            setUser({
+            const userObj: User = {
               id: currentSession.user.id,
               email: userData.email,
               username: userData.username,
@@ -51,12 +57,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               created_at: userData.created_at,
               updated_at: userData.updated_at,
               votes: userData.votes || [],
-              vote_credits: userData.vote_credits || { total_credits: 0 },
-              subscription: userData.subscription
-            });
+              vote_credits: voteCreditsData || { total_credits: 0 },
+              subscription: userData.subscription || undefined
+            };
+            setUser(userObj);
           } else {
             // Fallback to basic user data if detailed fetch fails
-            setUser({
+            const basicUser: User = {
               id: currentSession.user.id,
               email: currentSession.user.email || '',
               username: '',
@@ -66,7 +73,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               votes: [],
               vote_credits: { total_credits: 0 },
               subscription: undefined
-            });
+            };
+            setUser(basicUser);
           }
         } else {
           setUser(null);
@@ -84,15 +92,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .from('users')
           .select(`
             *,
-            votes(*),
-            vote_credits(*)
+            votes(*)
           `)
           .eq('id', currentSession.user.id)
           .single();
         
+        // Separately fetch vote_credits to handle potential relation errors
+        const { data: voteCreditsData } = await supabase
+          .from('user_vote_credits')
+          .select('*')
+          .eq('user_id', currentSession.user.id)
+          .single();
+        
         if (!error && userData) {
           // Transform the raw data into our User type
-          setUser({
+          const userObj: User = {
             id: currentSession.user.id,
             email: userData.email,
             username: userData.username,
@@ -100,12 +114,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             created_at: userData.created_at,
             updated_at: userData.updated_at,
             votes: userData.votes || [],
-            vote_credits: userData.vote_credits || { total_credits: 0 },
-            subscription: userData.subscription
-          });
+            vote_credits: voteCreditsData || { total_credits: 0 },
+            subscription: userData.subscription || undefined
+          };
+          setUser(userObj);
         } else {
           // Fallback to basic user data if detailed fetch fails
-          setUser({
+          const basicUser: User = {
             id: currentSession.user.id,
             email: currentSession.user.email || '',
             username: '',
@@ -115,7 +130,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             votes: [],
             vote_credits: { total_credits: 0 },
             subscription: undefined
-          });
+          };
+          setUser(basicUser);
         }
       }
       setLoading(false);
