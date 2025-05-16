@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -35,6 +35,7 @@ const Documentos = () => {
     
     setIsLoading(true);
     try {
+      // Using storage to fetch from documents
       const { data, error } = await supabase
         .from("user_documents")
         .select("*")
@@ -61,13 +62,13 @@ const Documentos = () => {
   };
 
   // Load documents on component mount
-  useState(() => {
+  useEffect(() => {
     if (user) {
       fetchDocuments();
     } else {
       navigate('/clube/login');
     }
-  });
+  }, [user, navigate]);
 
   // Filter documents by category
   const filteredDocuments = activeTab === "all" 

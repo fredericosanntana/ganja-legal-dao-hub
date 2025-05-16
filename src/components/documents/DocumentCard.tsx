@@ -46,11 +46,11 @@ const DocumentCard = ({ document, onDelete }: DocumentCardProps) => {
   };
   
   const getFileIcon = () => {
-    if (document.mime_type.includes('pdf')) {
+    if (document.mime_type?.includes('pdf')) {
       return <FileText className="h-10 w-10 text-red-500" />;
-    } else if (document.mime_type.includes('image')) {
+    } else if (document.mime_type?.includes('image')) {
       return <FileImage className="h-10 w-10 text-blue-500" />;
-    } else if (document.mime_type.includes('word')) {
+    } else if (document.mime_type?.includes('word')) {
       return <File className="h-10 w-10 text-indigo-500" />;
     } else {
       return <File className="h-10 w-10 text-gray-500" />;
