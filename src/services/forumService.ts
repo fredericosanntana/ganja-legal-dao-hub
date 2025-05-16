@@ -1,7 +1,6 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Post, Comment, PostLike } from '@/types/forum';
+import { Post, Comment, PostLike, CommentLike } from '@/types/forum';
 
 // Get all posts
 export const getAllPosts = async (): Promise<Post[]> => {

@@ -54,3 +54,14 @@ export interface CommentLike {
   comment_id: string;
   created_at: string;
 }
+
+export type PostCategory = "geral" | "jurídico" | "política" | "cultivo" | "medicinal" | "outros";
+
+export const POST_CATEGORIES: {label: string, value: PostCategory}[] = [
+  { label: "Geral", value: "geral" },
+  { label: "Jurídico", value: "jurídico" },
+  { label: "Política", value: "política" },
+  { label: "Cultivo", value: "cultivo" },
+  { label: "Medicinal", value: "medicinal" },
+  { label: "Outros", value: "outros" }
+];
