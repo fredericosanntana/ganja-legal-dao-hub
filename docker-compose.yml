@@ -1,3 +1,4 @@
+
 version: '3.8'
 
 services:
@@ -16,9 +17,9 @@ services:
       # Exclude the dist folder from being overwritten if you build outside and copy
       - /app/dist
     environment:
-      # Example: Set environment variables for your application
-      # NODE_ENV: development
-      # VITE_API_URL: http://localhost:3000
-      # Add any other environment variables your application needs
+      # Supabase connection settings
+      VITE_SUPABASE_URL: "https://regozquxnqhcnziyyuvv.supabase.co"
+      VITE_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlZ296cXV4bnFoY256aXl5dXZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcyNzUzMDksImV4cCI6MjA2Mjg1MTMwOX0.-BRPhPctZhiKO-vXdDAHFJkBcJANjc3c78iYmQVADVs"
+      # Application settings
       HOST: "0.0.0.0"
       PORT: "8080"

@@ -1,6 +1,6 @@
 
 export interface User {
-  id: number;
+  id: string;  // Changed to string (UUID) to match Supabase
   username: string;
   email: string;
   password?: string;  // Optional because we don't want to expose it in most cases
@@ -13,8 +13,8 @@ export interface User {
 }
 
 export interface Subscription {
-  id: number;
-  user_id: number;
+  id: string;  // Changed to string (UUID) to match Supabase
+  user_id: string;  // Changed to string (UUID) to match Supabase
   status: string;
   started_at: string;
   expires_at?: string;
@@ -25,8 +25,8 @@ export interface Subscription {
 }
 
 export interface UserVoteCredit {
-  id: number;
-  user_id: number;
+  id: string;  // Changed to string (UUID) to match Supabase
+  user_id: string;  // Changed to string (UUID) to match Supabase
   total_credits: number;
   last_reset_at?: string;
   updated_at: string;
@@ -34,7 +34,7 @@ export interface UserVoteCredit {
 
 export interface Vote {
   id: string;
-  user_id: number;
+  user_id: string;  // Changed to string (UUID) to match Supabase
   initiative_id: string;
   credits_spent: number;
   created_at: string;

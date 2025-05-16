@@ -1,13 +1,15 @@
-import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 
-// New function to create a post with authenticated user
-export const createAuthServicePost = async (postData: {
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+
+interface PostData {
   title: string;
   content: string;
   published: boolean;
   userId: number;
-}) => {
+}
+
+export const createAuthServicePost = async (postData: PostData) => {
   try {
     const { data: user } = await supabase.auth.getUser();
     if (!user) {

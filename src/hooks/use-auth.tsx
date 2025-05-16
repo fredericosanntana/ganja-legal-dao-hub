@@ -1,81 +1,128 @@
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { User } from "@/types/auth";
-import { getCurrentUser, logout as authLogout } from "@/services/authService";
-import { toast } from "@/hooks/use-toast";
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { User, Session } from '@supabase/supabase-js';
+import { supabase } from '../integrations/supabase/client';
 
 interface AuthContextType {
   user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  logout: () => Promise<void>;
-  refreshUser: () => Promise<void>;
+  session: Session | null;
+  loading: boolean;
+  signIn: (email: string, password: string) => Promise<any>;
+  signUp: (email: string, password: string, username: string) => Promise<any>;
+  signOut: () => Promise<any>;
 }
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  isAuthenticated: false,
-  isLoading: true,
-  logout: async () => {},
-  refreshUser: async () => {},
-});
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const loadUser = async () => {
-    setIsLoading(true);
-    try {
-      const currentUser = await getCurrentUser();
-      setUser(currentUser);
-      console.log("User loaded:", currentUser);
-    } catch (error) {
-      console.error("Error loading user:", error);
-      setUser(null);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadUser();
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, currentSession) => {
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+        setLoading(false);
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const logout = async () => {
+  const signIn = async (email: string, password: string) => {
     try {
-      await authLogout();
-      setUser(null);
-      toast({
-        title: "Logout realizado",
-        description: "Você foi desconectado com sucesso",
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
       });
+      
+      if (error) throw error;
+      return data;
     } catch (error) {
-      console.error("Error during logout:", error);
-      toast({
-        title: "Erro ao fazer logout",
-        description: "Ocorreu um problema ao desconectar sua conta",
-        variant: "destructive",
-      });
+      console.error('Error signing in:', error);
+      throw error;
     }
   };
 
-  const refreshUser = async () => {
-    console.log("Refreshing user data...");
-    await loadUser();
+  const signUp = async (email: string, password: string, username: string) => {
+    try {
+      // Step 1: Create the auth user
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            username: username,
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      // Step 2: Create the public user record (this would typically be handled by a trigger on auth.users)
+      // In a real implementation with proper triggers, this would be redundant
+      if (data.user) {
+        const { error: profileError } = await supabase
+          .from('users')
+          .insert([
+            {
+              id: data.user.id,
+              username: username,
+              email: email,
+              password: '[PROTECTED]', // Don't store actual password; auth handles this
+              is_admin: false
+            }
+          ]);
+
+        if (profileError) {
+          console.error('Error creating user profile:', profileError);
+          // Consider handling this error, possibly by cleaning up the auth user
+        }
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error signing up:', error);
+      throw error;
+    }
+  };
+
+  const signOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error signing out:', error);
+      throw error;
+    }
   };
 
   const value = {
     user,
-    isAuthenticated: !!user,
-    isLoading,
-    logout,
-    refreshUser,
+    session,
+    loading,
+    signIn,
+    signUp,
+    signOut
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
+}
 
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}

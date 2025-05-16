@@ -1,11 +1,10 @@
-
 import { User } from "./auth";
 
 export interface Post {
-  id: number;
+  id: string;  // Changed to string (UUID) to match Supabase
   title: string;
   content: string;
-  user_id: number;
+  user_id: string;  // Changed to string (UUID) to match Supabase
   category?: string;
   created_at: string;
   updated_at: string;
@@ -19,11 +18,11 @@ export interface Post {
 }
 
 export interface Comment {
-  id: number;
+  id: string;  // Changed to string (UUID) to match Supabase
   content: string;
-  user_id: number;
-  post_id: number;
-  parent_id?: number;
+  user_id: string;  // Changed to string (UUID) to match Supabase
+  post_id: string;  // Changed to string (UUID) to match Supabase
+  parent_id?: string;  // Changed to string (UUID) to match Supabase
   created_at: string;
   updated_at: string;
   author?: User;
@@ -36,16 +35,16 @@ export interface Comment {
 }
 
 export interface PostLike {
-  id: number;
-  user_id: number;
-  post_id: number;
+  id: string;  // Changed to string (UUID) to match Supabase
+  user_id: string;  // Changed to string (UUID) to match Supabase
+  post_id: string;  // Changed to string (UUID) to match Supabase
   created_at: string;
 }
 
 export interface CommentLike {
-  id: number;
-  user_id: number;
-  comment_id: number;
+  id: string;  // Changed to string (UUID) to match Supabase
+  user_id: string;  // Changed to string (UUID) to match Supabase
+  comment_id: string;  // Changed to string (UUID) to match Supabase
   created_at: string;
 }
 
