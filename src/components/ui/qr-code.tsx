@@ -1,58 +1,54 @@
 
-import React from "react";
+import React, { useEffect, useRef } from 'react';
 
-// A simple QR Code display component that uses an SVG placeholder or img tag
 interface QRCodeProps {
   value: string;
   size?: number;
-  style?: React.CSSProperties;
+  bgColor?: string;
+  fgColor?: string;
+  level?: string;
+  includeMargin?: boolean;
 }
 
-const QRCode: React.FC<QRCodeProps> = ({ value, size = 128, style }) => {
-  // If value is empty, show a placeholder
-  if (!value) {
-    return (
-      <div 
-        style={{ 
-          width: size, 
-          height: size, 
-          background: "#f0f0f0", 
-          display: "flex", 
-          alignItems: "center", 
-          justifyContent: "center",
-          ...style
-        }}
-      >
-        <svg 
-          width={size * 0.8} 
-          height={size * 0.8} 
-          viewBox="0 0 100 100" 
-          fill="none" 
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <rect x="10" y="10" width="30" height="30" fill="#888888" />
-          <rect x="60" y="10" width="30" height="30" fill="#888888" />
-          <rect x="10" y="60" width="30" height="30" fill="#888888" />
-          <rect x="45" y="45" width="10" height="10" fill="#888888" />
-          <rect x="60" y="60" width="10" height="10" fill="#888888" />
-          <rect x="75" y="60" width="15" height="10" fill="#888888" />
-          <rect x="60" y="75" width="30" height="15" fill="#888888" />
-        </svg>
-      </div>
-    );
-  }
-  
-  // Here we use a simple QR API to generate the QR code image
-  // Note: For production, consider using a local QR generation or a reliable service
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(value)}`;
-  
+const QRCode: React.FC<QRCodeProps> = ({ 
+  value, 
+  size = 128,
+  bgColor = '#FFFFFF',
+  fgColor = '#000000',
+  level = 'L',
+  includeMargin = false
+}) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const loadQRCode = async () => {
+      try {
+        // Dynamically import qrcode.js
+        const QRCodeLib = await import('qrcode');
+        if (canvasRef.current) {
+          await QRCodeLib.toCanvas(canvasRef.current, value, {
+            width: size,
+            margin: includeMargin ? 4 : 0,
+            color: {
+              dark: fgColor,
+              light: bgColor,
+            },
+            errorCorrectionLevel: level as any,
+          });
+        }
+      } catch (error) {
+        console.error('Error generating QR code:', error);
+      }
+    };
+
+    loadQRCode();
+  }, [value, size, bgColor, fgColor, level, includeMargin]);
+
   return (
-    <img 
-      src={qrCodeUrl} 
-      alt="QR Code" 
-      width={size} 
-      height={size} 
-      style={style}
+    <canvas
+      ref={canvasRef}
+      style={{ height: size, width: size }}
+      className="rounded-md"
     />
   );
 };

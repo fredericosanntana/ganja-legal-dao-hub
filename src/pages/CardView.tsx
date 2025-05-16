@@ -78,19 +78,17 @@ const CardView = () => {
         const { data: documents, error: docsError } = await supabase
           .from("user_documents")
           .select("id, name, category, file_path, mime_type")
-          .in("id", cardData.document_ids);
+          .in("id", cardData.document_ids || []);
 
         if (docsError) {
           console.error("Error fetching documents:", docsError);
         }
 
-        const formattedCardData: CardData = {
+        setCardData({
           ...cardData,
           user_details: userData || undefined,
           documents: documents || []
-        };
-
-        setCardData(formattedCardData);
+        });
       } catch (error) {
         console.error("Error loading card:", error);
         setError("Erro ao carregar a carteirinha");

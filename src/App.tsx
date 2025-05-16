@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Juridico from "./pages/Juridico";
 import HabeasCorpusPage from "./pages/HabeasCorpusPage";
@@ -56,59 +56,57 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/juridico" element={<Juridico />} />
-            <Route path="/habeas-corpus" element={<HabeasCorpusPage />} />
-            <Route path="/jurisprudencia" element={<Jurisprudencia />} />
-            <Route path="/anvisa" element={<Anvisa />} />
-            <Route path="/calculadoras" element={<Calculadoras />} />
-            <Route path="/plano-cultivo" element={<PlanoCultivo />} />
-            <Route path="/origem-genetica" element={<DeclaracaoOrigemGenetica />} />
-            <Route path="/termo-responsabilidade" element={<DeclaracaoResponsabilidade />} />
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/juridico" element={<Juridico />} />
+          <Route path="/habeas-corpus" element={<HabeasCorpusPage />} />
+          <Route path="/jurisprudencia" element={<Jurisprudencia />} />
+          <Route path="/anvisa" element={<Anvisa />} />
+          <Route path="/calculadoras" element={<Calculadoras />} />
+          <Route path="/plano-cultivo" element={<PlanoCultivo />} />
+          <Route path="/origem-genetica" element={<DeclaracaoOrigemGenetica />} />
+          <Route path="/termo-responsabilidade" element={<DeclaracaoResponsabilidade />} />
 
-            {/* Rotas de Conteúdo */}
-            <Route path="/conteudo" element={<Conteudo />} />
-            <Route path="/conteudo/editor" element={<BlogEditor />} />
-            {/* Rotas específicas para artigos estáticos */}
-            <Route path="/conteudo/checklist-juridico" element={<CheckListJuridicoPage />} />
-            <Route path="/conteudo/bastidores" element={<BastidoresGanjadaoPage />} />
-            <Route path="/conteudo/caso-mariana" element={<CasoRealMarianaPage />} /> {/* Nova rota */}
-            <Route path="/conteudo/convocacao" element={<ConvocacaoDaoPage />} />
-            <Route path="/conteudo/mitos-verdades" element={<MitosVerdadesHcDigitalPage />} />
-            <Route path="/conteudo/cultivo-legal" element={<CultivoLegalPage />} />
-            <Route path="/conteudo/manual-cultivador" element={<ManualCultivadorAutonomoPage />} />
-            <Route path="/conteudo/mapa-protecao" element={<MapaProtecaoPage />} />
-            <Route path="/conteudo/embaixadores" element={<ChamadaEmbaixadoresPage />} />
-            {/* Adicionar outras rotas de artigos estáticos aqui conforme necessário */}
+          {/* Rotas de Conteúdo */}
+          <Route path="/conteudo" element={<Conteudo />} />
+          <Route path="/conteudo/editor" element={<BlogEditor />} />
+          {/* Rotas específicas para artigos estáticos */}
+          <Route path="/conteudo/checklist-juridico" element={<CheckListJuridicoPage />} />
+          <Route path="/conteudo/bastidores" element={<BastidoresGanjadaoPage />} />
+          <Route path="/conteudo/caso-mariana" element={<CasoRealMarianaPage />} /> {/* Nova rota */}
+          <Route path="/conteudo/convocacao" element={<ConvocacaoDaoPage />} />
+          <Route path="/conteudo/mitos-verdades" element={<MitosVerdadesHcDigitalPage />} />
+          <Route path="/conteudo/cultivo-legal" element={<CultivoLegalPage />} />
+          <Route path="/conteudo/manual-cultivador" element={<ManualCultivadorAutonomoPage />} />
+          <Route path="/conteudo/mapa-protecao" element={<MapaProtecaoPage />} />
+          <Route path="/conteudo/embaixadores" element={<ChamadaEmbaixadoresPage />} />
+          {/* Adicionar outras rotas de artigos estáticos aqui conforme necessário */}
 
-            <Route path="/clube" element={<Clube />} />
-            <Route path="/clube/votacoes" element={<Votacoes />} />
-            <Route path="/clube/votacoes/:id" element={<VotacaoDetalhe />} />
-            
-            {/* Auth Routes */}
-            <Route path="/clube/login" element={<Login />} />
-            <Route path="/clube/cadastro" element={<Cadastro />} />
-            <Route path="/clube/dashboard" element={<Dashboard />} />
-            <Route path="/clube/iniciativas" element={<Iniciativas />} />
-            <Route path="/clube/iniciativas/nova" element={<NovaIniciativa />} />
-            <Route path="/clube/iniciativas/:id" element={<IniciativaDetalhe />} />
-            <Route path="/clube/perfil" element={<Perfil />} />
-            
-            {/* Document Routes */}
-            <Route path="/clube/documentos" element={<Documentos />} />
-            <Route path="/clube/carteirinha" element={<Carteirinha />} />
-            <Route path="/card/:linkId" element={<CardView />} />
-            
-            {/* Comunidade (Fórum) Routes */}
-            <Route path="/clube/comunidade" element={<Comunidade />} />
-            <Route path="/clube/comunidade/posts/:postId" element={<ComunidadePostDetail />} />
-            <Route path="/clube/comunidade/novo" element={<ComunidadeNovoPost />} />
-            
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+          <Route path="/clube" element={<Clube />} />
+          <Route path="/clube/votacoes" element={<Votacoes />} />
+          <Route path="/clube/votacoes/:id" element={<VotacaoDetalhe />} />
+          
+          {/* Auth Routes */}
+          <Route path="/clube/login" element={<Login />} />
+          <Route path="/clube/cadastro" element={<Cadastro />} />
+          <Route path="/clube/dashboard" element={<Dashboard />} />
+          <Route path="/clube/iniciativas" element={<Iniciativas />} />
+          <Route path="/clube/iniciativas/nova" element={<NovaIniciativa />} />
+          <Route path="/clube/iniciativas/:id" element={<IniciativaDetalhe />} />
+          <Route path="/clube/perfil" element={<Perfil />} />
+          
+          {/* Document Routes */}
+          <Route path="/clube/documentos" element={<Documentos />} />
+          <Route path="/clube/carteirinha" element={<Carteirinha />} />
+          <Route path="/card/:linkId" element={<CardView />} />
+          
+          {/* Comunidade (Fórum) Routes */}
+          <Route path="/clube/comunidade" element={<Comunidade />} />
+          <Route path="/clube/comunidade/posts/:postId" element={<ComunidadePostDetail />} />
+          <Route path="/clube/comunidade/novo" element={<ComunidadeNovoPost />} />
+          
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
