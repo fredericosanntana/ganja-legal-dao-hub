@@ -1,71 +1,32 @@
-
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import Layout from "@/components/Layout";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { Leaf } from "lucide-react";
-import { login } from "@/services/authService";
+import React, { useState } from 'react';
 import { useAuth } from "@/hooks/use-auth";
-
-const loginSchema = z.object({
-  usernameOrEmail: z.string().min(1, "Username or email is required"),
-  password: z.string().min(1, "Password is required"),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import Layout from "@/components/Layout";
+import { Link } from 'react-router-dom';
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
 
 const Login = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { refreshUser } = useAuth();
+  const { signIn, refreshUser } = useAuth();
+  const navigate = useNavigate();
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      usernameOrEmail: "",
-      password: "",
-    },
-  });
-
-  const onSubmit = async (values: LoginFormValues) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsLoading(true);
-    
+
     try {
-      const success = await login(values.usernameOrEmail, values.password);
-      
-      if (success) {
-        // Refresh user data after successful login
-        await refreshUser();
-        
-        toast({
-          title: "Login realizado com sucesso",
-          description: "Bem-vindo ao Clube GanjaDAO!",
-        });
-        
-        // Redirect to dashboard
-        navigate("/clube/dashboard");
-      } else {
-        toast({
-          title: "Erro ao fazer login",
-          description: "Verifique suas credenciais e tente novamente",
-          variant: "destructive",
-        });
-      }
+      await signIn(email, password);
+      await refreshUser();
+      toast.success("Login realizado com sucesso!");
+      navigate("/clube/dashboard");
     } catch (error) {
-      toast({
-        title: "Erro ao fazer login",
-        description: "Ocorreu um erro ao processar sua solicitação",
-        variant: "destructive",
-      });
       console.error("Login error:", error);
+      toast.error("Falha no login. Verifique suas credenciais.");
     } finally {
       setIsLoading(false);
     }
@@ -74,99 +35,42 @@ const Login = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-md mx-auto">
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <div className="h-16 w-16 rounded-full bg-gradient-to-br from-ganja-400 to-activist-700 flex items-center justify-center">
-                <Leaf className="h-8 w-8 text-white" />
-              </div>
+        <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
+          <h2 className="text-2xl font-semibold text-center mb-6">Login</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                type="email"
+                id="email"
+                className="w-full"
+                placeholder="seu@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
-            <h1 className="text-2xl font-bold">Login</h1>
-            <p className="text-muted-foreground mt-1">
-              Acesse o Clube GanjaDAO
-            </p>
+            <div>
+              <Label htmlFor="password">Senha</Label>
+              <Input
+                type="password"
+                id="password"
+                className="w-full"
+                placeholder="********"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <Button disabled={isLoading} className="w-full bg-green-600 text-white hover:bg-green-700">
+              {isLoading ? "Entrando..." : "Entrar"}
+            </Button>
+          </form>
+          <div className="mt-4 text-center">
+            <Link to="/clube/cadastro" className="text-sm text-gray-600 hover:text-gray-800">
+              Não tem uma conta? Cadastre-se
+            </Link>
           </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Login</CardTitle>
-              <CardDescription>
-                Entre com seu nome de usuário ou email e senha
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="usernameOrEmail"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nome de usuário ou Email</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="Seu usuário ou email"
-                            disabled={isLoading}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Senha</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            type="password"
-                            placeholder="Sua senha"
-                            disabled={isLoading}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="flex justify-end">
-                    <Button variant="link" className="px-0" asChild>
-                      <Link to="/clube/recuperar-senha">Esqueci minha senha</Link>
-                    </Button>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Entrando..." : "Entrar"}
-                  </Button>
-                </form>
-              </Form>
-            </CardContent>
-            <CardFooter className="flex flex-col space-y-4">
-              <div className="text-sm text-center w-full">
-                <span className="text-muted-foreground">
-                  Ainda não tem uma conta?{" "}
-                </span>
-                <Link
-                  to="/clube/cadastro"
-                  className="text-primary hover:underline font-medium"
-                >
-                  Cadastre-se
-                </Link>
-              </div>
-              <Button variant="outline" className="w-full" asChild>
-                <Link to="/clube">Voltar</Link>
-              </Button>
-            </CardFooter>
-          </Card>
         </div>
       </div>
     </Layout>

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import Layout from "@/components/Layout";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, FileText, Users, Award, AlertTriangle, Scale, Tag, Book, Map, User, PlusCircle, Edit3 } from "lucide-react"; // Adicionado Edit3 para artigos dinâmicos
+import { BookOpen, FileText, Users, Award, AlertTriangle, Scale, Tag, Book, Map, User, PlusCircle, Edit3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
-import { getAllAuthServicePosts, AuthServicePost } from "@/services/authService"; // Importando o serviço e o tipo
+import { getAllAuthServicePosts, AuthServicePost } from "@/services/authService";
 
 // Interface para o formato unificado dos artigos a serem exibidos
 interface DisplayArticle {
@@ -168,23 +168,12 @@ const Conteudo = () => {
                     <CardDescription>{article.description}</CardDescription>
                   </CardHeader>
                   <div className="px-6 pb-6 mt-auto">
-                    {/* 
-                      Para artigos dinâmicos, o link de "Ler Artigo" precisaria de uma rota 
-                      que saiba como renderizar o conteúdo completo do localStorage.
-                      Por enquanto, vamos fazer o link para o editor para artigos dinâmicos 
-                      ou um placeholder se não houver página de visualização.
-                      Se o artigo dinâmico não tiver uma página de visualização, o botão "Ler Artigo" pode ser omitido ou levar a outro lugar.
-                      Assumindo que não há visualizador de post dinâmico ainda, o botão pode ser diferente.
-                    */}
                     {article.isDynamic ? (
                        <Button variant="outline" asChild className="w-full bg-yellow-50 hover:bg-yellow-100">
-                        {/* Idealmente, aqui seria um link para visualizar o post completo */}
-                        {/* <Link to={`/conteudo/view/${article.id}`}> */}
                         <span className='flex items-center'>
                            <BookOpen className="mr-2 h-4 w-4" />
                            Ver Conteúdo (Em Breve)
                         </span>
-                        {/* </Link> */}
                       </Button>
                     ) : (
                       <Button variant="outline" asChild className="w-full">
@@ -206,4 +195,3 @@ const Conteudo = () => {
 };
 
 export default Conteudo;
-
