@@ -37,7 +37,7 @@ export interface Comment {
   replies?: Comment[];
   _count?: {
     likes: number;
-    replies?: number;
+    replies: number;
   };
 }
 

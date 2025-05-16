@@ -1,7 +1,8 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { supabase } from '../integrations/supabase/client';
+import { User } from '@/types/auth';
 
 interface AuthContextType {
   user: User | null;
@@ -26,17 +27,97 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, currentSession) => {
+      async (event, currentSession) => {
         setSession(currentSession);
-        setUser(currentSession?.user ?? null);
+        if (currentSession?.user) {
+          // Fetch full user data including votes, subscription, etc.
+          const { data: userData, error } = await supabase
+            .from('users')
+            .select(`
+              *,
+              votes(*),
+              vote_credits(*)
+            `)
+            .eq('id', currentSession.user.id)
+            .single();
+          
+          if (!error && userData) {
+            // Transform the raw data into our User type
+            setUser({
+              id: currentSession.user.id,
+              email: userData.email,
+              username: userData.username,
+              is_admin: userData.is_admin,
+              created_at: userData.created_at,
+              updated_at: userData.updated_at,
+              votes: userData.votes || [],
+              vote_credits: userData.vote_credits || { total_credits: 0 },
+              subscription: userData.subscription
+            });
+          } else {
+            // Fallback to basic user data if detailed fetch fails
+            setUser({
+              id: currentSession.user.id,
+              email: currentSession.user.email || '',
+              username: '',
+              is_admin: false,
+              created_at: '',
+              updated_at: '',
+              votes: [],
+              vote_credits: { total_credits: 0 },
+              subscription: undefined
+            });
+          }
+        } else {
+          setUser(null);
+        }
         setLoading(false);
       }
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+    supabase.auth.getSession().then(async ({ data: { session: currentSession } }) => {
       setSession(currentSession);
-      setUser(currentSession?.user ?? null);
+      if (currentSession?.user) {
+        // Fetch full user data including votes, subscription, etc.
+        const { data: userData, error } = await supabase
+          .from('users')
+          .select(`
+            *,
+            votes(*),
+            vote_credits(*)
+          `)
+          .eq('id', currentSession.user.id)
+          .single();
+        
+        if (!error && userData) {
+          // Transform the raw data into our User type
+          setUser({
+            id: currentSession.user.id,
+            email: userData.email,
+            username: userData.username,
+            is_admin: userData.is_admin,
+            created_at: userData.created_at,
+            updated_at: userData.updated_at,
+            votes: userData.votes || [],
+            vote_credits: userData.vote_credits || { total_credits: 0 },
+            subscription: userData.subscription
+          });
+        } else {
+          // Fallback to basic user data if detailed fetch fails
+          setUser({
+            id: currentSession.user.id,
+            email: currentSession.user.email || '',
+            username: '',
+            is_admin: false,
+            created_at: '',
+            updated_at: '',
+            votes: [],
+            vote_credits: { total_credits: 0 },
+            subscription: undefined
+          });
+        }
+      }
       setLoading(false);
     });
 
