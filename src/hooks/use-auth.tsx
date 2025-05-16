@@ -12,6 +12,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<any>;
   signUp: (email: string, password: string, username: string) => Promise<any>;
   signOut: () => Promise<any>;
+  logout: () => Promise<any>; // Alias for signOut for consistency
   refreshUser: () => Promise<any>;
 }
 
@@ -122,6 +123,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw error;
     }
   };
+  
+  // Add logout as alias for signOut to address the error
+  const logout = signOut;
 
   const value = {
     user,
@@ -132,6 +136,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signIn,
     signUp,
     signOut,
+    logout,
     refreshUser
   };
 

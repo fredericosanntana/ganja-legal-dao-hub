@@ -20,8 +20,8 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface CommentFormProps {
-  postId: number;
-  parentId?: number;
+  postId: string;
+  parentId?: string;
   onSuccess?: () => void;
 }
 
