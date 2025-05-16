@@ -19,121 +19,146 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Usar a service role key para operações de escrita (upsert) no Supabase
-  const supabase = createClient(
-    Deno.env.get('SUPABASE_URL') ?? '',
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-    { auth: { persistSession: false } }
-  );
-
   try {
     logStep("Função iniciada");
 
     const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY não está definido");
+    if (!stripeKey) throw new Error('STRIPE_SECRET_KEY não está definido');
     logStep("Chave Stripe verificada");
 
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("Header de autorização não fornecido");
+    // Inicializar cliente Supabase com a service role key
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      { auth: { persistSession: false } }
+    );
+
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) throw new Error('Header de autorização não fornecido');
     logStep("Header de autorização encontrado");
 
-    const token = authHeader.replace("Bearer ", "");
-    logStep("Autenticando usuário com token");
-    
+    const token = authHeader.replace('Bearer ', '');
     const { data: userData, error: userError } = await supabase.auth.getUser(token);
     if (userError) throw new Error(`Erro de autenticação: ${userError.message}`);
     const user = userData.user;
-    if (!user?.email) throw new Error("Usuário não autenticado ou email não disponível");
-    logStep("Usuário autenticado", { userId: user.id, email: user.email });
+    if (!user) throw new Error('Usuário não autenticado');
+    logStep("Usuário autenticado", { userId: user.id });
 
     const stripe = new Stripe(stripeKey, { 
-      apiVersion: "2023-10-16",
+      apiVersion: '2023-10-16', 
       httpClient: Stripe.createFetchHttpClient()
     });
-    
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    
-    if (customers.data.length === 0) {
-      logStep("Nenhum cliente encontrado, atualizando estado não assinado");
-      await supabase.from("subscriptions").upsert({
-        user_id: user.id,
-        status: "inactive",
-        payment_details: "basic",
-        started_at: new Date().toISOString(),
-        expires_at: new Date(Date.now() + 30*24*60*60*1000).toISOString(), // 30 dias (assinatura básica)
-        updated_at: new Date().toISOString(),
-      }, { onConflict: 'user_id' });
-      
-      return new Response(JSON.stringify({ 
-        subscribed: false, 
-        subscription_tier: "basic",
-        expires_at: new Date(Date.now() + 30*24*60*60*1000).toISOString()
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
-    }
 
-    const customerId = customers.data[0].id;
-    logStep("Cliente Stripe encontrado", { customerId });
-
-    const subscriptions = await stripe.subscriptions.list({
-      customer: customerId,
-      status: "active",
-      limit: 1,
-    });
+    // Verificar assinatura na tabela de subscriptions do Supabase
+    const { data: subscriptionData, error: subscriptionError } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
     
-    const hasActiveSub = subscriptions.data.length > 0;
-    let subscriptionTier = "basic";
-    let subscriptionEnd = new Date(Date.now() + 30*24*60*60*1000).toISOString(); // Padrão: 30 dias (assinatura básica)
+    // Verificar assinaturas no Stripe para este usuário
+    let stripeSubscription = null;
+    let subscriptionStatus = {
+      subscribed: false,
+      subscription_tier: 'basic',
+      subscription_end: new Date().toISOString()
+    };
 
-    if (hasActiveSub) {
-      const subscription = subscriptions.data[0];
-      subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-      logStep("Assinatura ativa encontrada", { subscriptionId: subscription.id, endDate: subscriptionEnd });
+    // Buscar cliente do Stripe vinculado ao email
+    if (user.email) {
+      logStep("Buscando cliente Stripe pelo email", { email: user.email });
+      const customers = await stripe.customers.list({ email: user.email, limit: 1 });
       
-      // Determinar o tipo de assinatura com base no preço
-      const priceId = subscription.items.data[0].price.id;
-      const price = await stripe.prices.retrieve(priceId);
-      const amount = price.unit_amount || 0;
-      
-      if (amount <= 2000) {
-        subscriptionTier = "basic";
-      } else if (amount <= 5000) {
-        subscriptionTier = "premium";
+      if (customers.data.length > 0) {
+        const customerId = customers.data[0].id;
+        logStep("Cliente Stripe encontrado", { customerId });
+        
+        // Buscar assinaturas do cliente
+        const subscriptions = await stripe.subscriptions.list({
+          customer: customerId,
+          status: 'active',
+          limit: 1
+        });
+        
+        if (subscriptions.data.length > 0) {
+          stripeSubscription = subscriptions.data[0];
+          logStep("Assinatura Stripe encontrada", { subscriptionId: stripeSubscription.id });
+          
+          // Verificar produtos e preços para determinar o tier
+          const items = stripeSubscription.items.data;
+          if (items.length > 0) {
+            const priceId = items[0].price.id;
+            logStep("Preço da assinatura", { priceId });
+            
+            // Mapear priceId para tier (isso depende da sua configuração no Stripe)
+            // Exemplo simplificado
+            const tier = priceId.includes('premium') ? 'premium' : 'standard';
+            
+            subscriptionStatus = {
+              subscribed: true,
+              subscription_tier: tier,
+              subscription_end: new Date(stripeSubscription.current_period_end * 1000).toISOString()
+            };
+            
+            // Atualizar registro de assinatura no Supabase
+            const { error: updateError } = await supabase
+              .from('subscriptions')
+              .upsert({
+                user_id: user.id,
+                status: 'active',
+                payment_details: tier,
+                started_at: new Date(stripeSubscription.start_date * 1000).toISOString(),
+                expires_at: new Date(stripeSubscription.current_period_end * 1000).toISOString(),
+                updated_at: new Date().toISOString()
+              });
+            
+            if (updateError) {
+              logStep("Erro ao atualizar assinatura no Supabase", { error: updateError.message });
+            } else {
+              logStep("Assinatura atualizada no Supabase com sucesso");
+            }
+          }
+        } else {
+          logStep("Nenhuma assinatura ativa encontrada no Stripe");
+          
+          // Se não há assinatura no Stripe, verificar se temos registro local
+          if (subscriptionData && subscriptionData.status === 'active') {
+            // Verificar se a assinatura local ainda é válida
+            const expiresAt = new Date(subscriptionData.expires_at);
+            const now = new Date();
+            
+            if (expiresAt > now) {
+              logStep("Assinatura local válida até", { expiresAt });
+              subscriptionStatus = {
+                subscribed: true,
+                subscription_tier: subscriptionData.payment_details || 'basic',
+                subscription_end: subscriptionData.expires_at
+              };
+            } else {
+              logStep("Assinatura local expirada");
+              // Atualizar para inativa
+              await supabase
+                .from('subscriptions')
+                .update({ status: 'inactive', updated_at: new Date().toISOString() })
+                .eq('user_id', user.id);
+            }
+          }
+        }
       } else {
-        subscriptionTier = "enterprise";
+        logStep("Nenhum cliente Stripe encontrado para este email");
       }
-      
-      logStep("Tipo de assinatura determinado", { priceId, amount, subscriptionTier });
-    } else {
-      logStep("Nenhuma assinatura ativa encontrada");
     }
 
-    await supabase.from("subscriptions").upsert({
-      user_id: user.id,
-      status: hasActiveSub ? "active" : "inactive",
-      payment_details: subscriptionTier,
-      started_at: hasActiveSub ? new Date().toISOString() : undefined,
-      expires_at: subscriptionEnd,
-      updated_at: new Date().toISOString(),
-    }, { onConflict: 'user_id' });
-
-    logStep("Banco de dados atualizado com informações da assinatura", { subscribed: hasActiveSub, subscriptionTier });
-    return new Response(JSON.stringify({
-      subscribed: hasActiveSub,
-      subscription_tier: subscriptionTier,
-      subscription_end: subscriptionEnd
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    return new Response(JSON.stringify(subscriptionStatus), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });
-    
+
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERRO", { message: errorMessage });
+    console.error(`[CHECK-SUBSCRIPTION ERROR] ${errorMessage}`);
     return new Response(JSON.stringify({ error: errorMessage }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
     });
   }
