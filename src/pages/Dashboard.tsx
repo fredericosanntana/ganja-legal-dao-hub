@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -18,35 +17,44 @@ const Dashboard = () => {
   const { user, isAuthenticated, isLoading: authLoading, session } = useAuth();
   const { initiatives, isLoading: initiativesLoading } = useInitiatives();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [authCheckAttempts, setAuthCheckAttempts] = useState(0);
 
   useEffect(() => {
+    // One-time authentication check with limited attempts to prevent infinite loops
     const checkAuthentication = async () => {
-      // Wait briefly to allow auth state to resolve
-      setTimeout(async () => {
-        // Direct check from supabase
+      try {
+        // Direct check from supabase with a reasonable timeout
         const { data } = await supabase.auth.getSession();
         
-        if (!data?.session) {
-          toast.error("Sessão expirada ou inválida. Por favor, faça login novamente.");
+        if (!data?.session && authCheckAttempts < 2) {
+          // Only show toast on the first attempt to prevent spam
+          if (authCheckAttempts === 0) {
+            toast.error("Sessão expirada ou inválida. Por favor, faça login novamente.");
+          }
           navigate("/clube/login");
         } else {
           setIsCheckingAuth(false);
         }
-      }, 500);
+      } catch (error) {
+        console.error("Auth check error:", error);
+        // On error, still allow access to prevent loop but log the error
+        setIsCheckingAuth(false);
+      } finally {
+        setAuthCheckAttempts(prev => prev + 1);
+      }
     };
 
-    checkAuthentication();
-  }, [navigate]);
-  
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated && !isCheckingAuth) {
-      toast.error("Por favor faça login para acessar o dashboard");
-      navigate("/clube/login");
-    } else if (!authLoading && isAuthenticated && user) {
-      // Successfully logged in and loaded user data
-      toast.success(`Bem-vindo ${user?.username || 'ao GanjaDAO'}!`);
+    if (isCheckingAuth && authCheckAttempts < 3) {
+      checkAuthentication();
     }
-  }, [authLoading, isAuthenticated, navigate, user, isCheckingAuth]);
+  }, [navigate, isCheckingAuth, authCheckAttempts]);
+  
+  // Only check auth status from useAuth() hook after initial direct check
+  useEffect(() => {
+    if (!isCheckingAuth && !authLoading && !isAuthenticated && authCheckAttempts > 0) {
+      navigate("/clube/login");
+    }
+  }, [authLoading, isAuthenticated, navigate, isCheckingAuth, authCheckAttempts]);
 
   if (authLoading || isCheckingAuth) {
     return (
@@ -68,7 +76,8 @@ const Dashboard = () => {
   }
 
   if (!isAuthenticated || !user) {
-    return null; // Redirect happens in the useEffect
+    // Redirect happens in the useEffect
+    return null;
   }
 
   // Check for subscription status

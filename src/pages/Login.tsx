@@ -16,23 +16,31 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const { signIn, refreshUser, isAuthenticated, session } = useAuth();
+  const { signIn, refreshUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
   
-  // Check if user is already authenticated
+  // Check if user is already authenticated only once on mount
   useEffect(() => {
     const checkAuth = async () => {
-      // Get session directly from supabase
-      const { data } = await supabase.auth.getSession();
-      if (data?.session) {
-        setIsRedirecting(true);
-        navigate('/clube/dashboard');
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (data?.session) {
+          setIsRedirecting(true);
+          navigate('/clube/dashboard');
+        }
+      } catch (error) {
+        console.error("Auth check error:", error);
+      } finally {
+        setHasCheckedAuth(true);
       }
     };
     
-    checkAuth();
-  }, [navigate]);
+    if (!hasCheckedAuth) {
+      checkAuth();
+    }
+  }, [navigate, hasCheckedAuth]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,6 +80,17 @@ const Login = () => {
               Continuar manualmente
             </Button>
           </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Don't render login form until we've checked authentication to prevent flashing
+  if (!hasCheckedAuth) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8 flex flex-col items-center justify-center min-h-[60vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-green-600" />
         </div>
       </Layout>
     );

@@ -33,6 +33,7 @@ serve(async (req) => {
       .is('payment_details', null);
 
     if (error) {
+      console.error("Error updating subscriptions:", error);
       throw error;
     }
 
@@ -51,14 +52,19 @@ serve(async (req) => {
       }
     );
   } catch (error) {
+    console.error("Caught error in update-subscription-status:", error);
+    
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ 
+        success: false, 
+        error: error.message || "Unknown error occurred" 
+      }),
       {
         headers: {
           ...corsHeaders,
           "Content-Type": "application/json",
         },
-        status: 500,
+        status: 200, // Return 200 even on error to prevent error cascading
       }
     );
   }

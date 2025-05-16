@@ -5,23 +5,29 @@ import { useAuth } from "@/hooks/use-auth";
 import { MessageSquare, Vote, Crown, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useState } from "react";
 
 const DashboardHeader = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
+    if (isLoggingOut) return; // Prevent multiple clicks
+    
+    setIsLoggingOut(true);
     try {
       await logout();
       toast.success("Logout realizado com sucesso!");
-      navigate("/clube/login");
+      // Clear any lingering state
+      localStorage.removeItem('supabase.auth.token');
+      setTimeout(() => {
+        navigate("/clube/login");
+      }, 300);
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("Erro ao fazer logout. Tente novamente.");
-      // Force navigation even if there's an error
-      setTimeout(() => {
-        navigate("/clube/login");
-      }, 1000);
+      setIsLoggingOut(false);
     }
   };
 
@@ -50,8 +56,14 @@ const DashboardHeader = () => {
               <User className="mr-2 h-4 w-4" /> Perfil
             </Link>
           </Button>
-          <Button variant="outline" size="sm" onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" /> Sair
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+          >
+            <LogOut className="mr-2 h-4 w-4" /> 
+            {isLoggingOut ? "Saindo..." : "Sair"}
           </Button>
         </div>
       </div>

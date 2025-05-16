@@ -17,15 +17,22 @@ const Cadastro = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const { signUp, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   // Check if user is already authenticated
   useEffect(() => {
     const checkAuth = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data?.session) {
-        navigate('/clube/dashboard');
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (data?.session) {
+          navigate('/clube/dashboard');
+        }
+      } catch (error) {
+        console.error("Auth check error:", error);
+      } finally {
+        setIsCheckingAuth(false);
       }
     };
     
@@ -46,11 +53,12 @@ const Cadastro = () => {
       // Register user with inactive subscription by default
       await signUp(email, password, username);
       
-      // Ensure the subscription is set to inactive (this is now handled by the database trigger)
-      // We'll update the handle_new_user database function separately
-      
       toast.success("Cadastro realizado com sucesso! Faça login para continuar.");
-      navigate("/clube/login");
+      
+      // Short delay to ensure data is saved before redirecting
+      setTimeout(() => {
+        navigate("/clube/login");
+      }, 300);
     } catch (error: any) {
       console.error("Registration error:", error);
       const errorMessage = error?.message || "Erro no cadastro. Verifique os dados e tente novamente.";
@@ -59,6 +67,16 @@ const Cadastro = () => {
       setIsLoading(false);
     }
   };
+
+  if (isCheckingAuth) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
