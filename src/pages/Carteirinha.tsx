@@ -139,7 +139,8 @@ const Carteirinha = () => {
     );
   }
 
-  const userName = user.user_metadata?.name || user.email;
+  // Get user's display name from email if name is not available
+  const userName = user?.email || "Usuário";
 
   return (
     <Layout>
@@ -155,7 +156,7 @@ const Carteirinha = () => {
               </h2>
               <div className="space-y-2">
                 <p><span className="font-medium">Nome:</span> {userName}</p>
-                <p><span className="font-medium">Email:</span> {user.email}</p>
+                <p><span className="font-medium">Email:</span> {user?.email}</p>
               </div>
             </div>
 

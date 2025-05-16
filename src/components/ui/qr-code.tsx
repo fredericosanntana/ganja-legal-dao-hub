@@ -1,5 +1,6 @@
 
 import React, { useEffect, useRef } from 'react';
+import QRCodeLib from 'qrcode';
 
 interface QRCodeProps {
   value: string;
@@ -23,8 +24,6 @@ const QRCode: React.FC<QRCodeProps> = ({
   useEffect(() => {
     const loadQRCode = async () => {
       try {
-        // Dynamically import qrcode.js
-        const QRCodeLib = await import('qrcode');
         if (canvasRef.current) {
           await QRCodeLib.toCanvas(canvasRef.current, value, {
             width: size,

@@ -50,7 +50,7 @@ const DocumentCard = ({ document, onDelete }: DocumentCardProps) => {
 
       // Create download link
       const url = URL.createObjectURL(data);
-      const a = document.createElement("a");
+      const a = window.document.createElement("a");
       a.href = url;
       a.download = document.name;
       a.click();
