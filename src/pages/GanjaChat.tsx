@@ -102,7 +102,7 @@ const GanjaChat = () => {
       });
       
       if (error) {
-        if (error.message.includes('rate limit')) {
+        if (error.message && error.message.includes('rate limit')) {
           throw new Error("Você atingiu o limite diário de perguntas. Volte amanhã!");
         }
         throw error;

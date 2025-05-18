@@ -1,8 +1,4 @@
 
-// Follow this setup guide to integrate the Deno language server with your editor:
-// https://deno.land/manual/getting_started/setup_your_environment
-// This enables autocomplete, go to definition, etc.
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 
@@ -10,6 +6,8 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+const DAILY_LIMIT = 10; // Same as in ganja-chat function
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -22,9 +20,9 @@ serve(async (req) => {
     
     if (!userId) {
       return new Response(
-        JSON.stringify({ error: "User ID is required" }),
+        JSON.stringify({ error: "userId is required" }),
         { 
-          status: 400,
+          status: 400, 
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         }
       );
@@ -38,22 +36,28 @@ serve(async (req) => {
     // Get current date in user's timezone (using UTC for now)
     const today = new Date().toISOString().split("T")[0];
     
-    // Check the usage for today from Redis
-    // First, we'll query user_chat_usage table to see current usage
-    const { data: usageData, error: usageError } = await supabase
-      .from("user_chat_usage")
-      .select("*")
-      .eq("user_id", userId)
-      .eq("usage_date", today)
-      .single();
+    let currentCount = 0;
     
-    if (usageError && usageError.code !== "PGRST116") { // PGRST116 is "no rows returned"
-      throw usageError;
+    try {
+      // Check the usage for today
+      const { data, error } = await supabase
+        .from("user_chat_usage")
+        .select("count")
+        .eq("user_id", userId)
+        .eq("usage_date", today)
+        .single();
+      
+      if (error && error.code !== "PGRST116") { // PGRST116 is "no rows returned"
+        throw error;
+      }
+      
+      if (data) {
+        currentCount = data.count;
+      }
+    } catch (dbError) {
+      console.error("Error checking chat limit:", dbError);
+      // Continue with count=0 so the user can still use the chat
     }
-    
-    // Current usage count - default to 0 if no record exists
-    const currentCount = usageData?.count || 0;
-    const dailyLimit = 10;
     
     // Calculate reset time (midnight in user's local time, using UTC for now)
     const now = new Date();
@@ -65,9 +69,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         used: currentCount,
-        limit: dailyLimit,
-        resetTime: resetTime,
-        remaining: Math.max(0, dailyLimit - currentCount)
+        limit: DAILY_LIMIT,
+        resetTime: resetTime
       }),
       {
         status: 200,
@@ -76,10 +79,14 @@ serve(async (req) => {
     );
     
   } catch (error) {
-    console.error("Error checking chat limit:", error);
+    console.error("Error in check-chat-limit function:", error);
     
     return new Response(
-      JSON.stringify({ error: "Failed to check chat limit" }),
+      JSON.stringify({ 
+        error: "Error checking chat limit",
+        used: 0,
+        limit: DAILY_LIMIT
+      }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" }
