@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -93,6 +92,8 @@ const GanjaChat = () => {
     setPrompt("");
     
     try {
+      console.log("Sending prompt to ganja-chat function:", prompt);
+      
       // Call the edge function that will handle rate limiting and n8n webhook
       const { data, error } = await supabase.functions.invoke('ganja-chat', {
         body: { 
@@ -101,7 +102,10 @@ const GanjaChat = () => {
         }
       });
       
+      console.log("Response from ganja-chat edge function:", data);
+      
       if (error) {
+        console.error("Error from ganja-chat function:", error);
         if (error.message && error.message.includes('rate limit')) {
           throw new Error("Você atingiu o limite diário de perguntas. Volte amanhã!");
         }

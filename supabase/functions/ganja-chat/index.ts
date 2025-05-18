@@ -1,3 +1,4 @@
+
 // Follow this setup guide to integrate the Deno language server with your editor:
 // https://deno.land/manual/getting_started/setup_your_environment
 // This enables autocomplete, go to definition, etc.
@@ -10,8 +11,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Update webhook URL with the confirmed URL
-const N8N_WEBHOOK_URL = "https://n8n.dpo2u.com/webhook-test/85576a52-a761-4189-afc8-ea5f4d3a5974";
+// Update webhook URL with the production URL
+const N8N_WEBHOOK_URL = "https://n8n.dpo2u.com/webhook/85576a52-a761-4189-afc8-ea5f4d3a5974";
 const DAILY_LIMIT = 10;
 
 serve(async (req) => {
@@ -78,6 +79,7 @@ serve(async (req) => {
     
     try {
       console.log("Calling n8n webhook:", N8N_WEBHOOK_URL);
+      
       // Attempt to make a request to n8n webhook
       const n8nResponse = await fetch(N8N_WEBHOOK_URL, {
         method: "POST",
@@ -90,23 +92,60 @@ serve(async (req) => {
       console.log("n8n response status:", n8nResponse.status);
       
       if (n8nResponse.ok) {
-        const n8nData = await n8nResponse.json();
-        console.log("n8n response data:", n8nData);
+        const responseText = await n8nResponse.text();
+        console.log("Raw webhook response:", responseText);
         
-        if (n8nData && n8nData.answer) {
-          answer = n8nData.answer;
+        // Tenta converter o texto para JSON
+        try {
+          const n8nData = JSON.parse(responseText);
+          console.log("Parsed webhook response:", n8nData);
+          
+          if (n8nData && typeof n8nData === 'object') {
+            // Verificamos se há uma propriedade com a resposta
+            if (n8nData.answer) {
+              answer = n8nData.answer;
+            } else if (n8nData.response) {
+              answer = n8nData.response;
+            } else if (n8nData.text) {
+              answer = n8nData.text;
+            } else if (n8nData.message) {
+              answer = n8nData.message;
+            } else if (n8nData.data) {
+              // Se a resposta está em um campo data
+              if (typeof n8nData.data === 'string') {
+                answer = n8nData.data;
+              } else if (typeof n8nData.data === 'object') {
+                answer = JSON.stringify(n8nData.data);
+              }
+            } else {
+              // Se nenhum campo esperado for encontrado
+              answer = "Resposta recebida do webhook, mas não está em um formato reconhecido. Detalhes: " + JSON.stringify(n8nData);
+            }
+          } else if (typeof n8nData === 'string') {
+            // Se o retorno já for uma string
+            answer = n8nData;
+          }
+        } catch (parseError) {
+          // Se não for JSON, use o texto bruto como resposta
+          console.log("Response is not JSON, using raw text");
+          if (responseText && responseText.trim() !== "") {
+            answer = responseText;
+          }
         }
       } else {
         console.error("n8n webhook returned non-OK status:", n8nResponse.status);
-        // Keep using the fallback response
+        try {
+          const errorText = await n8nResponse.text();
+          console.error("Error response body:", errorText);
+        } catch (e) {
+          console.error("Could not read error response body");
+        }
       }
     } catch (webhookError) {
       console.error("Failed to connect to n8n webhook:", webhookError);
-      // We'll continue with the fallback response
     }
     
     // Increment usage counter in database
-    // If record exists, update it. If not, create a new one.
     if (usageData) {
       await supabase
         .from("user_chat_usage")
