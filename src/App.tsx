@@ -22,7 +22,7 @@ import CultivoLegalPage from "./pages/conteudo/CultivoLegal";
 import ManualCultivadorAutonomoPage from "./pages/conteudo/ManualCulvitadorAutonomo.tsx";
 import MapaProtecaoPage from "./pages/conteudo/MapaProtecao";
 import ChamadaEmbaixadoresPage from "./pages/conteudo/embaixadores";
-import GanjaChat from "./pages/GanjaChat"; // Add import for the new GanjaChat page
+import GanjaChat from "./pages/GanjaChat"; // Import path remains the same
 import Clube from "./pages/Clube";
 import Votacoes from "./pages/Votacoes";
 import VotacaoDetalhe from "./pages/VotacaoDetalhe";
@@ -71,7 +71,7 @@ const App = () => (
           {/* Rotas de Conteúdo */}
           <Route path="/conteudo" element={<Conteudo />} />
           <Route path="/conteudo/editor" element={<BlogEditor />} />
-          <Route path="/conteudo/ganja-chat" element={<GanjaChat />} /> {/* Add new route for GanjaChat */}
+          {/* Moved Ganja Chat route from /conteudo to /clube */}
           {/* Rotas específicas para artigos estáticos */}
           <Route path="/conteudo/checklist-juridico" element={<CheckListJuridicoPage />} />
           <Route path="/conteudo/bastidores" element={<BastidoresGanjadaoPage />} />
@@ -86,6 +86,7 @@ const App = () => (
           <Route path="/clube" element={<Clube />} />
           <Route path="/clube/votacoes" element={<Votacoes />} />
           <Route path="/clube/votacoes/:id" element={<VotacaoDetalhe />} />
+          <Route path="/clube/ganja-chat" element={<GanjaChat />} /> {/* Moved to clube section */}
           
           {/* Auth Routes */}
           <Route path="/clube/login" element={<Login />} />

@@ -39,7 +39,7 @@ const GanjaChat = () => {
   useEffect(() => {
     if (!isAuthenticated) {
       toast.error("Você precisa estar logado para acessar o chat");
-      navigate('/clube/login');
+      navigate('/clube/login', { state: { from: '/clube/ganja-chat' } });
     } else {
       // Initialize with welcome message
       setMessages([

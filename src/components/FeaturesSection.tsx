@@ -1,5 +1,5 @@
 
-import { Shield, BookOpen, Calculator, Users } from "lucide-react";
+import { Shield, BookOpen, Calculator, Users, MessageSquareText } from "lucide-react";
 import ModuleCard from "./ModuleCard";
 
 const FeaturesSection = () => {
@@ -13,7 +13,7 @@ const FeaturesSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           <ModuleCard
             icon={<Shield className="h-6 w-6" />}
             title="Módulo Jurídico"
@@ -40,6 +40,13 @@ const FeaturesSection = () => {
             title="Clube GanjaDAO"
             description="Junte-se ao clube de assinaturas para apoiar a causa e participar de votações sobre as iniciativas."
             to="/clube"
+            variant="featured"
+          />
+          <ModuleCard
+            icon={<MessageSquareText className="h-6 w-6" />}
+            title="Ganja Chat"
+            description="Assistente jurídico IA para tirar dúvidas relacionadas ao cultivo de cannabis medicinal."
+            to="/clube/ganja-chat"
             variant="featured"
           />
         </div>
