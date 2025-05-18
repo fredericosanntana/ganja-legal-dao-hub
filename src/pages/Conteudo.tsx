@@ -1,7 +1,8 @@
+
 import React, { useEffect, useState } from 'react';
 import Layout from "@/components/Layout";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, FileText, Users, Award, AlertTriangle, Scale, Tag, Book, Map, User, PlusCircle, Edit3 } from "lucide-react";
+import { BookOpen, FileText, Users, Award, AlertTriangle, Scale, Tag, Book, Map, User, PlusCircle, Edit3, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
@@ -17,6 +18,7 @@ interface DisplayArticle {
   categoryColor: string;
   isDynamic?: boolean; // Flag para diferenciar artigos dinâmicos
   createdAt?: string; // Para possível ordenação
+  link?: string; // Link to navigate to
 }
 
 const staticArticles: DisplayArticle[] = [
@@ -92,6 +94,16 @@ const staticArticles: DisplayArticle[] = [
     icon: <User className="h-5 w-5" />,
     category: "Oportunidade",
     categoryColor: "bg-emerald-100 text-emerald-800"
+  },
+  // Add Ganja Chat card
+  {
+    id: "ganja-chat",
+    title: "Ganja Chat - Assistente Jurídico",
+    description: "Tire suas dúvidas sobre aspectos jurídicos relacionados ao cultivo de cannabis",
+    icon: <MessageSquare className="h-5 w-5" />,
+    category: "Serviço",
+    categoryColor: "bg-green-100 text-green-800",
+    link: "/conteudo/ganja-chat"
   }
 ];
 
@@ -177,9 +189,9 @@ const Conteudo = () => {
                       </Button>
                     ) : (
                       <Button variant="outline" asChild className="w-full">
-                        <Link to={`/conteudo/${article.id}`}>
+                        <Link to={article.link || `/conteudo/${article.id}`}>
                           <BookOpen className="mr-2 h-4 w-4" />
-                          Ler Artigo
+                          {article.id === 'ganja-chat' ? 'Abrir Chat' : 'Ler Artigo'}
                         </Link>
                       </Button>
                     )}

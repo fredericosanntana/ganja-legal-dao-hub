@@ -22,6 +22,7 @@ import CultivoLegalPage from "./pages/conteudo/CultivoLegal";
 import ManualCultivadorAutonomoPage from "./pages/conteudo/ManualCulvitadorAutonomo.tsx";
 import MapaProtecaoPage from "./pages/conteudo/MapaProtecao";
 import ChamadaEmbaixadoresPage from "./pages/conteudo/embaixadores";
+import GanjaChat from "./pages/GanjaChat"; // Add import for the new GanjaChat page
 import Clube from "./pages/Clube";
 import Votacoes from "./pages/Votacoes";
 import VotacaoDetalhe from "./pages/VotacaoDetalhe";
@@ -70,6 +71,7 @@ const App = () => (
           {/* Rotas de Conteúdo */}
           <Route path="/conteudo" element={<Conteudo />} />
           <Route path="/conteudo/editor" element={<BlogEditor />} />
+          <Route path="/conteudo/ganja-chat" element={<GanjaChat />} /> {/* Add new route for GanjaChat */}
           {/* Rotas específicas para artigos estáticos */}
           <Route path="/conteudo/checklist-juridico" element={<CheckListJuridicoPage />} />
           <Route path="/conteudo/bastidores" element={<BastidoresGanjadaoPage />} />
