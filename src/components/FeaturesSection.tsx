@@ -13,13 +13,15 @@ const FeaturesSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        {/* Alterado para uma organização mais limpa com duas cards grandes e três menores */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <ModuleCard
             icon={<Shield className="h-6 w-6" />}
             title="Módulo Jurídico"
             description="Ferramentas para geração de documentos legais, como HC preventivo, e consulta de jurisprudência para sua proteção."
             to="/juridico"
             variant="featured"
+            className="h-full"
           />
           <ModuleCard
             icon={<BookOpen className="h-6 w-6" />}
@@ -27,27 +29,34 @@ const FeaturesSection = () => {
             description="Ferramenta para auxiliar na criação e envio de manifestações para consultas públicas da ANVISA."
             to="/anvisa"
             variant="featured"
+            className="h-full"
           />
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <ModuleCard
             icon={<Calculator className="h-6 w-6" />}
             title="Calculadoras"
             description="Calculadoras úteis para o cultivo: VPD, DLI, Nutrientes, Ponto de Orvalho e EC Flush."
             to="/calculadoras"
-            variant="featured"
+            variant="default"
+            className="h-full"
           />
           <ModuleCard
             icon={<Users className="h-6 w-6" />}
             title="Clube GanjaDAO"
             description="Junte-se ao clube de assinaturas para apoiar a causa e participar de votações sobre as iniciativas."
             to="/clube"
-            variant="featured"
+            variant="default"
+            className="h-full"
           />
           <ModuleCard
             icon={<MessageSquareText className="h-6 w-6" />}
             title="Ganja Chat"
             description="Assistente jurídico IA para tirar dúvidas relacionadas ao cultivo de cannabis medicinal."
             to="/clube/ganja-chat"
-            variant="featured"
+            variant="default"
+            className="h-full"
           />
         </div>
       </div>
