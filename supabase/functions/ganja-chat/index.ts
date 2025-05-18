@@ -1,4 +1,3 @@
-
 // Follow this setup guide to integrate the Deno language server with your editor:
 // https://deno.land/manual/getting_started/setup_your_environment
 // This enables autocomplete, go to definition, etc.
@@ -11,9 +10,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Update webhook URL - using a dummy URL for testing since the original seems to be unavailable
-// In production, this should be replaced with the actual working webhook URL
-const N8N_WEBHOOK_URL = "https://example.com/webhook-endpoint"; // Placeholder URL
+// Update webhook URL with the confirmed URL
+const N8N_WEBHOOK_URL = "https://n8n.dpo2u.com/webhook-test/85576a52-a761-4189-afc8-ea5f4d3a5974";
 const DAILY_LIMIT = 10;
 
 serve(async (req) => {
@@ -74,13 +72,13 @@ serve(async (req) => {
       );
     }
     
-    // For testing purposes - generate a mock response instead of calling the n8n webhook
-    // This allows the chat to work even though the n8n webhook is unavailable
+    // Initialize with a fallback response in case the webhook call fails
     let answer = "Esta é uma resposta de teste enquanto o serviço de processamento está sendo configurado. " +
       "Por favor, entre em contato com o suporte para mais informações sobre o assistente jurídico.";
     
     try {
-      // Attempt to make a request to n8n but don't let it break the function if it fails
+      console.log("Calling n8n webhook:", N8N_WEBHOOK_URL);
+      // Attempt to make a request to n8n webhook
       const n8nResponse = await fetch(N8N_WEBHOOK_URL, {
         method: "POST",
         headers: {
@@ -89,15 +87,22 @@ serve(async (req) => {
         body: JSON.stringify({ prompt })
       });
       
+      console.log("n8n response status:", n8nResponse.status);
+      
       if (n8nResponse.ok) {
         const n8nData = await n8nResponse.json();
+        console.log("n8n response data:", n8nData);
+        
         if (n8nData && n8nData.answer) {
           answer = n8nData.answer;
         }
+      } else {
+        console.error("n8n webhook returned non-OK status:", n8nResponse.status);
+        // Keep using the fallback response
       }
     } catch (webhookError) {
       console.error("Failed to connect to n8n webhook:", webhookError);
-      // We'll continue with the mock response
+      // We'll continue with the fallback response
     }
     
     // Increment usage counter in database
