@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -7,6 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Send, Bot, User, AlertTriangle, Clock } from "lucide-react";
 import { toast } from "sonner";
+import { marked } from "marked";
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -72,6 +74,16 @@ const GanjaChat = () => {
       
     } catch (error) {
       console.error("Error fetching chat stats:", error);
+    }
+  };
+
+  // Função para renderizar markdown como HTML
+  const renderMarkdown = (text: string) => {
+    try {
+      return { __html: marked(text) };
+    } catch (error) {
+      console.error("Error parsing markdown:", error);
+      return { __html: text };
     }
   };
   
@@ -201,7 +213,14 @@ const GanjaChat = () => {
                     </>
                   )}
                 </div>
-                <p className="whitespace-pre-wrap">{msg.content}</p>
+                {msg.role === 'assistant' ? (
+                  <div 
+                    className="markdown-content" 
+                    dangerouslySetInnerHTML={renderMarkdown(msg.content)}
+                  />
+                ) : (
+                  <p className="whitespace-pre-wrap">{msg.content}</p>
+                )}
                 <div className="text-xs opacity-70 mt-1 text-right">
                   {new Date(msg.timestamp).toLocaleTimeString()}
                 </div>
@@ -248,6 +267,53 @@ const GanjaChat = () => {
           </Button>
         </form>
       </div>
+
+      <style jsx global>{`
+        .markdown-content h1,
+        .markdown-content h2,
+        .markdown-content h3,
+        .markdown-content h4,
+        .markdown-content h5,
+        .markdown-content h6 {
+          margin-top: 1em;
+          margin-bottom: 0.5em;
+          font-weight: bold;
+        }
+        .markdown-content p {
+          margin-bottom: 1em;
+        }
+        .markdown-content ul,
+        .markdown-content ol {
+          margin-left: 1.5em;
+          margin-bottom: 1em;
+        }
+        .markdown-content li {
+          margin-bottom: 0.5em;
+        }
+        .markdown-content strong {
+          font-weight: bold;
+        }
+        .markdown-content em {
+          font-style: italic;
+        }
+        .markdown-content a {
+          color: #3b82f6;
+          text-decoration: underline;
+        }
+        .markdown-content code {
+          background-color: rgba(0, 0, 0, 0.1);
+          padding: 0.2em 0.4em;
+          border-radius: 3px;
+          font-family: monospace;
+        }
+        .markdown-content pre {
+          background-color: rgba(0, 0, 0, 0.1);
+          padding: 1em;
+          border-radius: 5px;
+          overflow-x: auto;
+          margin-bottom: 1em;
+        }
+      `}</style>
     </Layout>
   );
 };

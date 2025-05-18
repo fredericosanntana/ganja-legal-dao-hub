@@ -100,7 +100,10 @@ serve(async (req) => {
           const n8nData = JSON.parse(responseText);
           console.log("Parsed webhook response:", n8nData);
           
-          if (n8nData && typeof n8nData === 'object') {
+          // Verifica especificamente se há um campo output (formato comum em respostas de n8n)
+          if (n8nData && n8nData.output) {
+            answer = n8nData.output;
+          } else if (n8nData && typeof n8nData === 'object') {
             // Verificamos se há uma propriedade com a resposta
             if (n8nData.answer) {
               answer = n8nData.answer;
@@ -119,7 +122,7 @@ serve(async (req) => {
               }
             } else {
               // Se nenhum campo esperado for encontrado
-              answer = "Resposta recebida do webhook, mas não está em um formato reconhecido. Detalhes: " + JSON.stringify(n8nData);
+              answer = "Não foi possível processar a resposta do assistente. Por favor, tente novamente.";
             }
           } else if (typeof n8nData === 'string') {
             // Se o retorno já for uma string
