@@ -35,6 +35,64 @@ const GanjaChat = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Add styles to the document head
+  useEffect(() => {
+    // Add markdown styling
+    const styleEl = document.createElement('style');
+    styleEl.textContent = `
+      .markdown-content h1,
+      .markdown-content h2,
+      .markdown-content h3,
+      .markdown-content h4,
+      .markdown-content h5,
+      .markdown-content h6 {
+        margin-top: 1em;
+        margin-bottom: 0.5em;
+        font-weight: bold;
+      }
+      .markdown-content p {
+        margin-bottom: 1em;
+      }
+      .markdown-content ul,
+      .markdown-content ol {
+        margin-left: 1.5em;
+        margin-bottom: 1em;
+      }
+      .markdown-content li {
+        margin-bottom: 0.5em;
+      }
+      .markdown-content strong {
+        font-weight: bold;
+      }
+      .markdown-content em {
+        font-style: italic;
+      }
+      .markdown-content a {
+        color: #3b82f6;
+        text-decoration: underline;
+      }
+      .markdown-content code {
+        background-color: rgba(0, 0, 0, 0.1);
+        padding: 0.2em 0.4em;
+        border-radius: 3px;
+        font-family: monospace;
+      }
+      .markdown-content pre {
+        background-color: rgba(0, 0, 0, 0.1);
+        padding: 1em;
+        border-radius: 5px;
+        overflow-x: auto;
+        margin-bottom: 1em;
+      }
+    `;
+    document.head.appendChild(styleEl);
+
+    // Clean up function to remove the style element when component unmounts
+    return () => {
+      document.head.removeChild(styleEl);
+    };
+  }, []);
   
   // Check if user is authenticated
   useEffect(() => {
@@ -267,53 +325,6 @@ const GanjaChat = () => {
           </Button>
         </form>
       </div>
-
-      <style jsx global>{`
-        .markdown-content h1,
-        .markdown-content h2,
-        .markdown-content h3,
-        .markdown-content h4,
-        .markdown-content h5,
-        .markdown-content h6 {
-          margin-top: 1em;
-          margin-bottom: 0.5em;
-          font-weight: bold;
-        }
-        .markdown-content p {
-          margin-bottom: 1em;
-        }
-        .markdown-content ul,
-        .markdown-content ol {
-          margin-left: 1.5em;
-          margin-bottom: 1em;
-        }
-        .markdown-content li {
-          margin-bottom: 0.5em;
-        }
-        .markdown-content strong {
-          font-weight: bold;
-        }
-        .markdown-content em {
-          font-style: italic;
-        }
-        .markdown-content a {
-          color: #3b82f6;
-          text-decoration: underline;
-        }
-        .markdown-content code {
-          background-color: rgba(0, 0, 0, 0.1);
-          padding: 0.2em 0.4em;
-          border-radius: 3px;
-          font-family: monospace;
-        }
-        .markdown-content pre {
-          background-color: rgba(0, 0, 0, 0.1);
-          padding: 1em;
-          border-radius: 5px;
-          overflow-x: auto;
-          margin-bottom: 1em;
-        }
-      `}</style>
     </Layout>
   );
 };
