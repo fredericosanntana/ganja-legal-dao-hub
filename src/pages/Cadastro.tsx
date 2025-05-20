@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Cadastro = () => {
   const [email, setEmail] = useState("");
@@ -29,6 +30,19 @@ const Cadastro = () => {
     setIsLoading(true);
 
     try {
+      // Check if email already exists
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('email')
+        .eq('email', email)
+        .single();
+
+      if (existingUser) {
+        toast.error("Este email já está cadastrado. Por favor, tente outro ou faça login.");
+        setIsLoading(false);
+        return;
+      }
+
       // Register user with inactive subscription by default
       await signUp(email, password, username);
       
@@ -36,8 +50,14 @@ const Cadastro = () => {
       navigate("/clube/login");
     } catch (error: any) {
       console.error("Registration error:", error);
-      const errorMessage = error?.message || "Erro no cadastro. Verifique os dados e tente novamente.";
-      toast.error(errorMessage);
+      
+      // Handle specific error cases
+      if (error.message?.includes('duplicate key') || error.message?.includes('already exists')) {
+        toast.error("Este email já está cadastrado. Por favor, tente outro ou faça login.");
+      } else {
+        const errorMessage = error?.message || "Erro no cadastro. Verifique os dados e tente novamente.";
+        toast.error(errorMessage);
+      }
     } finally {
       setIsLoading(false);
     }
