@@ -59,6 +59,18 @@ export interface SearchDataJudResponse {
   };
 }
 
+// Adicionando a interface para o retorno da função searchInTribunal
+interface TribunalSearchResult {
+  success: boolean;
+  data: JurisprudenciaResult[];
+  total?: number;
+  error?: {
+    message: string;
+    code: string;
+    details?: any;
+  };
+}
+
 /**
  * Constrói o payload da consulta com base nos parâmetros fornecidos
  */
@@ -188,7 +200,7 @@ const searchInTribunal = async (
   tribunal: string, 
   params: SearchDataJudParams, 
   options = { timeout: 10000, retries: 2, retryDelay: 1000 }
-): Promise<{ success: boolean, data: any[], error?: any }> => {
+): Promise<TribunalSearchResult> => {
   const alias = TRIBUNAL_ALIASES[tribunal];
   if (!alias) {
     return {
