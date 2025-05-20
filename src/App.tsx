@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Index from './pages/Index';
 import Juridico from './pages/Juridico';
@@ -17,33 +17,33 @@ import IniciativaDetalhe from './pages/IniciativaDetalhe';
 import Documentos from './pages/Documentos';
 import Carteirinha from './pages/Carteirinha';
 import GanjaChat from './pages/GanjaChat';
+import Cadastro from './pages/Cadastro';
 import { Toaster } from 'sonner';
 
 function App() {
   return (
-    <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/juridico" element={<Juridico />} />
-          <Route path="/anvisa" element={<Anvisa />} />
-          <Route path="/calculadoras" element={<Calculadoras />} />
-          <Route path="/conteudo" element={<Conteudo />} />
-          <Route path="/clube" element={<Clube />} />
-          <Route path="/clube/login" element={<Login />} />
-          <Route path="/clube/perfil" element={<Perfil />} />
-          <Route path="/clube/dashboard" element={<Dashboard />} />
-          <Route path="/clube/iniciativas" element={<Iniciativas />} />
-          <Route path="/clube/iniciativas/nova" element={<NovaIniciativa />} />
-          <Route path="/clube/iniciativas/:id" element={<IniciativaDetalhe />} />
-          <Route path="/clube/documentos" element={<Documentos />} />
-          <Route path="/clube/carteirinha" element={<Carteirinha />} />
-          <Route path="/clube/ganja-chat" element={<GanjaChat />} />
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-        <Toaster richColors closeButton />
-      </Layout>
-    </Router>
+    <Layout>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/juridico" element={<Juridico />} />
+        <Route path="/anvisa" element={<Anvisa />} />
+        <Route path="/calculadoras" element={<Calculadoras />} />
+        <Route path="/conteudo" element={<Conteudo />} />
+        <Route path="/clube" element={<Clube />} />
+        <Route path="/clube/login" element={<Login />} />
+        <Route path="/clube/cadastro" element={<Cadastro />} />
+        <Route path="/clube/perfil" element={<Perfil />} />
+        <Route path="/clube/dashboard" element={<Dashboard />} />
+        <Route path="/clube/iniciativas" element={<Iniciativas />} />
+        <Route path="/clube/iniciativas/nova" element={<NovaIniciativa />} />
+        <Route path="/clube/iniciativas/:id" element={<IniciativaDetalhe />} />
+        <Route path="/clube/documentos" element={<Documentos />} />
+        <Route path="/clube/carteirinha" element={<Carteirinha />} />
+        <Route path="/clube/ganja-chat" element={<GanjaChat />} />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+      <Toaster richColors closeButton />
+    </Layout>
   );
 }
 
