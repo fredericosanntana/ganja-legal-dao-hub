@@ -25,6 +25,13 @@ import PlanoCultivo from './pages/PlanoCultivo';
 import OrigemGenetica from './pages/OrigemGenetica';
 import HabeasCorpusPage from './pages/HabeasCorpusPage';
 import Jurisprudencia from './pages/Jurisprudencia';
+import CheckListJuridicoPage from './pages/conteudo/CheckListJuridico';
+import BastidoresGanjadaoPage from './pages/conteudo/BastidoresGanjadao';
+import CasoRealMarianaPage from './pages/conteudo/CasoRealMariana';
+import ConvocacaoDaoPage from './pages/conteudo/convocacaoDao';
+import MitosVerdadesHcDigitalPage from './pages/conteudo/MitosVerdadesHcDigital';
+import CultivoLegalPage from './pages/conteudo/CultivoLegal';
+import ManualCultivadorAutonomoPage from './pages/conteudo/ManualCulvitadorAutonomo';
 
 function App() {
   return (
@@ -37,6 +44,13 @@ function App() {
         <Route path="/conteudo" element={<Conteudo />} />
         <Route path="/conteudo/mapa-protecao" element={<MapaProtecaoPage />} />
         <Route path="/conteudo/embaixadores" element={<ChamadaEmbaixadoresPage />} />
+        <Route path="/conteudo/checklist-juridico" element={<CheckListJuridicoPage />} />
+        <Route path="/conteudo/bastidores-ganjadao" element={<BastidoresGanjadaoPage />} />
+        <Route path="/conteudo/caso-real-mariana" element={<CasoRealMarianaPage />} />
+        <Route path="/conteudo/convocacao-dao" element={<ConvocacaoDaoPage />} />
+        <Route path="/conteudo/mitos-verdades-hc-digital" element={<MitosVerdadesHcDigitalPage />} />
+        <Route path="/conteudo/cultivo-legal" element={<CultivoLegalPage />} />
+        <Route path="/conteudo/manual-culvitador-autonomo" element={<ManualCultivadorAutonomoPage />} />
         <Route path="/clube" element={<Clube />} />
         <Route path="/clube/login" element={<Login />} />
         <Route path="/clube/cadastro" element={<Cadastro />} />
