@@ -1,81 +1,113 @@
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import { calcularCustoQuadratico } from "@/services/votacoesService";
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
+import { useAuth } from '@/hooks/use-auth';
+import { useInitiatives } from '@/hooks/use-initiatives';
+import { toast } from 'sonner';
 
-interface QuadraticVotingFormProps {
-  availableCredits: number;
-  onVote: (creditsSpent: number) => void;
-}
+export type QuadraticVotingFormProps = {
+  initiativeId: string;
+  currentVoteIntensity?: number;
+  onVotingComplete?: () => void;
+};
 
-const QuadraticVotingForm: React.FC<QuadraticVotingFormProps> = ({ 
-  availableCredits, 
-  onVote 
+const QuadraticVotingForm: React.FC<QuadraticVotingFormProps> = ({
+  initiativeId,
+  currentVoteIntensity = 0,
+  onVotingComplete
 }) => {
-  const [votePower, setVotePower] = useState(0);
-  
-  // Calculate the quadratic cost based on vote power
-  const quadraticCost = calcularCustoQuadratico(votePower);
-  
-  // Calculate maximum possible vote power based on available credits
-  const maxVotePower = Math.floor(Math.sqrt(availableCredits));
+  const { user } = useAuth();
+  const { voteOnInitiative } = useInitiatives();
+  const [voteIntensity, setVoteIntensity] = useState(currentVoteIntensity);
+  const [creditsRequired, setCreditsRequired] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleVotePowerChange = (values: number[]) => {
-    setVotePower(values[0]);
-  };
+  // Calculate available credits
+  const availableCredits = user?.vote_credits?.total_credits || 0;
 
-  const handleVote = () => {
-    if (votePower > 0 && quadraticCost <= availableCredits) {
-      onVote(quadraticCost);
-      setVotePower(0); // Reset after voting
+  // Calculate required credits based on quadratic voting formula (x²)
+  useEffect(() => {
+    setCreditsRequired(Math.pow(voteIntensity, 2));
+  }, [voteIntensity]);
+
+  const handleVoteSubmit = async () => {
+    if (!user) {
+      toast.error('Você precisa estar logado para votar');
+      return;
+    }
+
+    if (creditsRequired > availableCredits) {
+      toast.error('Você não tem créditos suficientes para este voto');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await voteOnInitiative({
+        initiativeId,
+        intensity: voteIntensity,
+        creditsSpent: creditsRequired
+      });
+      
+      toast.success('Seu voto foi registrado com sucesso!');
+      if (onVotingComplete) onVotingComplete();
+    } catch (error) {
+      toast.error('Erro ao registrar voto. Tente novamente.');
+      console.error('Voting error:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <div className="flex justify-between text-sm mb-1">
-          <span>Intensidade do voto: {votePower}</span>
-          <span>Custo: {quadraticCost} créditos</span>
+    <div className="space-y-6 p-4 border rounded-lg">
+      <div>
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-sm font-medium">Intensidade do Voto</span>
+          <span className="text-sm font-bold">{voteIntensity}</span>
         </div>
-        
         <Slider
-          value={[votePower]}
-          max={maxVotePower}
+          value={[voteIntensity]}
+          min={0}
+          max={10}
           step={1}
-          onValueChange={handleVotePowerChange}
-          disabled={availableCredits <= 0}
+          onValueChange={(val) => setVoteIntensity(val[0])}
         />
-        
-        <div className="flex justify-between text-xs text-muted-foreground mt-1">
-          <span>0</span>
-          <span>{maxVotePower}</span>
+      </div>
+
+      <div className="p-3 bg-muted rounded-md">
+        <div className="flex justify-between text-sm">
+          <span>Créditos Necessários:</span>
+          <span className="font-bold">{creditsRequired}</span>
+        </div>
+        <div className="flex justify-between text-sm mt-1">
+          <span>Créditos Disponíveis:</span>
+          <span className={`font-bold ${availableCredits < creditsRequired ? 'text-destructive' : ''}`}>
+            {availableCredits}
+          </span>
         </div>
       </div>
 
-      <div className="bg-muted/50 p-4 rounded-md text-sm space-y-2">
-        <p className="font-medium">Como funciona a votação quadrática?</p>
+      <div className="text-xs text-muted-foreground">
         <p>
-          Na votação quadrática, o custo em créditos é o quadrado da intensidade do seu voto.
-          Isso permite que você demonstre sua preferência de forma mais precisa.
-        </p>
-        <p>
-          <span className="font-medium">Exemplo:</span> Um voto de intensidade 3 custa 9 créditos.
+          A votação quadrática requer o <strong>quadrado</strong> da intensidade do voto em créditos.
+          Assim, um voto de intensidade 3 custa 9 créditos.
         </p>
       </div>
 
-      <div className="flex justify-between items-center">
-        <span className="text-sm text-muted-foreground">
-          Créditos disponíveis: <strong>{availableCredits}</strong>
-        </span>
-        <Button 
-          onClick={handleVote} 
-          disabled={votePower === 0 || quadraticCost > availableCredits}
-        >
-          Votar ({quadraticCost} créditos)
-        </Button>
-      </div>
+      <Button 
+        onClick={handleVoteSubmit} 
+        disabled={
+          voteIntensity === 0 || 
+          creditsRequired > availableCredits || 
+          isSubmitting || 
+          !user
+        }
+        className="w-full"
+      >
+        {isSubmitting ? 'Enviando...' : 'Confirmar Voto'}
+      </Button>
     </div>
   );
 };
