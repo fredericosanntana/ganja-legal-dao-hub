@@ -53,7 +53,7 @@ const FeaturesSection = () => {
           <ModuleCard
             icon={<MessageSquareText className="h-6 w-6" />}
             title="Ganja Chat"
-            description="Assistente jurídico IA para tirar dúvidas relacionadas ao cultivo de cannabis medicinal."
+            description="Assistente de IA para tirar dúvidas relacionadas ao cultivo de cannabis medicinal."
             to="/clube/ganja-chat"
             variant="default"
             className="h-full"
