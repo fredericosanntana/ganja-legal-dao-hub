@@ -1,7 +1,7 @@
 
 import { Votacao, Proposta, Voto } from "../types/votacoes";
 
-// Mock data for demonstrations
+// Mock data for demonstrations - will be replaced with real data in production
 const mockVotacoes: Votacao[] = [
   {
     id: "1",
@@ -98,6 +98,7 @@ const mockVotacoes: Votacao[] = [
   }
 ];
 
+// Get all votacoes (public assemblies)
 export const getVotacoes = async (): Promise<Votacao[]> => {
   // Simulação de uma chamada API
   return new Promise((resolve) => {
@@ -105,6 +106,7 @@ export const getVotacoes = async (): Promise<Votacao[]> => {
   });
 };
 
+// Get a single votacao by ID
 export const getVotacao = async (id: string): Promise<Votacao | undefined> => {
   // Simulação de uma chamada API
   return new Promise((resolve) => {
@@ -112,6 +114,8 @@ export const getVotacao = async (id: string): Promise<Votacao | undefined> => {
   });
 };
 
+// Vote on a proposta in a votacao
+// This uses the same credits system as initiatives, but for structured public assemblies
 export const votar = async (votacaoId: string, propostaId: string, creditos: number): Promise<boolean> => {
   // Simulação de uma chamada API para registrar voto
   console.log(`Votou na proposta ${propostaId} da votação ${votacaoId} com ${creditos} créditos`);
@@ -120,7 +124,8 @@ export const votar = async (votacaoId: string, propostaId: string, creditos: num
   });
 };
 
-// Função para calcular raiz quadrada (votação quadrática)
+// Função para calcular custo quadrático (votação quadrática)
+// Used in both Iniciativas and Votacoes systems
 export const calcularCustoQuadratico = (creditos: number): number => {
   return Math.pow(creditos, 2);
 };

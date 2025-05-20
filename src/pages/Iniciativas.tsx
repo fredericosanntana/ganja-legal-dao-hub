@@ -8,6 +8,7 @@ import { Plus, Vote, HelpCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useInitiatives } from "@/hooks/use-initiatives";
 import InitiativeCard from "@/components/initiatives/InitiativeCard";
+import VotingSystemExplanation from "@/components/VotingSystemExplanation";
 import { 
   Dialog, 
   DialogContent, 
@@ -94,6 +95,15 @@ const Iniciativas = () => {
                             que minorias tenham voz em questões que consideram muito importantes.
                           </p>
                         </div>
+                        
+                        <div>
+                          <h3 className="text-base font-semibold mb-1">Relação com o Sistema de Votações</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Os mesmos créditos utilizados para votar em Iniciativas também servem para o sistema de Votações.
+                            Iniciativas são propostas abertas criadas pelos membros, enquanto Votações são consultas 
+                            formais criadas pela governança da DAO.
+                          </p>
+                        </div>
                       </div>
                     </DialogDescription>
                   </DialogHeader>
@@ -109,6 +119,9 @@ const Iniciativas = () => {
               </Button>
             )}
           </div>
+
+          {/* Add the new explanation component */}
+          <VotingSystemExplanation />
 
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">

@@ -2,6 +2,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/hooks/use-auth";
+import { HelpCircle } from "lucide-react";
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const CreditStats = () => {
   const { user } = useAuth();
@@ -19,7 +26,22 @@ const CreditStats = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Seus Créditos de Votação</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg">Seus Créditos de Votação</CardTitle>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs">
+                  Créditos de votação são usados tanto no sistema de Iniciativas quanto no sistema de Votações, 
+                  ambos utilizando o método de votação quadrática.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -41,7 +63,8 @@ const CreditStats = () => {
 
           <div className="pt-2 text-xs text-muted-foreground">
             <p>
-              Seus créditos são utilizados para votar em iniciativas usando o sistema de votação quadrática.
+              Seus créditos são utilizados para votar em iniciativas e propostas usando o sistema de votação quadrática.
+              Os mesmos créditos são compartilhados entre os sistemas de Iniciativas e Votações.
             </p>
           </div>
         </div>

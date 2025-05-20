@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { Votacao } from "@/types/votacoes";
 import { getVotacoes } from "@/services/votacoesService";
 import { useToast } from "@/hooks/use-toast";
+import VotingSystemExplanation from "@/components/VotingSystemExplanation";
 
 const Votacoes = () => {
   const [votacoes, setVotacoes] = useState<Votacao[]>([]);
@@ -109,34 +110,8 @@ const Votacoes = () => {
         </div>
 
         <div className="max-w-4xl mx-auto">
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Vote className="h-5 w-5 text-primary" />
-                Como funciona a votação quadrática
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="mb-4">
-                A votação quadrática permite uma distribuição mais democrática de influência, onde:
-              </p>
-              <ul className="list-disc pl-5 space-y-2 mb-4">
-                <li>Cada membro recebe <strong>créditos de voto</strong> para utilizar em propostas</li>
-                <li>O <strong>custo</strong> para alocar créditos cresce quadraticamente (1 voto = 1 crédito, 2 votos = 4 créditos, etc.)</li>
-                <li>Você pode distribuir seus créditos entre múltiplas propostas ou concentrá-los em uma única</li>
-                <li>Esse sistema permite que minorias tenham voz em questões importantes para elas</li>
-              </ul>
-              <div className="bg-muted p-4 rounded-md">
-                <p className="font-medium">Exemplo:</p>
-                <p>Com 16 créditos, você pode votar de várias formas:</p>
-                <ul className="list-disc pl-5">
-                  <li>1 voto em cada uma de 16 propostas diferentes (custo: 16 créditos)</li>
-                  <li>2 votos em 4 propostas (custo: 4 × 4 = 16 créditos)</li>
-                  <li>4 votos em 1 proposta (custo: 16 créditos)</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Add the new explanation component */}
+          <VotingSystemExplanation />
 
           {isLoading ? (
             <div className="text-center py-8">
