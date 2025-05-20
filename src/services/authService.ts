@@ -1,4 +1,6 @@
+
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 // Function to update the user trigger function on the edge
 export const updateUserTriggerFunction = async (): Promise<boolean> => {
