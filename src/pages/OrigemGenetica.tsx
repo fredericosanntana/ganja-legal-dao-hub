@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { Dna } from 'lucide-react';
 import { jsPDF } from 'jspdf';
+import Layout from "@/components/Layout";
 
 const DeclaracaoOrigemGenetica = () => {
   const [form, setForm] = useState({
@@ -124,110 +125,112 @@ const DeclaracaoOrigemGenetica = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col items-center mb-8">
-        <h1 className="text-3xl font-bold">🌿 Declaração de Verificação de Origem Genética de Cannabis para Uso Medicinal</h1>
-        <p className="text-lg text-muted-foreground mt-2">Preencha o formulário para gerar sua declaração.</p>
+    <Layout>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex flex-col items-center mb-8">
+          <h1 className="text-3xl font-bold">🌿 Declaração de Verificação de Origem Genética de Cannabis para Uso Medicinal</h1>
+          <p className="text-lg text-muted-foreground mt-2">Preencha o formulário para gerar sua declaração.</p>
+        </div>
+
+        <Card className="w-full max-w-3xl mx-auto">
+          <form onSubmit={handleSubmit}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Dna className="h-5 w-5 text-activist-600" />
+                Formulário da Declaração
+              </CardTitle>
+              <CardDescription>
+                Preencha todos os campos para gerar seu documento personalizado.
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-6">
+              {/* Dados Pessoais */}
+              <div className="space-y-4">
+                <div className="flex items-center">
+                  <h3 className="text-lg font-semibold">Dados Pessoais</h3>
+                  <Separator className="flex-1 ml-3" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="nome">Nome Completo</Label>
+                    <Input id="nome" name="nome" value={form.nome} onChange={handleChange} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cpf">CPF</Label>
+                    <Input id="cpf" name="cpf" value={form.cpf} onChange={handleCPFChange} placeholder="000.000.000-00" required />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="endereco">Endereço Completo</Label>
+                  <Input id="endereco" name="endereco" value={form.endereco} onChange={handleChange} required />
+                </div>
+              </div>
+
+              {/* Informações da Genética Cultivada */}
+              <div className="space-y-4">
+                <div className="flex items-center">
+                  <h3 className="text-lg font-semibold">Informações da Genética Cultivada</h3>
+                  <Separator className="flex-1 ml-3" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="nomeGenetica">Nome da Genética</Label>
+                  <Input id="nomeGenetica" name="nomeGenetica" value={form.nomeGenetica} onChange={handleChange} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="tipoGenetica">Tipo (Indica/Sativa/Híbrida)</Label>
+                  <Select onValueChange={(value) => handleSelectChange('tipoGenetica', value)} value={form.tipoGenetica}>
+                    <SelectTrigger id="tipoGenetica">
+                      <SelectValue placeholder="Selecione o tipo..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Indica">Indica</SelectItem>
+                      <SelectItem value="Sativa">Sativa</SelectItem>
+                      <SelectItem value="Híbrida">Híbrida</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="proporcaoTHC">Proporção THC (%)</Label>
+                    <Input id="proporcaoTHC" name="proporcaoTHC" type="text" value={form.proporcaoTHC} onChange={handleChange} placeholder="Ex: 20 ou 0.2" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="proporcaoCBD">Proporção CBD (%)</Label>
+                    <Input id="proporcaoCBD" name="proporcaoCBD" type="text" value={form.proporcaoCBD} onChange={handleChange} placeholder="Ex: 10 ou 0.5" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="canabinoidesSecundarios">Canabinoides Secundários (se aplicável)</Label>
+                  <Input id="canabinoidesSecundarios" name="canabinoidesSecundarios" value={form.canabinoidesSecundarios} onChange={handleChange} placeholder="Ex: CBG, CBN" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="terpenosPredominantes">Terpenos Predominantes</Label>
+                  <Input id="terpenosPredominantes" name="terpenosPredominantes" value={form.terpenosPredominantes} onChange={handleChange} placeholder="Ex: Mirceno, Limoneno" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="origemSementes">Origem das Sementes</Label>
+                  <Input id="origemSementes" name="origemSementes" value={form.origemSementes} onChange={handleChange} placeholder="Ex: Banco de sementes X, País Y" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="metodoAquisicao">Método de Aquisição</Label>
+                  <Input id="metodoAquisicao" name="metodoAquisicao" value={form.metodoAquisicao} onChange={handleChange} placeholder="Ex: Importação, Doação" />
+                </div>
+              </div>
+            </CardContent>
+
+            <CardFooter className="flex justify-end space-x-2">
+              <Button variant="outline" type="button" onClick={handleReset}>
+                Limpar
+              </Button>
+              <Button type="submit">
+                Gerar Documento
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
       </div>
-
-      <Card className="w-full max-w-3xl mx-auto">
-        <form onSubmit={handleSubmit}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Dna className="h-5 w-5 text-activist-600" />
-              Formulário da Declaração
-            </CardTitle>
-            <CardDescription>
-              Preencha todos os campos para gerar seu documento personalizado.
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="space-y-6">
-            {/* Dados Pessoais */}
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <h3 className="text-lg font-semibold">Dados Pessoais</h3>
-                <Separator className="flex-1 ml-3" />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="nome">Nome Completo</Label>
-                  <Input id="nome" name="nome" value={form.nome} onChange={handleChange} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cpf">CPF</Label>
-                  <Input id="cpf" name="cpf" value={form.cpf} onChange={handleCPFChange} placeholder="000.000.000-00" required />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="endereco">Endereço Completo</Label>
-                <Input id="endereco" name="endereco" value={form.endereco} onChange={handleChange} required />
-              </div>
-            </div>
-
-            {/* Informações da Genética Cultivada */}
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <h3 className="text-lg font-semibold">Informações da Genética Cultivada</h3>
-                <Separator className="flex-1 ml-3" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="nomeGenetica">Nome da Genética</Label>
-                <Input id="nomeGenetica" name="nomeGenetica" value={form.nomeGenetica} onChange={handleChange} required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="tipoGenetica">Tipo (Indica/Sativa/Híbrida)</Label>
-                <Select onValueChange={(value) => handleSelectChange('tipoGenetica', value)} value={form.tipoGenetica}>
-                  <SelectTrigger id="tipoGenetica">
-                    <SelectValue placeholder="Selecione o tipo..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Indica">Indica</SelectItem>
-                    <SelectItem value="Sativa">Sativa</SelectItem>
-                    <SelectItem value="Híbrida">Híbrida</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="proporcaoTHC">Proporção THC (%)</Label>
-                  <Input id="proporcaoTHC" name="proporcaoTHC" type="text" value={form.proporcaoTHC} onChange={handleChange} placeholder="Ex: 20 ou 0.2" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="proporcaoCBD">Proporção CBD (%)</Label>
-                  <Input id="proporcaoCBD" name="proporcaoCBD" type="text" value={form.proporcaoCBD} onChange={handleChange} placeholder="Ex: 10 ou 0.5" />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="canabinoidesSecundarios">Canabinoides Secundários (se aplicável)</Label>
-                <Input id="canabinoidesSecundarios" name="canabinoidesSecundarios" value={form.canabinoidesSecundarios} onChange={handleChange} placeholder="Ex: CBG, CBN" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="terpenosPredominantes">Terpenos Predominantes</Label>
-                <Input id="terpenosPredominantes" name="terpenosPredominantes" value={form.terpenosPredominantes} onChange={handleChange} placeholder="Ex: Mirceno, Limoneno" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="origemSementes">Origem das Sementes</Label>
-                <Input id="origemSementes" name="origemSementes" value={form.origemSementes} onChange={handleChange} placeholder="Ex: Banco de sementes X, País Y" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="metodoAquisicao">Método de Aquisição</Label>
-                <Input id="metodoAquisicao" name="metodoAquisicao" value={form.metodoAquisicao} onChange={handleChange} placeholder="Ex: Importação, Doação" />
-              </div>
-            </div>
-          </CardContent>
-
-          <CardFooter className="flex justify-end space-x-2">
-            <Button variant="outline" type="button" onClick={handleReset}>
-              Limpar
-            </Button>
-            <Button type="submit">
-              Gerar Documento
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
-    </div>
+    </Layout>
   );
 };
 

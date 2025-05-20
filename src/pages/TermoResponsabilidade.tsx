@@ -94,59 +94,61 @@ const DeclaracaoResponsabilidade = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col items-center mb-8">
-        <h1 className="text-3xl font-bold">Declaração de Responsabilidade e Finalidade Medicinal</h1>
-        <p className="text-lg text-muted-foreground mt-2">Preencha o formulário para gerar sua declaração.</p>
+    <Layout>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex flex-col items-center mb-8">
+          <h1 className="text-3xl font-bold">Declaração de Responsabilidade e Finalidade Medicinal</h1>
+          <p className="text-lg text-muted-foreground mt-2">Preencha o formulário para gerar sua declaração.</p>
+        </div>
+
+        <Card className="w-full max-w-3xl mx-auto">
+          <form onSubmit={handleSubmit}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-activist-600" />
+                Formulário da Declaração
+              </CardTitle>
+              <CardDescription>
+                Preencha todos os campos para gerar seu documento personalizado.
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-6">
+              {/* Dados Pessoais */}
+              <div className="space-y-4">
+                <div className="flex items-center">
+                  <h3 className="text-lg font-semibold">Dados Pessoais</h3>
+                  <Separator className="flex-1 ml-3" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="nome">Nome Completo</Label>
+                    <Input id="nome" name="nome" value={form.nome} onChange={handleChange} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cpf">CPF</Label>
+                    <Input id="cpf" name="cpf" value={form.cpf} onChange={handleCPFChange} placeholder="000.000.000-00" required />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="endereco">Endereço Completo</Label>
+                  <Input id="endereco" name="endereco" value={form.endereco} onChange={handleChange} required />
+                </div>
+              </div>
+            </CardContent>
+
+            <CardFooter className="flex justify-end space-x-2">
+              <Button variant="outline" type="button" onClick={handleReset}>
+                Limpar
+              </Button>
+              <Button type="submit">
+                Gerar Documento
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
       </div>
-
-      <Card className="w-full max-w-3xl mx-auto">
-        <form onSubmit={handleSubmit}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-activist-600" />
-              Formulário da Declaração
-            </CardTitle>
-            <CardDescription>
-              Preencha todos os campos para gerar seu documento personalizado.
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="space-y-6">
-            {/* Dados Pessoais */}
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <h3 className="text-lg font-semibold">Dados Pessoais</h3>
-                <Separator className="flex-1 ml-3" />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="nome">Nome Completo</Label>
-                  <Input id="nome" name="nome" value={form.nome} onChange={handleChange} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cpf">CPF</Label>
-                  <Input id="cpf" name="cpf" value={form.cpf} onChange={handleCPFChange} placeholder="000.000.000-00" required />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="endereco">Endereço Completo</Label>
-                <Input id="endereco" name="endereco" value={form.endereco} onChange={handleChange} required />
-              </div>
-            </div>
-          </CardContent>
-
-          <CardFooter className="flex justify-end space-x-2">
-            <Button variant="outline" type="button" onClick={handleReset}>
-              Limpar
-            </Button>
-            <Button type="submit">
-              Gerar Documento
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
-    </div>
+    </Layout>
   );
 };
 

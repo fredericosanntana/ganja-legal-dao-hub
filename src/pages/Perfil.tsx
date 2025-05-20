@@ -1,170 +1,193 @@
-
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from 'react';
+import Layout from '@/components/Layout';
+import { useAuth } from "@/hooks/use-auth";
 import { useNavigate } from "react-router-dom";
-import Layout from "@/components/Layout";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/use-auth";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { User } from "lucide-react";
-
-const profileSchema = z.object({
-  username: z.string().min(3, "O nome de usuário deve ter pelo menos 3 caracteres"),
-  email: z.string().email("Email inválido"),
-});
-
-type ProfileFormValues = z.infer<typeof profileSchema>;
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
+import { CheckCircle, AlertTriangle } from "lucide-react";
 
 const Perfil = () => {
+  const { user, updateUser, signOut } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const { user, isAuthenticated, isLoading } = useAuth();
-  const [isSaving, setIsSaving] = useState(false);
-
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileSchema),
-    defaultValues: {
-      username: "",
-      email: "",
-    },
-  });
+  const [username, setUsername] = useState(user?.username || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isPasswordChanging, setIsPasswordChanging] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      navigate("/clube/login");
-    }
-
     if (user) {
-      form.reset({
-        username: user.username,
-        email: user.email,
-      });
+      setUsername(user.username || "");
+      setEmail(user.email || "");
+    } else {
+      navigate('/clube/login');
     }
-  }, [isLoading, isAuthenticated, navigate, user, form]);
+  }, [user, navigate]);
 
-  const onSubmit = async (values: ProfileFormValues) => {
-    setIsSaving(true);
-    
+  const handleUpdateProfile = async () => {
+    setIsUpdating(true);
     try {
-      // This would normally update the user's profile
-      // But we'll just show a toast for now
-      toast({
-        title: "Perfil atualizado",
-        description: "Suas informações foram atualizadas com sucesso",
-      });
-    } catch (error) {
-      toast({
-        title: "Erro ao atualizar perfil",
-        description: "Ocorreu um erro ao atualizar suas informações",
-        variant: "destructive",
-      });
+      if (username.length < 3) {
+        toast.error("Nome de usuário deve ter pelo menos 3 caracteres.");
+        return;
+      }
+      await updateUser({ username });
+      toast.success("Perfil atualizado com sucesso!");
+    } catch (error: any) {
+      console.error("Update profile error:", error);
+      toast.error("Erro ao atualizar o perfil.");
     } finally {
-      setIsSaving(false);
+      setIsUpdating(false);
     }
   };
 
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8 text-center">
-          <p>Carregando...</p>
-        </div>
-      </Layout>
-    );
-  }
+  const handleChangePassword = async () => {
+    setIsPasswordChanging(true);
+    if (!password) {
+      toast.error("Por favor, insira sua senha atual.");
+      setIsPasswordChanging(false);
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast.error("A nova senha deve ter pelo menos 6 caracteres.");
+      setIsPasswordChanging(false);
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      toast.error("As novas senhas não coincidem.");
+      setIsPasswordChanging(false);
+      return;
+    }
 
-  if (!isAuthenticated || !user) {
+    try {
+      await updateUser({ password, newPassword });
+      toast.success("Senha alterada com sucesso!");
+      setPassword("");
+      setNewPassword("");
+      setConfirmNewPassword("");
+    } catch (error: any) {
+      console.error("Change password error:", error);
+      toast.error(error.message || "Erro ao alterar a senha. Verifique sua senha atual.");
+    } finally {
+      setIsPasswordChanging(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/clube/login');
+      toast.success("Logout realizado com sucesso!");
+    } catch (error: any) {
+      console.error("Sign out error:", error);
+      toast.error("Erro ao fazer logout.");
+    }
+  };
+
+  if (!user) {
     return null;
   }
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-2xl font-bold mb-6">Meu Perfil</h1>
-          
           <Card>
             <CardHeader>
-              <div className="flex items-center space-x-4">
-                <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center">
-                  <User className="h-8 w-8 text-muted-foreground" />
-                </div>
-                <CardTitle>Informações Pessoais</CardTitle>
-              </div>
+              <CardTitle>Meu Perfil</CardTitle>
+              <CardDescription>
+                Gerencie suas informações de perfil e segurança.
+              </CardDescription>
             </CardHeader>
-            
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="username"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nome de usuário</FormLabel>
-                        <FormControl>
-                          <Input {...field} disabled={isSaving} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input {...field} disabled={isSaving} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <div className="pt-4">
-                    <Button type="submit" disabled={isSaving} className="w-full">
-                      {isSaving ? "Salvando..." : "Salvar alterações"}
-                    </Button>
+            <CardContent className="space-y-4">
+              {user.subscription ? (
+                <div className="rounded-md border border-green-500 bg-green-50 p-4">
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <p className="text-sm font-medium text-green-700">
+                      Assinatura ativa.
+                    </p>
                   </div>
-                </form>
-              </Form>
+                </div>
+              ) : (
+                <div className="rounded-md border border-yellow-500 bg-yellow-50 p-4">
+                  <div className="flex items-center space-x-2">
+                    <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                    <p className="text-sm font-medium text-yellow-700">
+                      Assinatura inativa. <a href="/clube/dashboard" className="underline">Clique aqui para ativar.</a>
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <Label htmlFor="username">Nome de usuário</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled
+                />
+              </div>
+              <Button onClick={handleUpdateProfile} disabled={isUpdating}>
+                {isUpdating ? "Atualizando..." : "Atualizar Perfil"}
+              </Button>
+
+              <div className="mt-6 pt-6 border-t">
+                <h3 className="text-lg font-semibold mb-4">Alterar Senha</h3>
+                <div>
+                  <Label htmlFor="currentPassword">Senha atual</Label>
+                  <Input
+                    id="currentPassword"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="newPassword">Nova senha</Label>
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="confirmNewPassword">Confirmar nova senha</Label>
+                  <Input
+                    id="confirmNewPassword"
+                    type="password"
+                    value={confirmNewPassword}
+                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  />
+                </div>
+                <Button onClick={handleChangePassword} disabled={isPasswordChanging}>
+                  {isPasswordChanging ? "Alterando..." : "Alterar Senha"}
+                </Button>
+              </div>
+
+              <div className="mt-6 pt-6 border-t">
+                <Button variant="destructive" onClick={handleSignOut}>
+                  Sair
+                </Button>
+              </div>
             </CardContent>
-            
-            <CardFooter className="flex flex-col space-y-4 border-t pt-4">
-              <div>
-                <h3 className="font-medium text-sm mb-2">Alterar senha</h3>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Para alterar sua senha, clique no botão abaixo
-                </p>
-                <Button variant="outline" className="w-full">
-                  Alterar senha
-                </Button>
-              </div>
-              
-              <div>
-                <h3 className="font-medium text-sm mb-2">Assinatura</h3>
-                <p className="text-sm text-muted-foreground mb-2">
-                  {user.subscription 
-                    ? "Sua assinatura está ativa. Clique abaixo para gerenciar."
-                    : "Você ainda não possui uma assinatura ativa."}
-                </p>
-                <Button 
-                  variant={user.subscription ? "outline" : "default"} 
-                  className="w-full"
-                  onClick={() => window.open("https://buy.stripe.com/dR65lA6DX0s6bEQ28c", "_blank")}
-                >
-                  {user.subscription ? "Gerenciar assinatura" : "Assinar agora"}
-                </Button>
-              </div>
-            </CardFooter>
           </Card>
         </div>
       </div>

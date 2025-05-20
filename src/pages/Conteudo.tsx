@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, FileText, Users, Award, AlertTriangle, Scale, Tag, Book, Map, User, PlusCircle, Edit3, MessageSquare } from "lucide-react";
@@ -6,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
 import { getAllAuthServicePosts, AuthServicePost } from "@/services/authService";
+import Layout from "@/components/Layout";
 
 // Interface para o formato unificado dos artigos a serem exibidos
 interface DisplayArticle {
@@ -147,68 +147,70 @@ const Conteudo = () => {
   }, []); // Roda uma vez ao montar o componente
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold mb-2">Conteúdo Educacional</h1>
-        <p className="text-lg text-muted-foreground">
-          Artigos, manuais e notícias relevantes para a comunidade
-        </p>
-      </div>
-
-      {/* Only show New Article button for admin users */}
-      {user?.is_admin && (
-        <div className="mb-6 text-center md:text-right">
-          <Button asChild variant="outline" className="border-green-600 text-green-600 hover:bg-green-50 hover:text-green-700">
-            <Link to="/conteudo/editor">
-              <PlusCircle className="mr-2 h-5 w-5" />
-              Novo Artigo
-            </Link>
-          </Button>
+    <Layout>
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold mb-2">Conteúdo Educacional</h1>
+          <p className="text-lg text-muted-foreground">
+            Artigos, manuais e notícias relevantes para a comunidade
+          </p>
         </div>
-      )}
 
-      <div className="max-w-5xl mx-auto">
-        {allArticles.length === 0 ? (
-          <p className='text-center text-slate-500'>Nenhum artigo encontrado.</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {allArticles.map((article) => (
-              <Card key={article.isDynamic ? `dynamic-${article.id}` : `static-${article.id}`} className="card-hover flex flex-col">
-                <CardHeader className='flex-grow'>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${article.categoryColor}`}>
-                      {article.category}
-                    </span>
-                  </div>
-                  <CardTitle className="flex items-center gap-2">
-                    {article.icon}
-                    {article.title}
-                  </CardTitle>
-                  <CardDescription>{article.description}</CardDescription>
-                </CardHeader>
-                <div className="px-6 pb-6 mt-auto">
-                  {article.isDynamic ? (
-                     <Button variant="outline" asChild className="w-full bg-yellow-50 hover:bg-yellow-100">
-                      <span className='flex items-center'>
-                         <BookOpen className="mr-2 h-4 w-4" />
-                         Ver Conteúdo (Em Breve)
-                      </span>
-                    </Button>
-                  ) : (
-                    <Button variant="outline" asChild className="w-full">
-                      <Link to={article.link || `/conteudo/${article.id}`}>
-                        <BookOpen className="mr-2 h-4 w-4" />
-                        {article.id === 'ganja-chat' ? 'Abrir Chat' : 'Ler Artigo'}
-                      </Link>
-                    </Button>
-                  )}
-                </div>
-              </Card>
-            ))}
+        {/* Only show New Article button for admin users */}
+        {user?.is_admin && (
+          <div className="mb-6 text-center md:text-right">
+            <Button asChild variant="outline" className="border-green-600 text-green-600 hover:bg-green-50 hover:text-green-700">
+              <Link to="/conteudo/editor">
+                <PlusCircle className="mr-2 h-5 w-5" />
+                Novo Artigo
+              </Link>
+            </Button>
           </div>
         )}
+
+        <div className="max-w-5xl mx-auto">
+          {allArticles.length === 0 ? (
+            <p className='text-center text-slate-500'>Nenhum artigo encontrado.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {allArticles.map((article) => (
+                <Card key={article.isDynamic ? `dynamic-${article.id}` : `static-${article.id}`} className="card-hover flex flex-col">
+                  <CardHeader className='flex-grow'>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${article.categoryColor}`}>
+                        {article.category}
+                      </span>
+                    </div>
+                    <CardTitle className="flex items-center gap-2">
+                      {article.icon}
+                      {article.title}
+                    </CardTitle>
+                    <CardDescription>{article.description}</CardDescription>
+                  </CardHeader>
+                  <div className="px-6 pb-6 mt-auto">
+                    {article.isDynamic ? (
+                       <Button variant="outline" asChild className="w-full bg-yellow-50 hover:bg-yellow-100">
+                        <span className='flex items-center'>
+                           <BookOpen className="mr-2 h-4 w-4" />
+                           Ver Conteúdo (Em Breve)
+                        </span>
+                      </Button>
+                    ) : (
+                      <Button variant="outline" asChild className="w-full">
+                        <Link to={article.link || `/conteudo/${article.id}`}>
+                          <BookOpen className="mr-2 h-4 w-4" />
+                          {article.id === 'ganja-chat' ? 'Abrir Chat' : 'Ler Artigo'}
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

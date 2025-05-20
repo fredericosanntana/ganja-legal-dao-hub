@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { FileText, FileEdit, Mail, Save } from 'lucide-react';
@@ -92,183 +93,185 @@ Pior: ao desconsiderar expressamente as experiências concretas de quem já plan
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold mb-2">Módulo ANVISA</h1>
-          <p className="text-lg text-muted-foreground">
-            Ferramentas para criação e envio de manifestações para consultas públicas
-          </p>
-        </div>
-
-        {/* Ferramenta de Manifestação */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-primary" /> Ferramenta de Manifestação
-            </CardTitle>
-            <CardDescription>
-              Crie manifestações para consultas públicas da ANVISA relacionadas à Cannabis
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="mb-4">
-              <strong>Participe da Consulta Pública da Anvisa sobre Cannabis!</strong><br /><br />
-              A Agência Nacional de Vigilância Sanitária (Anvisa) abriu uma <strong>Consulta Pública</strong> sobre normas que impactam diretamente o acesso e a regulamentação de produtos à base de Cannabis no Brasil. <br /><br />
-              <strong>O prazo para participar termina às 23h59 do dia 02/06/2025.</strong><br /><br />
-              Esse é o momento de exercer seu direito de voz e influenciar decisões que podem transformar o acesso ao tratamento, à pesquisa e à produção de Cannabis medicinal no país.<br /><br />
-              Para participar é fácil: <br />
-              1. Leia o texto completo da proposta: <a href="https://anexosportal.datalegis.net/arquivos/1887747.pdf" target="_blank" rel="noopener noreferrer" className="text-purple-700 underline">Clique aqui para acessar o texto oficial</a>.<br />
-              2. Envie sua manifestação até o prazo final através do formulário oficial da Anvisa: <a href="https://pesquisa.anvisa.gov.br/index.php/162726?lang=pt-BR" target="_blank" rel="noopener noreferrer" className="text-green-700 underline">Acesse o formulário da Consulta Pública</a>.<br /><br />
-              <strong>Sua participação é fundamental para garantir direitos, segurança e avanços na política de Cannabis no Brasil. Mobilize, compartilhe e faça parte desta construção coletiva!</strong><br /><br />
-              <span className="text-sm text-muted-foreground">*Dúvidas? Conte com a GanjaDAO para apoiar sua manifestação e fortalecer nossa luta por liberdade e autocuidado!</span>
+    <Layout>
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8 text-center">
+            <h1 className="text-3xl font-bold mb-2">Módulo ANVISA</h1>
+            <p className="text-lg text-muted-foreground">
+              Ferramentas para criação e envio de manifestações para consultas públicas
             </p>
-          </CardContent>
-          <CardFooter className="flex flex-col sm:flex-row gap-2">
-            <Button className="w-full sm:flex-1" onClick={() => setShowForm(true)}>
-              <FileEdit className="mr-2 h-5 w-5" /> Criar Nova Manifestação
-            </Button>
-          </CardFooter>
-        </Card>
+          </div>
 
-        {/* Formulário Dinâmico */}
-        {showForm && (
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Formulário de Manifestação</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {/* Dados Pessoais */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="name" className="block font-medium">Nome Completo</label>
-                  <input
-                    id="name"
-                    type="text"
-                    className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
-                    value={formData.name}
-                    onChange={e => handleChange('name', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="email" className="block font-medium">E-mail</label>
-                  <input
-                    id="email"
-                    type="email"
-                    className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
-                    value={formData.email}
-                    onChange={e => handleChange('email', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="cpf" className="block font-medium">CPF</label>
-                  <input
-                    id="cpf"
-                    type="text"
-                    className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
-                    value={formData.cpf}
-                    onChange={e => handleChange('cpf', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="profession" className="block font-medium">Profissão</label>
-                  <input
-                    id="profession"
-                    type="text"
-                    className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
-                    value={formData.profession}
-                    onChange={e => handleChange('profession', e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* Pontos de Abordagem */}
-              <div className="mb-4">
-                <p className="font-medium mb-2">Pontos a serem abordados</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {['point1','point2','point3','point4','point5','point6'].map((key, i) => (
-                    <label key={key} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={(formData as any)[key]}
-                        onChange={e => handleChange(key, e.target.checked)}
-                      />
-                      <span>
-                        {['Autocultivo medicinal','Jurisprudência favorável','Associações','Uso da planta in natura','Redução de custos','Referências Bibliográficas'][i]}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Comentários Adicionais */}
-              <div className="mb-4">
-                <label htmlFor="additionalComments" className="block font-medium mb-2">Comentários Adicionais</label>
-                <textarea
-                  id="additionalComments"
-                  rows={4}
-                  className="textarea w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
-                  value={formData.additionalComments}
-                  onChange={e => handleChange('additionalComments', e.target.value)}
-                />
-              </div>
-
-              {/* Prévia */}
-              <div className="mb-4 bg-muted p-4 rounded">
-                <h4 className="font-semibold mb-2">Prévia da Manifestação</h4>
-                <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
-              </div>
-
-              {/* Ações */}
-              <div className="flex flex-wrap gap-2">
-                <Button variant="outline" onClick={() => setPreviewHtml(generateManifestationContent())}>
-                  Atualizar Prévia
-                </Button>
-                <Button onClick={generatePDF}>Baixar PDF</Button>
-                <Button onClick={sendEmail} variant="secondary" disabled={true}>Enviar por E-mail</Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Alertas de Consultas Públicas */}
-        <div className="mt-8">
+          {/* Ferramenta de Manifestação */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Mail className="h-5 w-5 text-primary" /> Receba Alertas de Consultas Públicas
+                <FileText className="h-5 w-5 text-primary" /> Ferramenta de Manifestação
               </CardTitle>
               <CardDescription>
-                Seja notificado quando novas consultas públicas forem abertas
+                Crie manifestações para consultas públicas da ANVISA relacionadas à Cannabis
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p>
-                Mantenha-se atualizado sobre novas consultas públicas da ANVISA relacionadas à Cannabis.
-                Cadastre seu e-mail para receber alertas e não perder os prazos.
+              <p className="mb-4">
+                <strong>Participe da Consulta Pública da Anvisa sobre Cannabis!</strong><br /><br />
+                A Agência Nacional de Vigilância Sanitária (Anvisa) abriu uma <strong>Consulta Pública</strong> sobre normas que impactam diretamente o acesso e a regulamentação de produtos à base de Cannabis no Brasil. <br /><br />
+                <strong>O prazo para participar termina às 23h59 do dia 02/06/2025.</strong><br /><br />
+                Esse é o momento de exercer seu direito de voz e influenciar decisões que podem transformar o acesso ao tratamento, à pesquisa e à produção de Cannabis medicinal no país.<br /><br />
+                Para participar é fácil: <br />
+                1. Leia o texto completo da proposta: <a href="https://anexosportal.datalegis.net/arquivos/1887747.pdf" target="_blank" rel="noopener noreferrer" className="text-purple-700 underline">Clique aqui para acessar o texto oficial</a>.<br />
+                2. Envie sua manifestação até o prazo final através do formulário oficial da Anvisa: <a href="https://pesquisa.anvisa.gov.br/index.php/162726?lang=pt-BR" target="_blank" rel="noopener noreferrer" className="text-green-700 underline">Acesse o formulário da Consulta Pública</a>.<br /><br />
+                <strong>Sua participação é fundamental para garantir direitos, segurança e avanços na política de Cannabis no Brasil. Mobilize, compartilhe e faça parte desta construção coletiva!</strong><br /><br />
+                <span className="text-sm text-muted-foreground">*Dúvidas? Conte com a GanjaDAO para apoiar sua manifestação e fortalecer nossa luta por liberdade e autocuidado!</span>
               </p>
             </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="w-full" disabled={true}>
-                <Mail className="mr-2 h-5 w-5" /> Cadastrar para Alertas
+            <CardFooter className="flex flex-col sm:flex-row gap-2">
+              <Button className="w-full sm:flex-1" onClick={() => setShowForm(true)}>
+                <FileEdit className="mr-2 h-5 w-5" /> Criar Nova Manifestação
               </Button>
             </CardFooter>
           </Card>
-        </div>
 
-        {/* Toast */}
-        {toast && (
-          <div className="fixed top-4 right-4">
-            <div className={`alert alert-${toast.type} shadow-lg`}>
-              <div>
-                <span>{toast.title}</span>
-                <span className="block">{toast.message}</span>
+          {/* Formulário Dinâmico */}
+          {showForm && (
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle>Formulário de Manifestação</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {/* Dados Pessoais */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="name" className="block font-medium">Nome Completo</label>
+                    <input
+                      id="name"
+                      type="text"
+                      className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+                      value={formData.name}
+                      onChange={e => handleChange('name', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="email" className="block font-medium">E-mail</label>
+                    <input
+                      id="email"
+                      type="email"
+                      className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+                      value={formData.email}
+                      onChange={e => handleChange('email', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="cpf" className="block font-medium">CPF</label>
+                    <input
+                      id="cpf"
+                      type="text"
+                      className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+                      value={formData.cpf}
+                      onChange={e => handleChange('cpf', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="profession" className="block font-medium">Profissão</label>
+                    <input
+                      id="profession"
+                      type="text"
+                      className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+                      value={formData.profession}
+                      onChange={e => handleChange('profession', e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Pontos de Abordagem */}
+                <div className="mb-4">
+                  <p className="font-medium mb-2">Pontos a serem abordados</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {['point1','point2','point3','point4','point5','point6'].map((key, i) => (
+                      <label key={key} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={(formData as any)[key]}
+                          onChange={e => handleChange(key, e.target.checked)}
+                        />
+                        <span>
+                          {['Autocultivo medicinal','Jurisprudência favorável','Associações','Uso da planta in natura','Redução de custos','Referências Bibliográficas'][i]}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Comentários Adicionais */}
+                <div className="mb-4">
+                  <label htmlFor="additionalComments" className="block font-medium mb-2">Comentários Adicionais</label>
+                  <textarea
+                    id="additionalComments"
+                    rows={4}
+                    className="textarea w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+                    value={formData.additionalComments}
+                    onChange={e => handleChange('additionalComments', e.target.value)}
+                  />
+                </div>
+
+                {/* Prévia */}
+                <div className="mb-4 bg-muted p-4 rounded">
+                  <h4 className="font-semibold mb-2">Prévia da Manifestação</h4>
+                  <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
+                </div>
+
+                {/* Ações */}
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="outline" onClick={() => setPreviewHtml(generateManifestationContent())}>
+                    Atualizar Prévia
+                  </Button>
+                  <Button onClick={generatePDF}>Baixar PDF</Button>
+                  <Button onClick={sendEmail} variant="secondary" disabled={true}>Enviar por E-mail</Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Alertas de Consultas Públicas */}
+          <div className="mt-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="h-5 w-5 text-primary" /> Receba Alertas de Consultas Públicas
+                </CardTitle>
+                <CardDescription>
+                  Seja notificado quando novas consultas públicas forem abertas
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>
+                  Mantenha-se atualizado sobre novas consultas públicas da ANVISA relacionadas à Cannabis.
+                  Cadastre seu e-mail para receber alertas e não perder os prazos.
+                </p>
+              </CardContent>
+              <CardFooter>
+                <Button variant="outline" className="w-full" disabled={true}>
+                  <Mail className="mr-2 h-5 w-5" /> Cadastrar para Alertas
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+
+          {/* Toast */}
+          {toast && (
+            <div className="fixed top-4 right-4">
+              <div className={`alert alert-${toast.type} shadow-lg`}>
+                <div>
+                  <span>{toast.title}</span>
+                  <span className="block">{toast.message}</span>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

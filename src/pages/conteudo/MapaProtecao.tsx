@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import dadosHC from '../../dadosHC';
 import { estadosNomes } from '../../estadosNomes';
+import Layout from "@/components/Layout";
 
 // Componente do Mapa Interativo
 const MapaBrasil = () => {
@@ -275,7 +276,7 @@ const mapaProtecaoStyles = `
 // Componente principal da página
 const MapaProtecaoPage = () => {
   return (
-    <>
+    <Layout>
       <style>{mapaProtecaoStyles}</style>
       <main className="container">
         <section className="conteudo-pagina">
@@ -341,7 +342,7 @@ const MapaProtecaoPage = () => {
           <p>Convidamos você a explorar este mapa, a se inspirar nas conquistas já alcançadas e a se juntar a nós nessa jornada. A GanjaDAO continua comprometida em fornecer as ferramentas, o conhecimento e o apoio para que cada vez mais cultivadores possam adicionar sua localidade ao Mapa da Proteção, construindo uma rede de segurança e solidariedade que abranja todo o Brasil.</p>
         </section>
       </main>
-    </>
+    </Layout>
   );
 };
 

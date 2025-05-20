@@ -8,6 +8,7 @@ import { useInitiatives } from "@/hooks/use-initiatives";
 import { useAuth } from "@/hooks/use-auth";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import CreditStats from "@/components/dashboard/CreditStats";
+import Layout from "@/components/Layout";
 
 const Dashboard = () => {
   const { user, isAuthenticated } = useAuth();
@@ -17,7 +18,7 @@ const Dashboard = () => {
   const hasActiveSubscription = user?.subscription && user.subscription.status === 'active';
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <Layout>
       <DashboardHeader />
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
@@ -258,7 +259,7 @@ const Dashboard = () => {
           </Card>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

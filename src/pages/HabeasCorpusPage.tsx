@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { jsPDF } from 'jspdf';
 import { Button } from '@/components/ui/button';
+import Layout from "@/components/Layout";
 
 interface Fundamento {
   id: string;
@@ -108,129 +109,131 @@ const HabeasCorpusPage: React.FC = () => {
   };
 
   return (
-    <main className="container mx-auto px-4 py-8">
-      <section className="mx-auto" style={{ maxWidth: '720px' }}>
-        <h1 className="text-3xl font-bold mb-3 text-center">{title}</h1>
-        <p className="text-lg text-muted-foreground mb-8 text-center">
-          Preencha o formulário abaixo para gerar seu Habeas Corpus Preventivo.
-        </p>
+    <Layout>
+      <main className="container mx-auto px-4 py-8">
+        <section className="mx-auto" style={{ maxWidth: '720px' }}>
+          <h1 className="text-3xl font-bold mb-3 text-center">{title}</h1>
+          <p className="text-lg text-muted-foreground mb-8 text-center">
+            Preencha o formulário abaixo para gerar seu Habeas Corpus Preventivo.
+          </p>
 
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          {/* Dados Pessoais */}
-          <fieldset className="border rounded-lg p-4">
-            <legend className="text-lg font-semibold px-2">Dados Pessoais</legend>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {['nome','nacionalidade','estado Civil','profissao','CPF','RG','Email','Telefone','Endereco','Cidade','UF'].map(field => (
-                <div key={field}>
-                  <label htmlFor={field} className="block text-sm font-medium mb-1">
-                    {field.charAt(0).toUpperCase()+field.slice(1)}
-                  </label>
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {/* Dados Pessoais */}
+            <fieldset className="border rounded-lg p-4">
+              <legend className="text-lg font-semibold px-2">Dados Pessoais</legend>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {['nome','nacionalidade','estado Civil','profissao','CPF','RG','Email','Telefone','Endereco','Cidade','UF'].map(field => (
+                  <div key={field}>
+                    <label htmlFor={field} className="block text-sm font-medium mb-1">
+                      {field.charAt(0).toUpperCase()+field.slice(1)}
+                    </label>
+                    <input
+                      type="text"
+                      id={field}
+                      name={field}
+                      value={formData[field]}
+                      onChange={e => handleChange(field, e.target.value)}
+                      className="w-full p-2 border rounded"
+                      required
+                    />
+                  </div>
+                ))}
+                <div className="col-span-2">
+                  <label htmlFor="endereco" className="block text-sm font-medium mb-1">Endereço Completo</label>
                   <input
                     type="text"
-                    id={field}
-                    name={field}
-                    value={formData[field]}
-                    onChange={e => handleChange(field, e.target.value)}
+                    id="endereco"
+                    name="endereco"
+                    value={formData.endereco}
+                    onChange={e => handleChange('endereco', e.target.value)}
                     className="w-full p-2 border rounded"
                     required
                   />
                 </div>
-              ))}
-              <div className="col-span-2">
-                <label htmlFor="endereco" className="block text-sm font-medium mb-1">Endereço Completo</label>
-                <input
-                  type="text"
-                  id="endereco"
-                  name="endereco"
-                  value={formData.endereco}
-                  onChange={e => handleChange('endereco', e.target.value)}
+              </div>
+            </fieldset>
+
+            {/* Informações do Cultivo */}
+            <fieldset className="border rounded-lg p-4">
+              <legend className="text-lg font-semibold px-2">Informações do Cultivo</legend>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="quantidadePlantas" className="block text-sm font-medium mb-1">Quantidade de Plantas</label>
+                  <input
+                    type="number"
+                    id="quantidadePlantas"
+                    name="quantidadePlantas"
+                    min={1}
+                    value={formData.quantidadePlantas}
+                    onChange={e => handleChange('quantidadePlantas', Number(e.target.value))}
+                    className="w-full p-2 border rounded"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="finalidadeUso" className="block text-sm font-medium mb-1">Finalidade de Uso</label>
+                  <select
+                    id="finalidadeUso"
+                    name="finalidadeUso"
+                    value={formData.finalidadeUso}
+                    onChange={e => handleChange('finalidadeUso', e.target.value)}
+                    className="w-full p-2 border rounded"
+                    required
+                  >
+                    <option value="">Selecione...</option>
+                    <option value="medicinal">Medicinal</option>
+                    <option value="terapeutico">Terapêutico</option>
+                    <option value="pessoal">Uso Pessoal</option>
+                    <option value="religioso">Religioso</option>
+                  </select>
+                </div>
+              </div>
+            </fieldset>
+
+            {/* Motivação */}
+            <fieldset className="border rounded-lg p-4">
+              <legend className="text-lg font-semibold px-2">Motivação</legend>
+              <div>
+                <label htmlFor="motivacao" className="block text-sm font-medium mb-1">Descreva sua motivação para o autocultivo</label>
+                <textarea
+                  id="motivacao"
+                  name="motivacao"
+                  rows={5}
+                  value={formData.motivacao}
+                  onChange={e => handleChange('motivacao', e.target.value)}
                   className="w-full p-2 border rounded"
                   required
                 />
               </div>
-            </div>
-          </fieldset>
+            </fieldset>
 
-          {/* Informações do Cultivo */}
-          <fieldset className="border rounded-lg p-4">
-            <legend className="text-lg font-semibold px-2">Informações do Cultivo</legend>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="quantidadePlantas" className="block text-sm font-medium mb-1">Quantidade de Plantas</label>
-                <input
-                  type="number"
-                  id="quantidadePlantas"
-                  name="quantidadePlantas"
-                  min={1}
-                  value={formData.quantidadePlantas}
-                  onChange={e => handleChange('quantidadePlantas', Number(e.target.value))}
-                  className="w-full p-2 border rounded"
-                  required
-                />
+            {/* Prévia do Texto */}
+            <section className="mt-6">
+              <h2 className="text-xl font-semibold mb-2">Prévia do Texto</h2>
+              <div className="bg-gray-100 p-4 rounded h-64 overflow-auto whitespace-pre-wrap">
+                {generateText()}
               </div>
-              <div>
-                <label htmlFor="finalidadeUso" className="block text-sm font-medium mb-1">Finalidade de Uso</label>
-                <select
-                  id="finalidadeUso"
-                  name="finalidadeUso"
-                  value={formData.finalidadeUso}
-                  onChange={e => handleChange('finalidadeUso', e.target.value)}
-                  className="w-full p-2 border rounded"
-                  required
-                >
-                  <option value="">Selecione...</option>
-                  <option value="medicinal">Medicinal</option>
-                  <option value="terapeutico">Terapêutico</option>
-                  <option value="pessoal">Uso Pessoal</option>
-                  <option value="religioso">Religioso</option>
-                </select>
-              </div>
-            </div>
-          </fieldset>
+              <p className="text-lg text-muted-foreground mb-8 text-center">
+                Pode ser impetrado por qualquer pessoa, independentemente de habilitação legal ou representação de advogado.
+              </p>
+              <p className="text-lg text-muted-foreground mb-8 text-center">
+                Obs: Admite-se a impetração por telegrama, radiograma ou telex, e até por telefone (RT 638/333). Sobre a impetração por meio eletrônico, vide Lei n. 11.419/06, que trata da informatização do processo judicial (cada tribunal adota um sistema eletrônico processual, o impetrante deve se informar por meio dos manuais disponíveis nos sites tribunais sobre o peticionamento eletrônico de pessoas sem assistência de advogado).
+              </p>
+            </section>
 
-          {/* Motivação */}
-          <fieldset className="border rounded-lg p-4">
-            <legend className="text-lg font-semibold px-2">Motivação</legend>
-            <div>
-              <label htmlFor="motivacao" className="block text-sm font-medium mb-1">Descreva sua motivação para o autocultivo</label>
-              <textarea
-                id="motivacao"
-                name="motivacao"
-                rows={5}
-                value={formData.motivacao}
-                onChange={e => handleChange('motivacao', e.target.value)}
-                className="w-full p-2 border rounded"
-                required
-              />
+            {/* Ações */}
+            <div className="flex justify-end gap-2 mt-4">
+              <Button variant="outline" type="reset" onClick={() => setFormData({
+                nome:'', nacionalidade:'', estadoCivil:'', profissao:'', CPF:'', RG:'', Email:'', Telefone:'', Endereco:'', Cidade:'', UF:'', QuantidadePlantas:1, FinalidadeUso:'', FundamentosJuridicos:[], Motivacao:''
+              })}>
+                Limpar
+              </Button>
+              <Button type="submit">Gerar Habeas Corpus</Button>
             </div>
-          </fieldset>
-
-          {/* Prévia do Texto */}
-          <section className="mt-6">
-            <h2 className="text-xl font-semibold mb-2">Prévia do Texto</h2>
-            <div className="bg-gray-100 p-4 rounded h-64 overflow-auto whitespace-pre-wrap">
-              {generateText()}
-            </div>
-            <p className="text-lg text-muted-foreground mb-8 text-center">
-              Pode ser impetrado por qualquer pessoa, independentemente de habilitação legal ou representação de advogado.
-            </p>
-            <p className="text-lg text-muted-foreground mb-8 text-center">
-              Obs: Admite-se a impetração por telegrama, radiograma ou telex, e até por telefone (RT 638/333). Sobre a impetração por meio eletrônico, vide Lei n. 11.419/06, que trata da informatização do processo judicial (cada tribunal adota um sistema eletrônico processual, o impetrante deve se informar por meio dos manuais disponíveis nos sites tribunais sobre o peticionamento eletrônico de pessoas sem assistência de advogado).
-            </p>
-          </section>
-
-          {/* Ações */}
-          <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" type="reset" onClick={() => setFormData({
-              nome:'', nacionalidade:'', estadoCivil:'', profissao:'', CPF:'', RG:'', Email:'', Telefone:'', Endereco:'', Cidade:'', UF:'', QuantidadePlantas:1, FinalidadeUso:'', FundamentosJuridicos:[], Motivacao:''
-            })}>
-              Limpar
-            </Button>
-            <Button type="submit">Gerar Habeas Corpus</Button>
-          </div>
-        </form>
-      </section>
-    </main>
+          </form>
+        </section>
+      </main>
+    </Layout>
   );
 };
 

@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/use-auth";
@@ -16,6 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import VotingSystemExplanation from "@/components/VotingSystemExplanation";
 import { getInitiativeById } from "@/services/initiativeService";
+import Layout from "@/components/Layout";
 
 const IniciativaDetalhe = () => {
   const { id } = useParams<{ id: string }>();
@@ -145,7 +145,7 @@ const IniciativaDetalhe = () => {
   }
 
   return (
-    <div className="container max-w-4xl py-8">
+    <Layout>
       <Button
         variant="outline"
         size="sm"
@@ -248,7 +248,7 @@ const IniciativaDetalhe = () => {
           )}
         </CardContent>
       </Card>
-    </div>
+    </Layout>
   );
 };
 

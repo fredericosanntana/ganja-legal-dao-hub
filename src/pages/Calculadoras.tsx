@@ -2951,60 +2951,62 @@ const Calculadoras = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold mb-2">Calculadoras para Cultivo</h1>
-          <p className="text-lg text-muted-foreground">
-            Ferramentas matemáticas para otimizar seu cultivo
-          </p>
+    <Layout>
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8 text-center">
+            <h1 className="text-3xl font-bold mb-2">Calculadoras para Cultivo</h1>
+            <p className="text-lg text-muted-foreground">
+              Ferramentas matemáticas para otimizar seu cultivo
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 mb-8">
+            {calculators.map((calc) => (
+              <Button
+                key={calc.id}
+                variant={activeCalculator === calc.id ? "default" : "outline"}
+                className="flex items-center gap-2"
+                onClick={() => setActiveCalculator(calc.id)}
+              >
+                {calc.icon}
+                <span>{calc.name}</span>
+              </Button>
+            ))}
+          </div>
+          {activeCalculator === "vpd" ? (
+            <VPDCalculator />
+          ) : activeCalculator === "dli" ? (
+            <DLICalculator />
+          ) : activeCalculator === "dew-point" ? (
+            <DewPointCalculator />
+          ) : activeCalculator === "ec-flush" ? (
+            <ECFlushCalculator />
+          ) : activeCalculator === "nutrients" ? (
+            <NutrientsCalculator />
+          ) : activeCalculator === "deficiency" ? (
+            <DeficiencyIdentifier />
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calculator className="h-5 w-5 text-primary" />
+                  Calculadora em Desenvolvimento
+                </CardTitle>
+                <CardDescription>
+                  Esta calculadora estará disponível em breve
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>
+                  Estamos trabalhando para disponibilizar mais calculadoras úteis para o seu cultivo.
+                  Volte em breve para acessar esta funcionalidade.
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 mb-8">
-          {calculators.map((calc) => (
-            <Button
-              key={calc.id}
-              variant={activeCalculator === calc.id ? "default" : "outline"}
-              className="flex items-center gap-2"
-              onClick={() => setActiveCalculator(calc.id)}
-            >
-              {calc.icon}
-              <span>{calc.name}</span>
-            </Button>
-          ))}
-        </div>
-        {activeCalculator === "vpd" ? (
-          <VPDCalculator />
-        ) : activeCalculator === "dli" ? (
-          <DLICalculator />
-        ) : activeCalculator === "dew-point" ? (
-          <DewPointCalculator />
-        ) : activeCalculator === "ec-flush" ? (
-          <ECFlushCalculator />
-        ) : activeCalculator === "nutrients" ? (
-          <NutrientsCalculator />
-        ) : activeCalculator === "deficiency" ? (
-          <DeficiencyIdentifier />
-        ) : (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calculator className="h-5 w-5 text-primary" />
-                Calculadora em Desenvolvimento
-              </CardTitle>
-              <CardDescription>
-                Esta calculadora estará disponível em breve
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>
-                Estamos trabalhando para disponibilizar mais calculadoras úteis para o seu cultivo.
-                Volte em breve para acessar esta funcionalidade.
-              </p>
-            </CardContent>
-          </Card>
-        )}
       </div>
-    </div>
+    </Layout>
   );
 };
 
