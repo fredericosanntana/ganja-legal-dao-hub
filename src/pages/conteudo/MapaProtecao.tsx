@@ -1,5 +1,4 @@
 import React from 'react';
-import Layout from '@/components/Layout'; // Conforme o modelo CultivoLegal.tsx
 
 const mapaProtecaoStyles = `
     .conteudo-pagina {
@@ -145,16 +144,15 @@ const mapaProtecaoContent = `
 
 const MapaProtecaoPage: React.FC = () => {
   return (
-    <Layout>
+    <>
       <style>{mapaProtecaoStyles}</style>
       <main className="container">
         <section className="conteudo-pagina">
           <div dangerouslySetInnerHTML={{ __html: mapaProtecaoContent }} />
         </section>
       </main>
-    </Layout>
+    </>
   );
 };
 
 export default MapaProtecaoPage;
-

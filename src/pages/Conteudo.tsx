@@ -1,6 +1,5 @@
 
 import React, { useEffect, useState } from 'react';
-import Layout from "@/components/Layout";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, FileText, Users, Award, AlertTriangle, Scale, Tag, Book, Map, User, PlusCircle, Edit3, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,7 +27,8 @@ const staticArticles: DisplayArticle[] = [
     description: "Lista completa de ações para proteção legal do cultivador de Cannabis",
     icon: <FileText className="h-5 w-5" />,
     category: "Jurídico",
-    categoryColor: "bg-blue-100 text-blue-800"
+    categoryColor: "bg-blue-100 text-blue-800",
+    link: "/conteudo/checklist-juridico"
   },
   {
     id: "bastidores",
@@ -36,7 +36,8 @@ const staticArticles: DisplayArticle[] = [
     description: "Conheça como surgiu a iniciativa e quem está por trás dela",
     icon: <Users className="h-5 w-5" />,
     category: "Institucional",
-    categoryColor: "bg-purple-100 text-purple-800"
+    categoryColor: "bg-purple-100 text-purple-800",
+    link: "/conteudo/bastidores-ganjadao"
   },
   {
     id: "caso-mariana",
@@ -44,7 +45,8 @@ const staticArticles: DisplayArticle[] = [
     description: "Como o HC preventivo ajudou uma cultivadora em uma abordagem policial",
     icon: <Award className="h-5 w-5" />,
     category: "Depoimento",
-    categoryColor: "bg-green-100 text-green-800"
+    categoryColor: "bg-green-100 text-green-800",
+    link: "/conteudo/caso-real-mariana"
   },
   {
     id: "convocacao",
@@ -52,7 +54,8 @@ const staticArticles: DisplayArticle[] = [
     description: "Participe da próxima votação sobre as iniciativas da GanjaDAO",
     icon: <Users className="h-5 w-5" />,
     category: "Clube",
-    categoryColor: "bg-purple-100 text-purple-800"
+    categoryColor: "bg-purple-100 text-purple-800",
+    link: "/conteudo/convocacao-dao"
   },
   {
     id: "mitos-verdades",
@@ -60,7 +63,8 @@ const staticArticles: DisplayArticle[] = [
     description: "Esclarecendo dúvidas comuns sobre o Habeas Corpus preventivo",
     icon: <AlertTriangle className="h-5 w-5" />,
     category: "Jurídico",
-    categoryColor: "bg-blue-100 text-blue-800"
+    categoryColor: "bg-blue-100 text-blue-800",
+    link: "/conteudo/mitos-verdades-hc-digital"
   },
   {
     id: "cultivo-legal",
@@ -68,7 +72,8 @@ const staticArticles: DisplayArticle[] = [
     description: "Como a tecnologia pode democratizar o acesso à justiça",
     icon: <Scale className="h-5 w-5" />,
     category: "Artigo",
-    categoryColor: "bg-amber-100 text-amber-800"
+    categoryColor: "bg-amber-100 text-amber-800",
+    link: "/conteudo/cultivo-legal"
   },
   {
     id: "manual-cultivador",
@@ -76,7 +81,8 @@ const staticArticles: DisplayArticle[] = [
     description: "Guia completo para o autocultivo responsável e seguro",
     icon: <Book className="h-5 w-5" />,
     category: "Manual",
-    categoryColor: "bg-teal-100 text-teal-800"
+    categoryColor: "bg-teal-100 text-teal-800",
+    link: "/conteudo/manual-culvitador-autonomo"
   },
   {
     id: "mapa-protecao",
@@ -84,7 +90,8 @@ const staticArticles: DisplayArticle[] = [
     description: "Panorama da situação jurídica do cultivo de Cannabis no Brasil",
     icon: <Map className="h-5 w-5" />,
     category: "Jurídico",
-    categoryColor: "bg-blue-100 text-blue-800"
+    categoryColor: "bg-blue-100 text-blue-800",
+    link: "/conteudo/mapa-protecao"
   },
   {
     id: "embaixadores",
@@ -92,7 +99,8 @@ const staticArticles: DisplayArticle[] = [
     description: "Junte-se ao time de embaixadores e ajude a espalhar a causa",
     icon: <User className="h-5 w-5" />,
     category: "Oportunidade",
-    categoryColor: "bg-emerald-100 text-emerald-800"
+    categoryColor: "bg-emerald-100 text-emerald-800",
+    link: "/conteudo/embaixadores"
   },
   // Add Ganja Chat card
   {
@@ -102,7 +110,7 @@ const staticArticles: DisplayArticle[] = [
     icon: <MessageSquare className="h-5 w-5" />,
     category: "Serviço",
     categoryColor: "bg-green-100 text-green-800",
-    link: "/conteudo/ganja-chat"
+    link: "/clube/ganja-chat"
   }
 ];
 
@@ -139,70 +147,68 @@ const Conteudo = () => {
   }, []); // Roda uma vez ao montar o componente
 
   return (
-    <Layout>
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold mb-2">Conteúdo Educacional</h1>
-          <p className="text-lg text-muted-foreground">
-            Artigos, manuais e notícias relevantes para a comunidade
-          </p>
-        </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-bold mb-2">Conteúdo Educacional</h1>
+        <p className="text-lg text-muted-foreground">
+          Artigos, manuais e notícias relevantes para a comunidade
+        </p>
+      </div>
 
-        {/* Only show New Article button for admin users */}
-        {user?.is_admin && (
-          <div className="mb-6 text-center md:text-right">
-            <Button asChild variant="outline" className="border-green-600 text-green-600 hover:bg-green-50 hover:text-green-700">
-              <Link to="/conteudo/editor">
-                <PlusCircle className="mr-2 h-5 w-5" />
-                Novo Artigo
-              </Link>
-            </Button>
+      {/* Only show New Article button for admin users */}
+      {user?.is_admin && (
+        <div className="mb-6 text-center md:text-right">
+          <Button asChild variant="outline" className="border-green-600 text-green-600 hover:bg-green-50 hover:text-green-700">
+            <Link to="/conteudo/editor">
+              <PlusCircle className="mr-2 h-5 w-5" />
+              Novo Artigo
+            </Link>
+          </Button>
+        </div>
+      )}
+
+      <div className="max-w-5xl mx-auto">
+        {allArticles.length === 0 ? (
+          <p className='text-center text-slate-500'>Nenhum artigo encontrado.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {allArticles.map((article) => (
+              <Card key={article.isDynamic ? `dynamic-${article.id}` : `static-${article.id}`} className="card-hover flex flex-col">
+                <CardHeader className='flex-grow'>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${article.categoryColor}`}>
+                      {article.category}
+                    </span>
+                  </div>
+                  <CardTitle className="flex items-center gap-2">
+                    {article.icon}
+                    {article.title}
+                  </CardTitle>
+                  <CardDescription>{article.description}</CardDescription>
+                </CardHeader>
+                <div className="px-6 pb-6 mt-auto">
+                  {article.isDynamic ? (
+                     <Button variant="outline" asChild className="w-full bg-yellow-50 hover:bg-yellow-100">
+                      <span className='flex items-center'>
+                         <BookOpen className="mr-2 h-4 w-4" />
+                         Ver Conteúdo (Em Breve)
+                      </span>
+                    </Button>
+                  ) : (
+                    <Button variant="outline" asChild className="w-full">
+                      <Link to={article.link || `/conteudo/${article.id}`}>
+                        <BookOpen className="mr-2 h-4 w-4" />
+                        {article.id === 'ganja-chat' ? 'Abrir Chat' : 'Ler Artigo'}
+                      </Link>
+                    </Button>
+                  )}
+                </div>
+              </Card>
+            ))}
           </div>
         )}
-
-        <div className="max-w-5xl mx-auto">
-          {allArticles.length === 0 ? (
-            <p className='text-center text-slate-500'>Nenhum artigo encontrado.</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {allArticles.map((article) => (
-                <Card key={article.isDynamic ? `dynamic-${article.id}` : `static-${article.id}`} className="card-hover flex flex-col">
-                  <CardHeader className='flex-grow'>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${article.categoryColor}`}>
-                        {article.category}
-                      </span>
-                    </div>
-                    <CardTitle className="flex items-center gap-2">
-                      {article.icon}
-                      {article.title}
-                    </CardTitle>
-                    <CardDescription>{article.description}</CardDescription>
-                  </CardHeader>
-                  <div className="px-6 pb-6 mt-auto">
-                    {article.isDynamic ? (
-                       <Button variant="outline" asChild className="w-full bg-yellow-50 hover:bg-yellow-100">
-                        <span className='flex items-center'>
-                           <BookOpen className="mr-2 h-4 w-4" />
-                           Ver Conteúdo (Em Breve)
-                        </span>
-                      </Button>
-                    ) : (
-                      <Button variant="outline" asChild className="w-full">
-                        <Link to={article.link || `/conteudo/${article.id}`}>
-                          <BookOpen className="mr-2 h-4 w-4" />
-                          {article.id === 'ganja-chat' ? 'Abrir Chat' : 'Ler Artigo'}
-                        </Link>
-                      </Button>
-                    )}
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 

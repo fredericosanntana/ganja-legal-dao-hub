@@ -19,6 +19,8 @@ import Carteirinha from './pages/Carteirinha';
 import GanjaChat from './pages/GanjaChat';
 import Cadastro from './pages/Cadastro';
 import { Toaster } from 'sonner';
+import MapaProtecaoPage from './pages/conteudo/MapaProtecao';
+import ChamadaEmbaixadoresPage from './pages/conteudo/embaixadores';
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
         <Route path="/anvisa" element={<Anvisa />} />
         <Route path="/calculadoras" element={<Calculadoras />} />
         <Route path="/conteudo" element={<Conteudo />} />
+        <Route path="/conteudo/mapa-protecao" element={<MapaProtecaoPage />} />
+        <Route path="/conteudo/embaixadores" element={<ChamadaEmbaixadoresPage />} />
         <Route path="/clube" element={<Clube />} />
         <Route path="/clube/login" element={<Login />} />
         <Route path="/clube/cadastro" element={<Cadastro />} />

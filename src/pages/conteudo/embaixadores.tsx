@@ -1,5 +1,4 @@
 import React from 'react';
-import Layout from '@/components/Layout'; // Conforme o modelo CultivoLegal.tsx
 
 const chamadaEmbaixadoresStyles = `
     .conteudo-pagina {
@@ -85,7 +84,7 @@ const chamadaEmbaixadoresContent = `
     <div class="bloco-chamada-embaixadores">
         <h2>Torne-se um Farol de Esperança e Proteção em Sua Comunidade!</h2>
         <p>Os Embaixadores GanjaDAO serão peças-chave na expansão da nossa rede de apoio. Eles atuarão como pontes entre a GanjaDAO e as comunidades locais, ajudando a disseminar conhecimento, a identificar necessidades e a facilitar o acesso aos nossos serviços e recursos. Buscamos pessoas proativas, com boa comunicação e, acima de tudo, com um compromisso genuíno com a causa.</p>
-    </div>s
+    </div>
 
     <h2>Quem Buscamos para Ser um Embaixador GanjaDAO?</h2>
     <p>Acreditamos na diversidade de talentos e experiências. Você pode ser um excelente candidato a Embaixador GanjaDAO se você se identifica com um ou mais dos seguintes perfis:</p>
@@ -142,14 +141,14 @@ const chamadaEmbaixadoresContent = `
 
 const ChamadaEmbaixadoresPage: React.FC = () => {
   return (
-    <Layout>
+    <>
       <style>{chamadaEmbaixadoresStyles}</style>
       <main className="container">
         <section className="conteudo-pagina">
           <div dangerouslySetInnerHTML={{ __html: chamadaEmbaixadoresContent }} />
         </section>
       </main>
-    </Layout>
+    </>
   );
 };
 
