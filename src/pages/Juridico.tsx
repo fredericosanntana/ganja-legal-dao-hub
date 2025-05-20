@@ -1,40 +1,32 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, FileText, Search, Download } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Juridico: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("habeas-corpus");
-  const navigate = useNavigate();
   
   const templates = [
     {
       title: 'Termo de Responsabilidade',
       desc: 'Modelo de termo de responsabilidade para cultivo',
-      action: () => {
-        // Substitua pelo caminho do seu arquivo PDF
-        navigate('/termo-responsabilidade');
-      },
+      path: '/termo-responsabilidade',
       label: 'Acessar',
       disabled: false,
     },
     {
       title: 'Plano de Cultivo',
       desc: 'Modelo de plano de cultivo',
-      action: () => {
-        navigate('/plano-cultivo');
-      },
+      path: '/plano-cultivo',
       label: 'Acessar',
       disabled: false
     },
     {
       title: 'Declaração de Origem Genética',
       desc: 'Modelo de declaração de origem genética',
-      action: () => {
-        // Substitua pelo caminho do seu arquivo PDF
-        navigate('/origem-genetica');
-      },
+      path: '/origem-genetica',
       label: 'Acessar',
       disabled: false
     },  
@@ -119,7 +111,7 @@ const Juridico: React.FC = () => {
               </div>
             </CardContent>
             <CardFooter>
-              <Link to="/habeas-corpus" className="w-full">
+              <Link to="/habeas-corpus-preventivo" className="w-full">
                 <Button className="w-full" size="lg">
                   <Shield className="mr-2 h-5 w-5" />
                   Iniciar Geração de HC
@@ -201,7 +193,8 @@ const Juridico: React.FC = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={tpl.action}
+                      as={Link}
+                      to={tpl.path}
                       disabled={tpl.disabled}
                     >
                       {tpl.label}

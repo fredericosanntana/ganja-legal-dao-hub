@@ -21,6 +21,11 @@ import Cadastro from './pages/Cadastro';
 import { Toaster } from 'sonner';
 import MapaProtecaoPage from './pages/conteudo/MapaProtecao';
 import ChamadaEmbaixadoresPage from './pages/conteudo/embaixadores';
+import TermoResponsabilidade from './pages/TermoResponsabilidade';
+import PlanoCultivo from './pages/PlanoCultivo';
+import OrigemGenetica from './pages/OrigemGenetica';
+import HabeasCorpusPage from './pages/HabeasCorpusPage';
+import Jurisprudencia from './pages/Jurisprudencia';
 
 function App() {
   return (
@@ -45,6 +50,11 @@ function App() {
           <Route path="/clube/documentos" element={<Documentos />} />
           <Route path="/clube/carteirinha" element={<Carteirinha />} />
           <Route path="/clube/ganja-chat" element={<GanjaChat />} />
+          <Route path="/termo-responsabilidade" element={<TermoResponsabilidade />} />
+          <Route path="/plano-cultivo" element={<PlanoCultivo />} />
+          <Route path="/origem-genetica" element={<OrigemGenetica />} />
+          <Route path="/habeas-corpus-preventivo" element={<HabeasCorpusPage />} />
+          <Route path="/jurisprudencia" element={<Jurisprudencia />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Layout>
