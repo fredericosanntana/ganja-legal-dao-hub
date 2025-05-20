@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import Layout from "@/components/Layout";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,7 +37,6 @@ const staticArticles: DisplayArticle[] = [
     category: "Institucional",
     categoryColor: "bg-purple-100 text-purple-800"
   },
-  // ... (outros artigos estáticos permanecem aqui, copiados da versão anterior)
   {
     id: "caso-mariana",
     title: "Caso Real: Mariana e GanjaDAO",
