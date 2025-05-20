@@ -1,7 +1,6 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { useInitiatives } from "@/hooks/use-initiatives";
 import { useAuth } from "@/hooks/use-auth";
 import { useNavigate, useParams } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
@@ -9,19 +8,20 @@ import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ThumbsUp, Users, AlertTriangle } from "lucide-react";
 import { useState, useEffect } from "react";
-import { QuadraticVotingForm } from "@/components/initiatives/QuadraticVotingForm";
+import QuadraticVotingForm from "@/components/initiatives/QuadraticVotingForm";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import VotingSystemExplanation from "@/components/VotingSystemExplanation";
+import { getInitiativeById } from "@/services/initiativeService";
 
 const IniciativaDetalhe = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { getInitiativeById, isLoading } = useInitiatives();
+  const [isLoading, setIsLoading] = useState(true);
   const [initiative, setInitiative] = useState<any>(null);
   const [showVotingForm, setShowVotingForm] = useState(false);
   
@@ -32,12 +32,15 @@ const IniciativaDetalhe = () => {
   }, [id]);
 
   const fetchInitiative = async (initiativeId: string) => {
+    setIsLoading(true);
     try {
       const data = await getInitiativeById(initiativeId);
       setInitiative(data);
     } catch (error) {
       console.error("Error fetching initiative:", error);
       toast.error("Não foi possível carregar os dados da iniciativa.");
+    } finally {
+      setIsLoading(false);
     }
   };
 

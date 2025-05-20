@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { useAuth } from '@/hooks/use-auth';
-import { useInitiatives } from '@/hooks/use-initiatives';
 import { toast } from 'sonner';
+import { voteOnInitiative } from '@/services/initiativeService';
 
 export type QuadraticVotingFormProps = {
   initiativeId: string;
@@ -17,8 +17,7 @@ const QuadraticVotingForm: React.FC<QuadraticVotingFormProps> = ({
   currentVoteIntensity = 0,
   onVotingComplete
 }) => {
-  const { user } = useAuth();
-  const { voteOnInitiative } = useInitiatives();
+  const { user, refreshUser } = useAuth();
   const [voteIntensity, setVoteIntensity] = useState(currentVoteIntensity);
   const [creditsRequired, setCreditsRequired] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,14 +43,16 @@ const QuadraticVotingForm: React.FC<QuadraticVotingFormProps> = ({
 
     setIsSubmitting(true);
     try {
-      await voteOnInitiative({
+      const success = await voteOnInitiative(
         initiativeId,
-        intensity: voteIntensity,
-        creditsSpent: creditsRequired
-      });
+        creditsRequired
+      );
       
-      toast.success('Seu voto foi registrado com sucesso!');
-      if (onVotingComplete) onVotingComplete();
+      if (success) {
+        toast.success('Seu voto foi registrado com sucesso!');
+        await refreshUser();
+        if (onVotingComplete) onVotingComplete();
+      }
     } catch (error) {
       toast.error('Erro ao registrar voto. Tente novamente.');
       console.error('Voting error:', error);
@@ -112,4 +113,6 @@ const QuadraticVotingForm: React.FC<QuadraticVotingFormProps> = ({
   );
 };
 
+// Export the component as both default and named export
 export default QuadraticVotingForm;
+export { QuadraticVotingForm };
