@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const Cadastro = () => {
@@ -69,6 +69,19 @@ const Cadastro = () => {
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Criar uma conta
         </h2>
+        
+        <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mb-6">
+          <div className="flex gap-2">
+            <AlertCircle className="h-5 w-5 text-amber-500" />
+            <div>
+              <p className="text-sm text-amber-800">
+                Após o cadastro, sua conta estará com assinatura inativa. 
+                Para ativar, faça login e atualize seu plano.
+              </p>
+            </div>
+          </div>
+        </div>
+        
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="username">Nome de usuário</Label>
