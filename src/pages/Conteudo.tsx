@@ -149,7 +149,8 @@ const Conteudo = () => {
           </p>
         </div>
 
-        {user && (
+        {/* Only show New Article button for admin users */}
+        {user?.is_admin && (
           <div className="mb-6 text-center md:text-right">
             <Button asChild variant="outline" className="border-green-600 text-green-600 hover:bg-green-50 hover:text-green-700">
               <Link to="/conteudo/editor">

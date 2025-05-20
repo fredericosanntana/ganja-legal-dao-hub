@@ -1,5 +1,5 @@
 
-import React, { useState, lazy, Suspense } from 'react';
+import React, { useState, lazy, Suspense, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -9,7 +9,6 @@ import { toast } from "sonner";
 import Layout from "@/components/Layout";
 import { useAuth } from "@/hooks/use-auth";
 import { createAuthServicePost } from "@/services/authService";
-import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Lazy load ReactQuill to avoid build-time issues
@@ -27,6 +26,17 @@ const BlogEditor = () => {
   const [isSaving, setIsSaving] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  // Check if user is admin, if not redirect to content page
+  useEffect(() => {
+    if (user && !user.is_admin) {
+      toast.error("Você não tem permissão para criar artigos");
+      navigate("/conteudo");
+    } else if (!user) {
+      toast.error("Você precisa estar logado para acessar esta página");
+      navigate("/clube/login");
+    }
+  }, [user, navigate]);
 
   // React Quill modules and formats
   const modules = {
@@ -57,6 +67,12 @@ const BlogEditor = () => {
     try {
       if (!user?.id) {
         toast.error("Você precisa estar logado para criar um artigo");
+        return;
+      }
+
+      // Check if user is admin
+      if (!user.is_admin) {
+        toast.error("Você não tem permissão para criar artigos");
         return;
       }
       
@@ -94,6 +110,11 @@ const BlogEditor = () => {
       />
     </Suspense>
   );
+
+  // If user is not admin, don't render the editor
+  if (user && !user.is_admin) {
+    return null;
+  }
 
   return (
     <Layout>
