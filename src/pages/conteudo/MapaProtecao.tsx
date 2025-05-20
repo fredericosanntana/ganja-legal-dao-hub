@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import dadosHC from '/dadosHC.js';
-import { estadosNomes } from '/estadosNomes.js';
+import dadosHC from '../../dadosHC';
+import { estadosNomes } from '../../estadosNomes';
 
 // Componente do Mapa Interativo
 const MapaBrasil = () => {

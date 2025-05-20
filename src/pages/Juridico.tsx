@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -190,18 +189,18 @@ const Juridico: React.FC = () => {
                       <h3 className="font-medium">{tpl.title}</h3>
                       <p className="text-sm text-muted-foreground">{tpl.desc}</p>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      as={Link}
-                      to={tpl.path}
-                      disabled={tpl.disabled}
-                    >
-                      {tpl.label}
-                      {tpl.label === 'Download' && !tpl.disabled && (
-                        <Download className="h-4 w-4 ml-1" />
-                      )}
-                    </Button>
+                    <Link to={tpl.path}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={tpl.disabled}
+                      >
+                        {tpl.label}
+                        {tpl.label === 'Download' && !tpl.disabled && (
+                          <Download className="h-4 w-4 ml-1" />
+                        )}
+                      </Button>
+                    </Link>
                   </div>
                 ))}
               </div>
