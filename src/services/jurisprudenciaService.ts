@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Configurações da API
 const API_BASE_URL = 'https://api-publica.datajud.cnj.jus.br';
-const API_KEY = process.env.DATAJUD_API_KEY || 'APIKey cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw=='
+const API_KEY = import.meta.env.VITE_DATAJUD_API_KEY || 'APIKey cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw==';
 
 // Mapeamento de tribunais para aliases na API
 const TRIBUNAL_ALIASES: Record<string, string> = {
