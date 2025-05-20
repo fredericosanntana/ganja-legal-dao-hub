@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -147,7 +148,7 @@ const Dashboard = () => {
             </div>
 
             <div>
-              <h2 className="text-xl font-bold mb-4">Minhas Votações</h2>
+              <h2 className="text-xl font-bold mb-4">Meus Votos</h2>
               <Card>
                 <CardContent className="py-6">
                   {user?.votes && user.votes.length > 0 ? (
@@ -176,9 +177,9 @@ const Dashboard = () => {
                 </CardContent>
                 <CardFooter>
                   <Button variant="outline" className="w-full" asChild>
-                    <Link to="/clube/votacoes">
+                    <Link to="/clube/iniciativas">
                       <Vote className="mr-2 h-4 w-4" />
-                      Ver histórico de votos
+                      Ver todas as iniciativas
                     </Link>
                   </Button>
                 </CardFooter>

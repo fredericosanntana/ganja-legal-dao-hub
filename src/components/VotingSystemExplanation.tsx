@@ -21,10 +21,10 @@ const VotingSystemExplanation = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Vote className="h-5 w-5 text-primary" />
-          Sistema de Votação da GanjaDAO
+          Sistema de Iniciativas da GanjaDAO
         </CardTitle>
         <CardDescription>
-          Entenda como funcionam os sistemas de participação na DAO
+          Entenda como funciona o sistema de participação na DAO
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -35,24 +35,34 @@ const VotingSystemExplanation = () => {
               <p className="mb-2">
                 <strong>Iniciativas</strong> são propostas criadas pelos membros para sugerir novos projetos, 
                 mudanças ou ações que a DAO deveria tomar. Qualquer membro pode criar uma iniciativa e os 
-                demais membros podem votar alocando seus créditos.
+                membros ativos (com assinatura válida) podem votar alocando seus créditos.
               </p>
               <p>
-                Este é um sistema aberto onde a comunidade pode propor suas próprias ideias de forma livre.
+                Este é um sistema aberto onde a comunidade pode propor suas próprias ideias de forma livre,
+                garantindo a participação de todos na governança da DAO.
               </p>
             </AccordionContent>
           </AccordionItem>
           
-          <AccordionItem value="votacoes">
-            <AccordionTrigger>Votações</AccordionTrigger>
+          <AccordionItem value="votacao">
+            <AccordionTrigger>Como Funciona a Votação</AccordionTrigger>
             <AccordionContent>
               <p className="mb-2">
-                <strong>Votações</strong> são consultas estruturadas e oficiais criadas pela governança da DAO, 
-                com propostas pré-definidas e prazos específicos. São usadas para decisões estratégicas e que 
-                afetam a organização como um todo.
+                Para votar em iniciativas, utilizamos o sistema de <strong>votação quadrática</strong>, 
+                onde o custo em créditos é o quadrado da intensidade do seu voto.
               </p>
+              <p className="mb-2">
+                Por exemplo:
+              </p>
+              <ul className="list-disc list-inside text-sm mb-2">
+                <li>Um voto de intensidade 1 custa 1 crédito</li>
+                <li>Um voto de intensidade 2 custa 4 créditos</li>
+                <li>Um voto de intensidade 3 custa 9 créditos</li>
+                <li>Um voto de intensidade 4 custa 16 créditos</li>
+              </ul>
               <p>
-                Este é um sistema mais formal e estruturado para decisões importantes da comunidade.
+                Esse sistema permite que você expresse convicções fortes em temas que considera mais importantes,
+                criando um processo decisório mais equitativo e representativo.
               </p>
             </AccordionContent>
           </AccordionItem>
@@ -61,13 +71,13 @@ const VotingSystemExplanation = () => {
             <AccordionTrigger>Créditos de Votação</AccordionTrigger>
             <AccordionContent>
               <p className="mb-2">
-                Os <strong>créditos de votação</strong> são compartilhados entre ambos os sistemas. Você possui 
-                um total de créditos que pode usar tanto em Iniciativas quanto em Votações.
+                Cada membro recebe uma quantidade inicial de <strong>créditos de votação</strong> que pode
+                utilizar para votar nas iniciativas que considerar mais relevantes.
               </p>
               <p>
-                Em ambos os casos, utilizamos o sistema de <strong>votação quadrática</strong>, onde o custo 
-                em créditos é o quadrado da intensidade do seu voto, permitindo expressar convicções fortes 
-                em temas que você considera mais importantes.
+                A votação quadrática permite uma distribuição mais democrática do poder de voto, evitando que
+                grupos majoritários dominem todas as decisões e permitindo que minorias tenham voz em questões
+                que consideram muito importantes.
               </p>
             </AccordionContent>
           </AccordionItem>

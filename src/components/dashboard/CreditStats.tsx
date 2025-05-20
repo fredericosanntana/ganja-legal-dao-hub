@@ -35,8 +35,8 @@ const CreditStats = () => {
               </TooltipTrigger>
               <TooltipContent>
                 <p className="max-w-xs">
-                  Créditos de votação são usados tanto no sistema de Iniciativas quanto no sistema de Votações, 
-                  ambos utilizando o método de votação quadrática.
+                  Créditos de votação são usados no sistema de Iniciativas, 
+                  utilizando o método de votação quadrática.
                 </p>
               </TooltipContent>
             </Tooltip>
@@ -63,8 +63,8 @@ const CreditStats = () => {
 
           <div className="pt-2 text-xs text-muted-foreground">
             <p>
-              Seus créditos são utilizados para votar em iniciativas e propostas usando o sistema de votação quadrática.
-              Os mesmos créditos são compartilhados entre os sistemas de Iniciativas e Votações.
+              Seus créditos são utilizados para votar em iniciativas usando o sistema de votação quadrática.
+              Este sistema permite que você expresse a intensidade de suas preferências em temas importantes.
             </p>
           </div>
         </div>
