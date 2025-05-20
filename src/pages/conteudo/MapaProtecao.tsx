@@ -334,7 +334,7 @@ const MapaProtecaoPage = () => {
           <p>Se você já é um membro da GanjaDAO e obteve seu HC através de nossa plataforma, seus dados (sempre anonimizados) já ajudam a compor este cenário de esperança. Se desejar, você pode nos enviar um relato (opcional e anônimo) sobre sua experiência para que possamos compartilhar inspiração com a comunidade.</p>
 
           <div style={{ textAlign: 'center' }}>
-            <a href="/clube" className="btn-contribua-mapa">Quero Ajudar a Expandir o Mapa!</a>
+            <a href="Mapa-GanjaDAO.pdf" className="btn-ebook">Baixe nosso Ebook!</a>
           </div>
 
           <h2>Um Futuro Onde a Proteção é a Norma, Não a Exceção</h2>
