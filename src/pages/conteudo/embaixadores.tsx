@@ -1,154 +1,196 @@
+
 import React from 'react';
-
-const chamadaEmbaixadoresStyles = `
-    .conteudo-pagina {
-        padding: 20px;
-        line-height: 1.6;
-    }
-    .conteudo-pagina h1 {
-        color: #2c3e50;
-        margin-bottom: 20px;
-        text-align: center;
-    }
-    .conteudo-pagina h2 {
-        color: #34495e;
-        margin-top: 30px;
-        margin-bottom: 15px;
-    }
-    .conteudo-pagina p {
-        margin-bottom: 15px;
-        text-align: justify;
-    }
-    .conteudo-pagina ul, .conteudo-pagina ol {
-        margin-left: 20px;
-        margin-bottom: 15px;
-    }
-    .conteudo-pagina li {
-        margin-bottom: 8px;
-    }
-    .bloco-chamada-embaixadores {
-        background-color: #d1ecf1; /* Azul claro para destaque */
-        border: 1px solid #bee5eb;
-        padding: 25px;
-        border-radius: 8px;
-        margin: 30px 0;
-    }
-    .bloco-chamada-embaixadores h2 {
-        color: #0c5460;
-        margin-top: 0;
-        text-align: center;
-    }
-    .perfil-embaixador {
-        margin-bottom: 15px;
-    }
-    .perfil-embaixador strong {
-        color: #007bff;
-    }
-    .btn-ser-embaixador {
-        display: block;
-        width: -moz-fit-content;
-        width: fit-content;
-        margin: 20px auto 0 auto;
-        padding: 15px 30px;
-        background-color: #28a745; /* Verde para ação */
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-        font-weight: bold;
-        font-size: 1.2em;
-        text-align: center;
-    }
-    .btn-ser-embaixador:hover {
-        background-color: #218838;
-    }
-    .beneficios-embaixador li {
-        padding-left: 20px;
-        position: relative;
-    }
-    .beneficios-embaixador li::before {
-        content: "\\272A"; /* Estrela simples como marcador */
-        color: #ffc107; /* Amarelo para destaque */
-        font-weight: bold;
-        position: absolute;
-        left: 0;
-        top: 2px;
-    }
-`;
-
-const chamadaEmbaixadoresContent = `
-    <h1>Chamada para Embaixadores GanjaDAO: Ajude a Proteger Quem Planta, Com Você na Linha de Frente!</h1>
-    <p class="lead">A GanjaDAO nasceu com a missão de democratizar o acesso à proteção jurídica e ao conhecimento para cultivadores de cannabis medicinal em todo o Brasil. Acreditamos que a força da nossa rede reside na colaboração e no engajamento de cada indivíduo que compartilha nossa visão. Para ampliar nosso impacto e alcançar ainda mais pessoas que necessitam de apoio, lançamos hoje um convite especial: <strong>junte-se a nós como um Embaixador GanjaDAO!</strong></p>
-
-    <p>Se você é uma liderança local, um ativista engajado, um profissional da área jurídica ou da saúde, ou simplesmente alguém apaixonado pela causa da cannabis medicinal e com vontade de fazer a diferença, esta é a sua oportunidade de estar na linha de frente, multiplicando o impacto positivo da GanjaDAO em sua comunidade e em todo o país. Queremos construir uma rede de embaixadores dedicados, que nos ajudem a levar informação, segurança e esperança a quem mais precisa.</p>
-
-    <div class="bloco-chamada-embaixadores">
-        <h2>Torne-se um Farol de Esperança e Proteção em Sua Comunidade!</h2>
-        <p>Os Embaixadores GanjaDAO serão peças-chave na expansão da nossa rede de apoio. Eles atuarão como pontes entre a GanjaDAO e as comunidades locais, ajudando a disseminar conhecimento, a identificar necessidades e a facilitar o acesso aos nossos serviços e recursos. Buscamos pessoas proativas, com boa comunicação e, acima de tudo, com um compromisso genuíno com a causa.</p>
-    </div>
-
-    <h2>Quem Buscamos para Ser um Embaixador GanjaDAO?</h2>
-    <p>Acreditamos na diversidade de talentos e experiências. Você pode ser um excelente candidato a Embaixador GanjaDAO se você se identifica com um ou mais dos seguintes perfis:</p>
-    <ul>
-        <li class="perfil-embaixador"><strong>Lideranças Comunitárias e Ativistas Locais:</strong> Pessoas já engajadas em suas comunidades, com conhecimento das realidades locais e capacidade de mobilização. Queremos fortalecer quem já faz a diferença na base.</li>
-        <li class="perfil-embaixador"><strong>Profissionais da Área Jurídica (Advogados, Estudantes de Direito):</strong> Aqueles que desejam aplicar seus conhecimentos para defender o direito à saúde e que podem ajudar a orientar pacientes sobre os caminhos legais e o uso da plataforma HC Digital.</li>
-        <li class="perfil-embaixador"><strong>Profissionais da Saúde (Médicos, Terapeutas, Enfermeiros):</strong> Aqueles que prescrevem ou acompanham pacientes em tratamento com cannabis medicinal e podem ajudar a disseminar informações sobre a importância da segurança jurídica para a continuidade dos tratamentos.</li>
-        <li class="perfil-embaixador"><strong>Pacientes Experientes e Empoderados:</strong> Pessoas que já passaram pelo processo de obtenção de HC, que cultivam com segurança e que desejam compartilhar sua experiência para inspirar e orientar outros.</li>
-        <li class="perfil-embaixador"><strong>Comunicadores e Criadores de Conteúdo:</strong> Indivíduos com habilidade para criar e disseminar informações claras e acessíveis sobre cannabis medicinal, legislação e os serviços da GanjaDAO através de redes sociais, blogs, vídeos, etc.</li>
-        <li class="perfil-embaixador"><strong>Organizadores de Eventos e Workshops:</strong> Pessoas com capacidade de organizar encontros, palestras e workshops educativos em suas comunidades para debater o tema e apresentar as soluções da GanjaDAO.</li>
-    </ul>
-    <p>Se você não se encaixa perfeitamente em um desses perfis, mas sente que tem algo valioso a contribuir, não hesite em se inscrever! Estamos abertos a todas as formas de colaboração.</p>
-
-    <h2>O que Esperamos de um Embaixador GanjaDAO?</h2>
-    <ul>
-        <li><strong>Compromisso com a Missão da GanjaDAO:</strong> Acreditar e defender o direito ao cultivo seguro e legal de cannabis para fins medicinais.</li>
-        <li><strong>Proatividade e Iniciativa:</strong> Buscar ativamente oportunidades para divulgar a GanjaDAO e seus serviços em sua rede de contatos e comunidade.</li>
-        <li><strong>Comunicação Clara e Ética:</strong> Transmitir informações de forma precisa, responsável e respeitosa.</li>
-        <li><strong>Disposição para Aprender e Compartilhar:</strong> Manter-se atualizado sobre as novidades da GanjaDAO e da legislação, e compartilhar esse conhecimento.</li>
-        <li><strong>Feedback Construtivo:</strong> Ajudar a GanjaDAO a aprimorar seus serviços e sua comunicação, trazendo a perspectiva da sua comunidade.</li>
-    </ul>
-
-    <h2>Benefícios de Ser um Embaixador GanjaDAO:</h2>
-    <p>Ao se tornar um Embaixador, você não apenas contribui para uma causa nobre, mas também recebe reconhecimento e recursos para potencializar sua atuação:</p>
-    <ul class="beneficios-embaixador">
-        <li><strong>Acesso Exclusivo a Materiais e Treinamentos:</strong> Receba materiais de divulgação personalizados, acesso a treinamentos sobre a plataforma GanjaDAO, legislação e técnicas de comunicação.</li>
-        <li><strong>Visibilidade e Reconhecimento:</strong> Tenha seu perfil (opcionalmente) divulgado em nossos canais como um ponto de contato e referência da GanjaDAO em sua região.</li>
-        <li><strong>Networking Estratégico:</strong> Conecte-se com outros embaixadores, profissionais e ativistas de todo o Brasil, ampliando sua rede de contatos e colaborações.</li>
-        <li><strong>Participação em Eventos Exclusivos:</strong> Convites para webinars, encontros e eventos especiais promovidos pela GanjaDAO.</li>
-        <li><strong>Suporte Contínuo da Equipe GanjaDAO:</strong> Conte com o apoio da nossa equipe para tirar dúvidas, receber orientações e desenvolver suas iniciativas locais.</li>
-        <li><strong>Oportunidade de Co-criar Soluções:</strong> Participe ativamente do desenvolvimento de novas estratégias e ferramentas para a GanjaDAO, trazendo a voz da sua comunidade.</li>
-        <li><strong>Descontos Especiais (quando aplicável):</strong> Possibilidade de acesso a descontos em serviços ou produtos de parceiros da GanjaDAO.</li>
-    </ul>
-
-    <h2>Como se Tornar um Embaixador GanjaDAO?</h2>
-    <p>O processo é simples. Se você se sentiu chamado por esta convocação e deseja se juntar à nossa linha de frente, siga os passos abaixo:</p>
-    <ol>
-        <li><strong>Acesse o Formulário de Inscrição:</strong> Clique no botão abaixo para preencher nosso formulário online, contando um pouco sobre você, sua motivação e como acredita que pode contribuir.</li>
-        <li><strong>Análise da Inscrição:</strong> Nossa equipe analisará cuidadosamente cada inscrição, buscando construir uma rede de embaixadores diversa e comprometida.</li>
-        <li><strong>Entrevista (se necessário):</strong> Poderemos entrar em contato para uma breve conversa online para nos conhecermos melhor e alinharmos expectativas.</li>
-        <li><strong>Boas-vindas à Rede:</strong> Se selecionado, você receberá um kit de boas-vindas digital com todas as informações e primeiros passos para iniciar sua jornada como Embaixador GanjaDAO!</li>
-    </ol>
-
-    <a href="/clube" class="btn-ser-embaixador">QUERO SER UM EMBAIXADOR GANJADAO!</a>
-    <p style="text-align:center; font-size:0.9em; color:#6c757d; margin-top:10px;">
-        <em>(O link acima levaria para um formulário de inscrição específico para o programa de embaixadores)</em>
-    </p>
-
-    <h2>Juntos, Multiplicamos a Proteção e a Esperança!</h2>
-    <p>A GanjaDAO acredita no poder da ação coletiva. Com uma rede forte e capilarizada de Embaixadores, poderemos alcançar muito mais pessoas, desmistificar o cultivo medicinal, combater o preconceito e, o mais importante, garantir que mais pacientes possam exercer seu direito à saúde com segurança e dignidade. Sua paixão, seu conhecimento e sua rede de contatos podem ser a chave para transformar vidas.</p>
-    <p>Não perca esta oportunidade de fazer parte de um movimento que está mudando a realidade do cultivo de cannabis no Brasil. Venha para a linha de frente conosco. Venha ser um Embaixador GanjaDAO!</p>
-    ${/* O script /js/main.js e quaisquer outros scripts específicos da página devem ser gerenciados de acordo com as práticas do seu projeto React (por exemplo, usando useEffect para interações DOM ou incluindo scripts globais no HTML principal). */''}
-`;
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { User, Mail, Calendar, MessageSquare, ShieldCheck, Users } from 'lucide-react';
 
 const ChamadaEmbaixadoresPage: React.FC = () => {
   return (
-    <>
-      <style>{chamadaEmbaixadoresStyles}</style>
-      <main className="container">
-        <section className="conteudo-pagina">
-          <div dangerouslySetInnerHTML={{ __html: chamadaEmbaixadoresContent }} />
-        </section>
-      </main>
-    </>
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold mb-2 text-center">Chamada para Embaixadores GanjaDAO</h1>
+        <p className="text-center text-muted-foreground mb-10">
+          Junte-se ao time de embaixadores e ajude a espalhar a causa da cannabis medicinal
+        </p>
+        
+        {/* Hero Section */}
+        <div className="bg-gradient-to-r from-ganja-400 to-activist-600 text-white rounded-xl p-8 mb-12">
+          <h2 className="text-2xl font-bold mb-4">Seja um Embaixador da Mudança</h2>
+          <p className="mb-6">
+            Estamos procurando pessoas comprometidas que acreditem no poder da cannabis medicinal
+            e queiram fazer parte de um movimento que está transformando vidas e mudando a legislação
+            no Brasil.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Button variant="secondary" size="lg" className="w-full sm:w-auto">
+              Saiba Mais
+            </Button>
+            <Button variant="outline" className="bg-white/10 text-white border-white/30 hover:bg-white/20 w-full sm:w-auto">
+              Candidatar-se
+            </Button>
+          </div>
+        </div>
+        
+        {/* O que fazem os embaixadores */}
+        <h2 className="text-2xl font-bold mb-6">O Que Fazem Nossos Embaixadores?</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          {[
+            {
+              icon: <Users className="h-8 w-8 text-ganja-500" />,
+              title: "Representação Comunitária",
+              description: "Representar a GanjaDAO em eventos, encontros e debates sobre cannabis medicinal na sua região."
+            },
+            {
+              icon: <MessageSquare className="h-8 w-8 text-ganja-500" />,
+              title: "Educação e Informação",
+              description: "Compartilhar informações científicas e jurídicas precisas sobre o uso medicinal da cannabis."
+            },
+            {
+              icon: <ShieldCheck className="h-8 w-8 text-ganja-500" />,
+              title: "Suporte a Pacientes",
+              description: "Orientar pacientes sobre os primeiros passos para acesso seguro e legal à cannabis medicinal."
+            }
+          ].map((item, index) => (
+            <Card key={index} className="flex flex-col">
+              <CardHeader className="pb-2">
+                <div className="mb-2">{item.icon}</div>
+                <CardTitle>{item.title}</CardTitle>
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <p>{item.description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        
+        {/* Requisitos */}
+        <Card className="mb-12">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5 text-activist-600" />
+              Requisitos para se tornar um Embaixador
+            </CardTitle>
+            <CardDescription>
+              O que procuramos em nossos embaixadores
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              <li className="flex items-start gap-2">
+                <div className="min-w-4 min-h-4 rounded-full bg-activist-600 mt-1.5"></div>
+                <span>Conhecimento sobre cannabis medicinal e/ou ativismo cannábico</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <div className="min-w-4 min-h-4 rounded-full bg-activist-600 mt-1.5"></div>
+                <span>Habilidade de comunicação e empatia com pacientes</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <div className="min-w-4 min-h-4 rounded-full bg-activist-600 mt-1.5"></div>
+                <span>Comprometimento com informação baseada em evidências</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <div className="min-w-4 min-h-4 rounded-full bg-activist-600 mt-1.5"></div>
+                <span>Disponibilidade para dedicar pelo menos 5 horas semanais às atividades</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <div className="min-w-4 min-h-4 rounded-full bg-activist-600 mt-1.5"></div>
+                <span>Residir no Brasil e ter mais de 18 anos</span>
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
+        
+        {/* Benefícios */}
+        <h2 className="text-2xl font-bold mb-6">Benefícios de ser um Embaixador</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          {[
+            "Acesso gratuito ao clube GanjaDAO e todos os recursos premium",
+            "Capacitação exclusiva com especialistas em cannabis medicinal",
+            "Participação em eventos restritos com a comunidade",
+            "Certificação oficial como Embaixador GanjaDAO",
+            "Acesso prioritário a novas ferramentas e recursos",
+            "Participação ativa nas decisões e rumos da organização"
+          ].map((benefit, index) => (
+            <div key={index} className="flex items-center p-4 border rounded-lg">
+              <div className="h-8 w-8 bg-ganja-100 text-ganja-800 rounded-full flex items-center justify-center mr-3">
+                {index + 1}
+              </div>
+              <p>{benefit}</p>
+            </div>
+          ))}
+        </div>
+        
+        {/* Processo Seletivo */}
+        <Card className="mb-12">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-primary" />
+              Processo Seletivo
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ol className="space-y-4 relative border-l border-muted pl-6">
+              <li className="mb-10">
+                <div className="absolute w-3 h-3 bg-primary rounded-full -left-1.5 border border-white"></div>
+                <h3 className="font-bold">Inscrição</h3>
+                <p className="text-sm text-muted-foreground mb-1">Preencha o formulário de candidatura com suas informações e motivações</p>
+              </li>
+              <li className="mb-10">
+                <div className="absolute w-3 h-3 bg-primary rounded-full -left-1.5 border border-white"></div>
+                <h3 className="font-bold">Entrevista</h3>
+                <p className="text-sm text-muted-foreground mb-1">Conversaremos para conhecer melhor sua experiência e expectativas</p>
+              </li>
+              <li className="mb-10">
+                <div className="absolute w-3 h-3 bg-primary rounded-full -left-1.5 border border-white"></div>
+                <h3 className="font-bold">Capacitação</h3>
+                <p className="text-sm text-muted-foreground mb-1">Treinamento online sobre os princípios e atuação da GanjaDAO</p>
+              </li>
+              <li>
+                <div className="absolute w-3 h-3 bg-primary rounded-full -left-1.5 border border-white"></div>
+                <h3 className="font-bold">Início das atividades</h3>
+                <p className="text-sm text-muted-foreground">Após aprovação, você estará oficialmente representando a GanjaDAO</p>
+              </li>
+            </ol>
+          </CardContent>
+        </Card>
+        
+        {/* CTA Final */}
+        <Card className="bg-muted">
+          <CardHeader>
+            <CardTitle>Pronto para se juntar a nós?</CardTitle>
+            <CardDescription>
+              As inscrições para embaixadores estão abertas até 30/06/2023
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4">
+              Se você se identifica com nossa missão de promover o acesso seguro e legal à cannabis medicinal 
+              e deseja fazer parte dessa transformação, candidate-se agora para ser um Embaixador GanjaDAO.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="flex-grow w-full">
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                  <input
+                    type="email"
+                    placeholder="Seu melhor e-mail"
+                    className="w-full pl-10 h-12 rounded-md border border-input bg-background px-3 py-2"
+                  />
+                </div>
+              </div>
+              <Button size="lg" className="w-full sm:w-auto">
+                Candidatar-se
+              </Button>
+            </div>
+          </CardContent>
+          <CardFooter className="text-sm text-muted-foreground">
+            Ao se candidatar, você concorda em receber comunicações da GanjaDAO. Seus dados serão tratados conforme nossa política de privacidade.
+          </CardFooter>
+        </Card>
+      </div>
+    </div>
   );
 };
 
