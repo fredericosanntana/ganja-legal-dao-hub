@@ -102,9 +102,8 @@ const DeclaracaoOrigemGenetica = () => {
 
     doc.save('declaracao_origem_genetica.pdf');
     
-    toast({
-      title: "Documento gerado",
-      description: "Sua Declaração de Origem Genética foi gerada com sucesso!",
+    toast.success("Documento gerado com sucesso!", {
+      description: "Sua Declaração de Origem Genética foi gerada com sucesso!"
     });
     console.log('Form submitted:', form);
   };

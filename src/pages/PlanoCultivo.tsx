@@ -174,9 +174,8 @@ const PlanoCultivo = () => {
 
     doc.save('plano-cultivo-atualizado.pdf');
     
-    toast({
-      title: "Documento gerado",
-      description: "Seu Plano de Cultivo atualizado foi gerado com sucesso!",
+    toast.success("Documento gerado", {
+      description: "Seu Plano de Cultivo atualizado foi gerado com sucesso!"
     });
     console.log('Form submitted:', form);
   };
