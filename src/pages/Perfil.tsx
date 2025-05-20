@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { useAuth } from "@/hooks/use-auth";
@@ -8,9 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { CheckCircle, AlertTriangle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Perfil = () => {
-  const { user, updateUser, signOut } = useAuth();
+  const { user, refreshUser, signOut } = useAuth();
   const navigate = useNavigate();
   const [username, setUsername] = useState(user?.username || "");
   const [email, setEmail] = useState(user?.email || "");
@@ -36,7 +38,17 @@ const Perfil = () => {
         toast.error("Nome de usuário deve ter pelo menos 3 caracteres.");
         return;
       }
-      await updateUser({ username });
+      
+      // Update user profile using supabase directly since updateUser isn't available
+      const { error } = await supabase
+        .from('users')
+        .update({ username })
+        .eq('id', user?.id);
+      
+      if (error) throw error;
+      
+      // Refresh user data after update
+      await refreshUser();
       toast.success("Perfil atualizado com sucesso!");
     } catch (error: any) {
       console.error("Update profile error:", error);
@@ -65,7 +77,13 @@ const Perfil = () => {
     }
 
     try {
-      await updateUser({ password, newPassword });
+      // Use supabase auth to update password
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      
+      if (error) throw error;
+      
       toast.success("Senha alterada com sucesso!");
       setPassword("");
       setNewPassword("");
