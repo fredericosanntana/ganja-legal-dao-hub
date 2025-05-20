@@ -19,7 +19,7 @@ const MapaBrasil = () => {
       setCarregando(true);
       try {
         console.log('Tentando carregar GeoJSON do caminho relativo...');
-        // Corrigindo o caminho para o arquivo no diretório public
+        // Carrega o arquivo local diretamente
         const response = await fetch('/br_states.json');
         if (!response.ok) {
           throw new Error(`Erro ao carregar GeoJSON: ${response.status}`);
@@ -30,7 +30,22 @@ const MapaBrasil = () => {
         setErro(null);
       } catch (error) {
         console.error('Erro ao carregar o GeoJSON do caminho relativo:', error);
-        setErro('Falha ao carregar dados do mapa. Verifique se o arquivo br_states.json está disponível no diretório public.');
+        
+        // Fallback para URL absoluta caso o caminho relativo falhe
+        try {
+          console.log('Tentando fallback com caminho absoluto...');
+          const fallbackResponse = await fetch(window.location.origin + '/br_states.json');
+          if (!fallbackResponse.ok) {
+            throw new Error(`Erro no fallback: ${fallbackResponse.status}`);
+          }
+          const fallbackData = await fallbackResponse.json();
+          console.log('GeoJSON carregado com sucesso via fallback');
+          setBrasilGeoJSON(fallbackData);
+          setErro(null);
+        } catch (fallbackError) {
+          console.error('Erro também no fallback:', fallbackError);
+          setErro('Falha ao carregar dados do mapa. Verifique se o arquivo br_states.json está disponível.');
+        }
       } finally {
         setCarregando(false);
       }
@@ -103,15 +118,8 @@ const MapaBrasil = () => {
 
   if (erro) {
     return (
-      <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: 'red' }}>
+      <div style={{ height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'red' }}>
         <p>{erro}</p>
-        <Button 
-          onClick={() => window.location.reload()} 
-          className="mt-4"
-          variant="outline"
-        >
-          Tentar novamente
-        </Button>
       </div>
     );
   }
