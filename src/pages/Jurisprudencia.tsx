@@ -1,6 +1,4 @@
-
 import React, { useState, useEffect } from "react";
-import Layout from "@/components/Layout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -139,109 +137,136 @@ const Jurisprudencia: React.FC = () => {
   };
 
   return (
-    <Layout>
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <h1 className="text-3xl font-bold mb-2">Consulta de Jurisprudência</h1>
-        <p className="text-muted-foreground mb-6">Pesquise decisões ligadas ao cultivo de cannabis</p>
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <h1 className="text-3xl font-bold mb-2">Consulta de Jurisprudência</h1>
+      <p className="text-muted-foreground mb-6">Pesquise decisões ligadas ao cultivo de cannabis</p>
 
-        {apiError && (
-          <Alert variant="destructive" className="mb-6">
-            <AlertTitle>Erro de conexão</AlertTitle>
-            <AlertDescription>{apiError}</AlertDescription>
-          </Alert>
-        )}
+      {apiError && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertTitle>Erro de conexão</AlertTitle>
+          <AlertDescription>{apiError}</AlertDescription>
+        </Alert>
+      )}
 
-        <Tabs 
-          value={activeTab} 
-          onValueChange={(value: "datajud" | "stj") => setActiveTab(value)} 
-          className="mb-6"
-        >
-          <TabsList className="grid grid-cols-2">
-            <TabsTrigger value="datajud" className="flex items-center gap-2">
-              <Database className="w-4 h-4" /> API DataJud
-            </TabsTrigger>
-            <TabsTrigger value="stj" className="flex items-center gap-2">
-              <Globe className="w-4 h-4" /> Site STJ
-            </TabsTrigger>
-          </TabsList>
+      <Tabs 
+        value={activeTab} 
+        onValueChange={(value: "datajud" | "stj") => setActiveTab(value)} 
+        className="mb-6"
+      >
+        <TabsList className="grid grid-cols-2">
+          <TabsTrigger value="datajud" className="flex items-center gap-2">
+            <Database className="w-4 h-4" /> API DataJud
+          </TabsTrigger>
+          <TabsTrigger value="stj" className="flex items-center gap-2">
+            <Globe className="w-4 h-4" /> Site STJ
+          </TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="datajud">
-            <Card className="mb-4">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Database className="w-5 h-5 text-primary" /> Pesquisar DataJud
-                </CardTitle>
-                <CardDescription>API oficial do CNJ</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSearch} className="space-y-4">
-                  <div>
-                    <Label htmlFor="searchTerm">Termo de Pesquisa</Label>
-                    <Input
-                      id="searchTerm"
-                      placeholder="Ex: cultivo, habeas corpus"
-                      value={searchTerm}
-                      onChange={e => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                  <Button type="submit" disabled={loading} className="w-full">
-                    {loading ? "Pesquisando..." : "Pesquisar"}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
+        <TabsContent value="datajud">
+          <Card className="mb-4">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Database className="w-5 h-5 text-primary" /> Pesquisar DataJud
+              </CardTitle>
+              <CardDescription>API oficial do CNJ</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSearch} className="space-y-4">
+                <div>
+                  <Label htmlFor="searchTerm">Termo de Pesquisa</Label>
+                  <Input
+                    id="searchTerm"
+                    placeholder="Ex: cultivo, habeas corpus"
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                <Button type="submit" disabled={loading} className="w-full">
+                  {loading ? "Pesquisando..." : "Pesquisar"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-          <TabsContent value="stj">
-            <Card className="mb-4">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Globe className="w-5 h-5 text-primary" /> Pesquisar Site STJ
-                </CardTitle>
-                <CardDescription>Web scraping no site do STJ</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSearch} className="space-y-4">
-                  <div>
-                    <Label htmlFor="searchTermStj">Termo de Pesquisa</Label>
-                    <Input
-                      id="searchTermStj"
-                      placeholder="Ex: REsp 2.121.548"
-                      value={searchTerm}
-                      onChange={e => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                  <Button type="submit" disabled={loading} className="w-full">
-                    {loading ? "Pesquisando..." : "Pesquisar"}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        <TabsContent value="stj">
+          <Card className="mb-4">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Globe className="w-5 h-5 text-primary" /> Pesquisar Site STJ
+              </CardTitle>
+              <CardDescription>Web scraping no site do STJ</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSearch} className="space-y-4">
+                <div>
+                  <Label htmlFor="searchTermStj">Termo de Pesquisa</Label>
+                  <Input
+                    id="searchTermStj"
+                    placeholder="Ex: REsp 2.121.548"
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                <Button type="submit" disabled={loading} className="w-full">
+                  {loading ? "Pesquisando..." : "Pesquisar"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
-        {loading && (
-          <div className="space-y-4">
-            <Skeleton className="h-8 w-3/4" />
-            <Skeleton className="h-32 w-full" />
-          </div>
-        )}
+      {loading && (
+        <div className="space-y-4">
+          <Skeleton className="h-8 w-3/4" />
+          <Skeleton className="h-32 w-full" />
+        </div>
+      )}
 
-        {!loading && activeTab === "datajud" && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-bold">Jurisprudências</h2>
-            {dataJudResults.map(item => {
+      {!loading && activeTab === "datajud" && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold">Jurisprudências</h2>
+          {dataJudResults.map(item => {
+            const isExpanded = expandedItems.has(item.id);
+            const preview = getPreview(item.ementa);
+            return (
+              <Card key={item.id} className="p-4">
+                <CardHeader>
+                  <CardTitle>
+                    {item.numeroProcesso} {item.tribunal && `— ${item.tribunal}`}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="whitespace-pre-wrap text-sm font-semibold">
+                    {isExpanded ? item.ementa : preview || item.ementa.substring(0, 100) + '...'}
+                  </p>
+                  {preview && preview !== item.ementa && (
+                    <button
+                      className="mt-2 text-primary hover:underline"
+                      onClick={() => toggleExpand(item.id)}
+                    >
+                      {isExpanded ? 'Ver menos' : 'Ver mais'}
+                    </button>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      {!loading && activeTab === "stj" && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Resultados Site STJ</h2>
+          {stjResults.length > 0 ? (
+            stjResults.map(item => {
               const isExpanded = expandedItems.has(item.id);
               const preview = getPreview(item.ementa);
               return (
                 <Card key={item.id} className="p-4">
-                  <CardHeader>
-                    <CardTitle>
-                      {item.numeroProcesso} {item.tribunal && `— ${item.tribunal}`}
-                    </CardTitle>
-                  </CardHeader>
                   <CardContent>
-                    <p className="whitespace-pre-wrap text-sm font-semibold">
+                    <p className="whitespace-pre-wrap text-sm">
                       {isExpanded ? item.ementa : preview || item.ementa.substring(0, 100) + '...'}
                     </p>
                     {preview && preview !== item.ementa && (
@@ -255,64 +280,35 @@ const Jurisprudencia: React.FC = () => {
                   </CardContent>
                 </Card>
               );
-            })}
-          </div>
-        )}
-
-        {!loading && activeTab === "stj" && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Resultados Site STJ</h2>
-            {stjResults.length > 0 ? (
-              stjResults.map(item => {
-                const isExpanded = expandedItems.has(item.id);
-                const preview = getPreview(item.ementa);
-                return (
-                  <Card key={item.id} className="p-4">
-                    <CardContent>
-                      <p className="whitespace-pre-wrap text-sm">
-                        {isExpanded ? item.ementa : preview || item.ementa.substring(0, 100) + '...'}
-                      </p>
-                      {preview && preview !== item.ementa && (
-                        <button
-                          className="mt-2 text-primary hover:underline"
-                          onClick={() => toggleExpand(item.id)}
-                        >
-                          {isExpanded ? 'Ver menos' : 'Ver mais'}
-                        </button>
-                      )}
-                    </CardContent>
-                  </Card>
-                );
-              })
-            ) : (
-              <p className="text-sm text-muted-foreground">Nenhum resultado STJ.</p>
-            )}
-          </div>
-        )}
-
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="w-5 h-5 text-primary" /> Dicas de Pesquisa
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="list-disc pl-5 space-y-2 text-sm">
-              <li>Use termos específicos para resultados mais precisos.</li>
-              <li>Inclua números de processo no formato CNJ (sem pontuação).</li>
-              <li>Para classes processuais, use termos como “Habeas Corpus”.</li>
-              <li>Se a API não retornar nada, as ementas padrão já estarão visíveis.</li>
-            </ul>
-          </CardContent>
-        </Card>
-
-        <div className="mt-6">
-          <Link to="/juridico" className="text-primary hover:underline">
-            &larr; Voltar ao Módulo Jurídico
-          </Link>
+            })
+          ) : (
+            <p className="text-sm text-muted-foreground">Nenhum resultado STJ.</p>
+          )}
         </div>
+      )}
+
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="w-5 h-5 text-primary" /> Dicas de Pesquisa
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="list-disc pl-5 space-y-2 text-sm">
+            <li>Use termos específicos para resultados mais precisos.</li>
+            <li>Inclua números de processo no formato CNJ (sem pontuação).</li>
+            <li>Para classes processuais, use termos como “Habeas Corpus”.</li>
+            <li>Se a API não retornar nada, as ementas padrão já estarão visíveis.</li>
+          </ul>
+        </CardContent>
+      </Card>
+
+      <div className="mt-6">
+        <Link to="/juridico" className="text-primary hover:underline">
+          &larr; Voltar ao Módulo Jurídico
+        </Link>
       </div>
-    </Layout>
+    </div>
   );
 };
 

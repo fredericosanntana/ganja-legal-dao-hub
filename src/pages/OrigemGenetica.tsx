@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'; // Supondo que estes componente
 import { Label } from '@/components/ui/label'; // Supondo que estes componentes existam
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'; // Supondo que estes componentes existam
 import { Separator } from '@/components/ui/separator'; // Supondo que estes componentes existam
-import { toast } from '@/components/ui/use-toast'; // Supondo que este componente exista
+import { toast } from 'sonner'; // Supondo que este componente exista
 import { Dna } from 'lucide-react'; // Alterado de Leaf para Dna para representar genética
 import { jsPDF } from 'jspdf';
 
@@ -236,4 +236,3 @@ const DeclaracaoOrigemGenetica = () => {
 };
 
 export default DeclaracaoOrigemGenetica;
-
