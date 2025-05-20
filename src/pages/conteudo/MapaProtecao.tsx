@@ -4,6 +4,8 @@ import 'leaflet/dist/leaflet.css';
 import dadosHC from '../../dadosHC';
 import { estadosNomes } from '../../estadosNomes';
 import Layout from "@/components/Layout";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 // Componente do Mapa Interativo
 const MapaBrasil = () => {
@@ -258,12 +260,58 @@ const mapaProtecaoStyles = `
         font-weight: bold;
         margin-top: 5px;
     }
+    .btn-ebook {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        margin-top: 15px;
+        cursor: pointer;
+    }
+    .btn-ebook:hover {
+        background-color: #0056b3;
+    }
+    .pdf-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.75);
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .pdf-modal-content {
+        position: relative;
+        width: 90%;
+        height: 90%;
+        max-width: 1200px;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .pdf-close-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1000;
+    }
     @media (max-width: 768px) {
         .mapa-brasil {
             height: 400px;
         }
         .mapa-legenda {
             font-size: 0.8em;
+        }
+        .pdf-modal-content {
+            width: 95%;
+            height: 85%;
         }
     }
     @media (max-width: 480px) {
@@ -275,6 +323,17 @@ const mapaProtecaoStyles = `
 
 // Componente principal da página
 const MapaProtecaoPage = () => {
+  const [pdfVisible, setPdfVisible] = useState(false);
+  
+  const handleOpenPdf = (e) => {
+    e.preventDefault();
+    setPdfVisible(true);
+  };
+  
+  const handleClosePdf = () => {
+    setPdfVisible(false);
+  };
+  
   return (
     <Layout>
       <style>{mapaProtecaoStyles}</style>
@@ -334,7 +393,13 @@ const MapaProtecaoPage = () => {
           <p>Se você já é um membro da GanjaDAO e obteve seu HC através de nossa plataforma, seus dados (sempre anonimizados) já ajudam a compor este cenário de esperança. Se desejar, você pode nos enviar um relato (opcional e anônimo) sobre sua experiência para que possamos compartilhar inspiração com a comunidade.</p>
 
           <div style={{ textAlign: 'center' }}>
-            <a href="Mapa-GanjaDAO.pdf" className="btn-ebook">Baixe nosso Ebook!</a>
+            <Button 
+              onClick={handleOpenPdf} 
+              className="btn-ebook"
+              variant="default"
+            >
+              Baixe nosso Ebook!
+            </Button>
           </div>
 
           <h2>Um Futuro Onde a Proteção é a Norma, Não a Exceção</h2>
@@ -342,6 +407,27 @@ const MapaProtecaoPage = () => {
           <p>Convidamos você a explorar este mapa, a se inspirar nas conquistas já alcançadas e a se juntar a nós nessa jornada. A GanjaDAO continua comprometida em fornecer as ferramentas, o conhecimento e o apoio para que cada vez mais cultivadores possam adicionar sua localidade ao Mapa da Proteção, construindo uma rede de segurança e solidariedade que abranja todo o Brasil.</p>
         </section>
       </main>
+      
+      {/* Modal para exibir o PDF */}
+      {pdfVisible && (
+        <div className="pdf-modal" onClick={handleClosePdf}>
+          <div className="pdf-modal-content" onClick={(e) => e.stopPropagation()}>
+            <Button 
+              onClick={handleClosePdf} 
+              className="pdf-close-btn"
+              variant="outline"
+              size="icon"
+            >
+              <X />
+            </Button>
+            <iframe 
+              src="/Mapa-GanjaDAO.pdf" 
+              title="Mapa GanjaDAO PDF"
+              style={{ width: '100%', height: '100%', border: 'none' }}
+            />
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };
