@@ -32,6 +32,9 @@ import ConvocacaoDaoPage from './pages/conteudo/convocacaoDao';
 import MitosVerdadesHcDigitalPage from './pages/conteudo/MitosVerdadesHcDigital';
 import CultivoLegalPage from './pages/conteudo/CultivoLegal';
 import ManualCultivadorAutonomoPage from './pages/conteudo/ManualCulvitadorAutonomo';
+import Comunidade from './pages/Comunidade';
+import ComunidadeNovoPost from './pages/ComunidadeNovoPost';
+import ComunidadePostDetail from './pages/ComunidadePostDetail';
 
 function App() {
   return (
@@ -62,6 +65,9 @@ function App() {
         <Route path="/clube/documentos" element={<Documentos />} />
         <Route path="/clube/carteirinha" element={<Carteirinha />} />
         <Route path="/clube/ganja-chat" element={<GanjaChat />} />
+        <Route path="/clube/comunidade" element={<Comunidade />} />
+        <Route path="/clube/comunidade/novo" element={<ComunidadeNovoPost />} />
+        <Route path="/clube/comunidade/:id" element={<ComunidadePostDetail />} />
         <Route path="/termo-responsabilidade" element={<TermoResponsabilidade />} />
         <Route path="/plano-cultivo" element={<PlanoCultivo />} />
         <Route path="/origem-genetica" element={<OrigemGenetica />} />
