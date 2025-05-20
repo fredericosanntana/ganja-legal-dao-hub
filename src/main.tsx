@@ -7,6 +7,10 @@ import "./App.css";
 import { AuthProvider } from "./hooks/use-auth";
 import { BrowserRouter } from "react-router-dom";
 import { updateExistingSubscriptionsStatus } from "./services/authService";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// Create a client for React Query
+const queryClient = new QueryClient();
 
 // Update existing subscription statuses to inactive
 updateExistingSubscriptionsStatus().then(success => {
@@ -20,9 +24,11 @@ updateExistingSubscriptionsStatus().then(success => {
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </QueryClientProvider>
     </BrowserRouter>
   </React.StrictMode>
 );
