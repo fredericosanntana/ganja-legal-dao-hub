@@ -7,22 +7,45 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
+  CardFooter,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Database, Globe, FileText } from "lucide-react";
+import { Database, Globe, FileText, Filter, X, AlertCircle, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { searchDataJud, searchSTJWebsite } from "@/services/jurisprudenciaService";
+import { searchDataJud, searchSTJWebsite, checkDataJudApiStatus } from "@/services/jurisprudenciaService";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
 
 interface JurisprudenciaResult {
   id: string;
   tribunal?: string;
   numeroProcesso?: string;
   ementa: string;
+  dataAjuizamento?: string;
+  classe?: string;
+  orgaoJulgador?: string;
 }
 
 // jurisprudências padrão para fallback
@@ -55,49 +78,68 @@ const defaultResults: JurisprudenciaResult[] = [
     id: "RE 635659-STF",
     tribunal: "STF",
     numeroProcesso: "RE 635659",
-    ementa: `RECURSO EXTRAORDINÁRIO COM REPERCUSSÃO GERAL. PORTE DE DROGAS PARA CONSUMO PESSOAL. DECLARAÇÃO DE INCONSTITUCIONALIDADE, SEM REDUÇÃO DE TEXTO, DO ART. 28 DA LEI 11.343/2006, PARA AFASTAR A REPERCUSSÃO CRIMINAL DO DISPOSITIVO EM RELAÇÃO AO PORTE DE CANNABIS SATIVA PARA USO PESSOAL. RISCO DE ESTIGMATIZAÇÃO DO USUÁRIO. DESLOCAMENTO DO ENFOQUE PARA O CAMPO DA SAÚDE PÚBLICA. IMPLEMENTAÇÃO DE POLÍTICAS PÚBLICAS DE PREVENÇÃO AO USO DE DROGAS E DE ATENÇÃO ESPECIALIZADA AO USUÁRIO. MANUTENÇÃO DO CARÁTER ILÍCITO DO PORTE DE DROGAS. POSSIBILIDADE DE APREENSÃO DA SUBSTÂNCIA E DE APLICAÇÃO DAS SANÇÕES PREVISTAS EM LEI (INCISOS I E III DO ART. 28), MEDIANTE PROCEDIMENTO NÃO PENAL. INSTITUIÇÃO DE CRITÉRIOS OBJETIVOS PARA DISTINGUIR USUÁRIOS E TRAFICANTES. 1. Discussão sobre a constitucionalidade do art. 28 da Lei 11.343/2006 (Quem adquirir, guardar, tiver em depósito, transportar ou trouxer consigo, para consumo pessoal, drogas sem autorização ou em desacordo com determinação legal ou regulamentar será submetido às seguintes penas: I - advertência sobre os efeitos das drogas; II - prestação de serviços à comunidade; III - medida educativa de comparecimento a programa ou curso educativo). 2. Caso em que o Tribunal não discute o tratamento legislativo do tráfico de drogas. Tal conduta é criminalizada com base em determinação constitucional (art. 5º, XLIII). Quem comercializa, distribui e mantém em depósito drogas ilícitas pratica crime inafiançável e insuscetível de graça e anistia e incide nas penas do art. 33 da Lei 11.343/2006, as quais alcançam 15 anos de prisão. 3. Respeito às atribuições do Legislativo; cabe aos parlamentares e a ninguém mais decidir sobre o caráter ilícito do porte de drogas, ainda que para uso pessoal. Caso em que a Corte cogita apenas a supressão da repercussão criminal das condutas tipificadas no art. 28 da Lei 11.343/2006, sem prejuízo da aplicação das penalidades previstas nos incisos I e III do dispositivo, em procedimento a ser regulamentado pelo CNJ. Propósito de humanizar o tratamento dispensado por lei aos usuários, deslocando os esforços do campo penal para o da saúde pública. 4. A atribuição de natureza penal às sanções cominadas pelo art. 28 da Lei 11.343/2006 aprofunda a estigmatização do usuário e do dependente, ofuscando as políticas de prevenção, atenção especializada e tratamento, expressamente definidas no Sistema Nacional de Políticas sobre Drogas. 5. O segundo ponto abordado no recurso diz respeito à necessidade de previsão de critérios objetivos para distinguir usuários e traficantes, de modo a reduzir a discricionariedade das autoridades na capitulação do delito. O estado atual do sistema, caracterizado pela vagueza de conceitos jurídicos que podem importar a prisão de usuários, é incompatível com a ordem constitucional e com a própria intenção do legislador. 6. Com a edição do art. 28 da Lei 11.343/2006, pretendeu o legislador apartar a conduta do tráfico de drogas, que repercute negativamente em toda a sociedade, do porte para uso pessoal, cuja ofensividade se limita à esfera pessoal do usuário. Porém, na prática, o que se observou foi o contrário. Em vez de suavizar a punição cominada para o delito de porte de drogas para uso pessoal, os conceitos jurídicos indeterminados previstos na lei (“consumo pessoal” e “pequena quantidade”) recrudesceram o tratamento dispensado aos usuários. 7. Nota-se que, em vez de representar invasão de competência do Congresso Nacional, a fixação de parâmetros objetivos se alinha com a opção do legislador. Evita-se que disfuncionalidades do sistema de Justiça deformem o programa normativo da Lei 11.343/2006. 8. Conforme deliberado pelo Plenário, presume-se como usuário de drogas aquele que é encontrado na posse de até 40 gramas de maconha ou de 6 plantas-fêmeas, sem prejuízo do afastamento dessa presunção por decisão fundamentada do Delegado de Polícia, fundada em elementos objetivos que sinalizem o intuito de mercancia. A solução vale até que o Congresso Nacional delibere sobre o assunto, concebendo mecanismos capazes de reduzir a discricionariedade policial na aplicação do art. 28 da Lei 11.343/2006. 9. Por todo o exposto, fixa-se a seguinte tese de repercussão geral: (i) não comete infração penal quem adquirir, guardar, tiver em depósito, transportar ou trouxer consigo, para consumo pessoal, a substância cannabis sativa, sem prejuízo do reconhecimento da ilicitude extrapenal da conduta, com apreensão da droga e aplicação de sanções de advertência sobre os efeitos dela (art. 28, I) e medida educativa de comparecimento a programa ou curso educativo (art. 28, III); (ii) as sanções estabelecidas nos incisos I e III do art. 28 da Lei 11.343/2006 serão aplicadas pelo juiz em procedimento de natureza não penal, sem nenhuma repercussão criminal para a conduta; (iii) em se tratando da posse de cannabis para consumo pessoal, a autoridade policial apreenderá a substância e notificará o autor do fato para comparecer em Juízo, na forma do regulamento a ser aprovado pelo CNJ. Até que o CNJ delibere a respeito, a competência para julgar as condutas do art. 28 da Lei 11.343/2006 será dos Juizados Especiais Criminais, segundo a sistemática atual, vedada a atribuição de quaisquer efeitos penais para a sentença; (iv) nos termos do 2º do artigo 28 da Lei 11.343/2006, será presumido usuário quem, para consumo próprio, adquirir, guardar, tiver em depósito, transportar ou trouxer consigo até 40 gramas de cannabis sativa ou seis plantas-fêmeas, até que o Congresso Nacional venha a legislar a respeito; (v) a presunção do item anterior é relativa, não estando a autoridade policial e seus agentes impedidos de realizar a prisão em flagrante por tráfico de drogas, mesmo para quantidades inferiores ao limite acima estabelecido, quando presentes elementos que indiquem intuito de mercancia, como a forma de acondicionamento da droga, as circunstâncias da apreensão, a variedade de substâncias apreendidas, a apreensão simultânea de instrumentos como balança, registros de operações comerciais e aparelho celular contendo contatos de usuários ou traficantes; (vi) nesses casos, caberá ao delegado de polícia consignar, no auto de prisão em flagrante, justificativa minudente para afastamento da presunção do porte para uso pessoal, sendo vedada a alusão a critérios subjetivos arbitrários; (vii) na hipótese de prisão por quantidades inferiores à fixada no item 4, deverá o juiz, na audiência de custódia, avaliar as razões invocadas para o afastamento da presunção de porte para uso próprio; (viii) a apreensão de quantidades superiores aos limites ora fixados não impede o juiz de concluir que a conduta é atípica, apontando nos autos prova suficiente da condição de usuário. 10. Apelo para que os Poderes avancem no tema, estabelecendo uma política focada não na estigmatização, mas no engajamento dos usuários, especialmente os dependentes, em um processo de autocuidado contínuo que lhes possibilite compreender os graves danos causados pelo uso de drogas; e na agenda de prevenção educativa, implementando programas de dissuasão ao consumo de drogas; na criação de órgãos técnicos na estrutura do Executivo, compostos por especialistas em saúde pública, com atribuição de aplicar aos usuários as medidas previstas em lei. 11. Para viabilizar a concretização dessa política pública especialmente a implementação de programas de dissuasão contra o consumo de drogas e a criação de órgãos especializados no atendimento de usuários caberá ao Executivo e ao Legislativo assegurar dotações orçamentárias suficientes para essa finalidade. Para isso, a União deverá liberar o saldo acumulado do Fundo Nacional Antidrogas, instituído pela Lei 7.560/1986, e deixar de contingenciar os futuros aportes no fundo recursos que deverão ser utilizados em programas de esclarecimento sobre os malefícios do uso de drogas. (RE 635659, Relator(a): GILMAR MENDES, Tribunal Pleno, julgado em 26-06-2024, PROCESSO ELETRÔNICO REPERCUSSÃO GERAL - MÉRITO DJe-s/n DIVULG 26-09-2024 PUBLIC 27-09-2024)
-`,
-  }, 
-  {
-    id: "EDcl no REsp n. 1.657.156-RJ",
-    tribunal: "RJ",
-    numeroProcesso: "EDcl no REsp n. 1.657.156-RJ",
-    ementa: `EMENTA: AGRAVO REGIMENTAL NO HABEAS CORPUS. PEDIDO DE SALVO-CONDUTO. PLANTIO DE MACONHA PARA FINS MEDICINAIS. POSSIBILIDADE. AUTORIZAÇÃO PARA IMPORTAÇÃO DO MEDICAMENTO CONCEDIDA PELA ANVISA E PRESCRIÇÃO MÉDICA RELATANDO A NECESSIDADE DO USO. INSURGÊNCIA DO MINISTÉRIO PÚBLICO ESTADUAL. ESPECIALIDADE DO MÉDICO PRESCRITOR. QUESTÃO ALHEIA AOS LIMITES DE COGNIÇÃO DO HABEAS CORPUS. QUANTIDADE AUTORIZADA PARA O CULTIVO. NECESSIDADE DE ADEQUAÇÃO AOS DITAMES FIXADOS EM CASOS SIMILARES. AGRAVO REGIMENTAL PARCIALMENTE PROVIDO. 1. Hipótese em que o Agravado buscou a permissão para importar sementes, transportar e plantar Cannabis para fins medicinais, sob a afirmação de ser indispensável para o controle de sua enfermidade. 2. Considerando que o art. 2.º, parágrafo único, da Lei n. 11.343/20006, expressamente autoriza o plantio, a cultura e a colheita de vegetais dos quais possam ser extraídas substâncias psicotrópicas, exclusivamente para fins medicinais, bem como que a omissão estatal em regulamentar tal cultivo tem deixado pacientes sob o risco de rigorosa reprimenda penal, não há como deixar de reconhecer a adequação procedimental do salvo-conduto. 3. À luz dos princípios da legalidade e da intervenção mínima, não cabe ao Direito Penal reprimir condutas sem a rigorosa adequação típico-normativa, o que não há em tais casos, já que o cultivo em questão não se destina à produção de substância entorpecente. Notadamente, o afastamento da intervenção penal configura meramente o reconhecimento de que a extração do óleo da cannabis sativa, mediante cultivo artesanal e lastreado em prescrição médica, não atenta contra o bem jurídico saúde pública, o que não conflita, de forma alguma, com a possibilidade de fiscalização ou de regulamentação administrativa pelas autoridades sanitárias competentes. 4. Comprovado nos autos que o Agravado obteve autorização da Anvisa para importação do medicamento canábico, e juntada documentação médica que demonstra a necessidade do uso do óleo extraído da Cannabis para o tratamento do quadro clínico do Agravado, há de ser concedida a medida pretendida. 5. Verifica-se a regular habilitação do médico responsável pelo tratamento do Agravado perante o órgão fiscalizador do exercício da profissão, conforme destacado pelo Ministério Público nas razões do presente recurso. Dessa forma, a questão afeta à área de especialização do médico remonta a um tema que escapa dos preceitos da presente via. Aliás, ao tratar dessa específica questão no emblemático julgamento do REsp n. 1.972.092/SP, relator Ministro Rogerio Schietti Cruz, estabeleceu a Sexta Turma:"[e]m acréscimo, faço lembrar que, por ocasião do julgamento do Tema n. 106 dos Recursos Repetitivos, este Superior Tribunal decidiu que o fornecimento de medicamentos por parte do Poder Público pode ser determinado com base em laudo subscrito pelo próprio médico que assiste o paciente, sem necessidade de perícia oficial. Basta, para tanto, que haja "Comprovação, por meio de laudo médico fundamentado e circunstanciado expedido por médico que assiste o paciente, da imprescindibilidade ou necessidade do medicamento, assim como da ineficácia, para o tratamento da moléstia, dos fármacos fornecidos pelo SUS" (EDcl no REsp n. 1.657.156/RJ, Rel. Ministro Benedito Gonçalves, 1ª S., DJe 21/9/2018)." (fl. 25 do voto condutor do acórdão).`,
-  }
+    ementa: `RECURSO EXTRAORDINÁRIO COM REPERCUSSÃO GERAL. PORTE DE DROGAS PARA CONSUMO PESSOAL. DECLARAÇÃO DE INCONSTITUCIONALIDADE, SEM REDUÇÃO DE TEXTO, DO ART. 28 DA LEI 11.343/2006, PARA AFASTAR A REPERCUSSÃO CRIMINAL DO DISPOSITIVO EM RELAÇÃO AO PORTE DE CANNABIS SATIVA PARA USO PESSOAL. RISCO DE ESTIGMATIZAÇÃO DO USUÁRIO. DESLOCAMENTO DO ENFOQUE PARA O CAMPO DA SAÚDE PÚBLICA. IMPLEMENTAÇÃO DE POLÍTICAS PÚBLICAS DE PREVENÇÃO AO USO DE DROGAS E DE ATENÇÃO ESPECIALIZADA AO USUÁRIO. MANUTENÇÃO DO CARÁTER ILÍCITO DO PORTE DE DROGAS. POSSIBILIDADE DE APREENSÃO DA SUBSTÂNCIA E DE APLICAÇÃO DAS SANÇÕES PREVISTAS EM LEI (INCISOS I E III DO ART. 28), MEDIANTE PROCEDIMENTO NÃO PENAL. INSTITUIÇÃO DE CRITÉRIOS OBJETIVOS PARA DISTINGUIR USUÁRIOS E TRAFICANTES. 1. Discussão sobre a constitucionalidade do art. 28 da Lei 11.343/2006 (Quem adquirir, guardar, tiver em depósito, transportar ou trouxer consigo, para consumo pessoal, drogas sem autorização ou em desacordo com determinação legal ou regulamentar será submetido às seguintes penas: I - advertência sobre os efeitos das drogas; II - prestação de serviços à comunidade; III - medida educativa de comparecimento a programa ou curso educativo). 2. Caso em que o Tribunal não discute o tratamento legislativo do tráfico de drogas. Tal conduta é criminalizada com base em determinação constitucional (art. 5º, XLIII). Quem comercializa, distribui e mantém em depósito drogas ilícitas pratica crime inafiançável e insuscetível de graça e anistia e incide nas penas do art. 33 da Lei 11.343/2006, as quais alcançam 15 anos de prisão. 3. Respeito às atribuições do Legislativo; cabe aos parlamentares e a ninguém mais decidir sobre o caráter ilícito do porte de drogas, ainda que para uso pessoal. Caso em que a Corte cogita apenas a supressão da repercussão criminal das condutas tipificadas no art. 28 da Lei 11.343/2006, sem prejuízo da aplicação das penalidades previstas nos incisos I e III do dispositivo, em procedimento a ser regulamentado pelo CNJ. Propósito de humanizar o tratamento dispensado por lei aos usuários, deslocando os esforços do campo penal para o da saúde pública. 4. A atribuição de natureza penal às sanções cominadas pelo art. 28 da Lei 11.343/2006 aprofunda a estigmatização do usuário e do dependente, ofuscando as políticas de prevenção, atenção especializada e tratamento, expressamente definidas no Sistema Nacional de Políticas sobre Drogas. 5. O segundo ponto abordado no recurso diz respeito à necessidade de previsão de critérios objetivos para distinguir usuários e traficantes, de modo a reduzir a discricionariedade das autoridades na capitulação do delito. O estado atual do sistema, caracterizado pela vagueza de conceitos jurídicos que podem importar a prisão de usuários, é incompatível com a ordem constitucional e com a própria intenção do legislador. 6. Com a edição do art. 28 da Lei 11.343/2006, pretendeu o legislador apartar a conduta do tráfico de drogas, que repercute negativamente em toda a sociedade, do porte para uso pessoal, cuja ofensividade se limita à esfera pessoal do usuário.`,
+  },
 ];
 
-const Jurisprudencia: React.FC = () => {
+const Jurisprudencia = () => {
   const { toast } = useToast();
-  const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<"datajud" | "stj">("datajud");
+  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
-  const [dataJudResults, setDataJudResults] = useState<JurisprudenciaResult[]>([]);
+  const [dataJudResults, setDataJudResults] = useState<JurisprudenciaResult[]>(defaultResults);
   const [stjResults, setStjResults] = useState<JurisprudenciaResult[]>([]);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [apiStatus, setApiStatus] = useState<'online' | 'offline' | 'unknown'>('unknown');
+  const [resultSource, setResultSource] = useState<'api' | 'fallback' | 'none'>('none');
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchParams, setSearchParams] = useState({
+    termo: '',
+    tribunal: 'todos',
+    dataInicio: '',
+    dataFim: '',
+    classeProcessual: '',
+    orgaoJulgador: ''
+  });
 
+  // Função para extrair o preview da ementa (primeira frase ou parágrafo)
+  const getPreview = (text: string) => {
+    if (!text) return "";
+    const firstSentence = text.split('. ')[0] + '.';
+    return firstSentence.length < 200 ? firstSentence : firstSentence.substring(0, 197) + '...';
+  };
+
+  // Função para alternar a expansão de um item
+  const toggleExpand = (id: string) => {
+    const newSet = new Set(expandedItems);
+    if (newSet.has(id)) {
+      newSet.delete(id);
+    } else {
+      newSet.add(id);
+    }
+    setExpandedItems(newSet);
+  };
+
+  // Verificar status da API ao carregar o componente
   useEffect(() => {
-    // Carrega jurisprudências padrão inicialmente
-    setDataJudResults(defaultResults);
+    const checkApiStatus = async () => {
+      const status = await checkDataJudApiStatus();
+      setApiStatus(status.online ? 'online' : 'offline');
+    };
+    
+    checkApiStatus();
+    
+    // Verificar status a cada 5 minutos
+    const intervalId = setInterval(checkApiStatus, 5 * 60 * 1000);
+    
+    return () => clearInterval(intervalId);
   }, []);
 
-  const toggleExpand = (id: string) => {
-    setExpandedItems(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  };
-
-  const getPreview = (text: string) => {
-    const sentences = text.split(/\.\s+/);
-    const preview: string[] = [];
-    for (const s of sentences) {
-      if (s === s.trim().toUpperCase()) preview.push(s.trim());
-      else break;
-    }
-    return preview.join('. ') + (preview.length ? '.' : '');
-  };
+  // Atualizar searchParams quando searchTerm mudar
+  useEffect(() => {
+    setSearchParams(prev => ({ ...prev, termo: searchTerm }));
+  }, [searchTerm]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,24 +148,86 @@ const Jurisprudencia: React.FC = () => {
 
     try {
       if (activeTab === "datajud") {
-        // mantém padrão visível
-        setDataJudResults(defaultResults);
-        const res = await searchDataJud(searchTerm);
+        // Verificar status da API antes de fazer a busca
+        const apiStatusCheck = await checkDataJudApiStatus();
+        setApiStatus(apiStatusCheck.online ? 'online' : 'offline');
+        
+        if (!apiStatusCheck.online) {
+          setResultSource('fallback');
+          setDataJudResults(defaultResults);
+          toast({ 
+            title: "API DataJud indisponível", 
+            description: "Mostrando resultados padrão. Tente novamente mais tarde.", 
+            variant: "destructive" 
+          });
+          setLoading(false);
+          return;
+        }
+        
+        // Preparar parâmetros para a busca
+        const params = {
+          termo: searchParams.termo,
+          tribunal: searchParams.tribunal !== 'todos' ? searchParams.tribunal : undefined,
+          dataInicio: searchParams.dataInicio || undefined,
+          dataFim: searchParams.dataFim || undefined,
+          classeProcessual: searchParams.classeProcessual || undefined,
+          orgaoJulgador: searchParams.orgaoJulgador || undefined
+        };
+        
+        // Realizar a busca
+        const res = await searchDataJud(searchParams.termo, params);
+        
         if (res.success && res.data.length > 0) {
-          setDataJudResults(res.data.map((r: any) => ({
-            id: r.id,
-            tribunal: r.tribunal,
-            numeroProcesso: r.numeroProcesso,
-            ementa: r.ementa || ''
-          })));
-          toast({ title: "Busca concluída", description: `Encontrados ${res.data.length} resultados.` });
+          setResultSource('api');
+          setDataJudResults(res.data);
+          toast({ 
+            title: "Busca concluída", 
+            description: `Encontrados ${res.data.length} resultados.` 
+          });
         } else {
-          toast({ title: "Nenhum resultado", description: "Mantendo jurisprudências padrão.", variant: "default" });
+          // Se não houver resultados, mostrar mensagem específica
+          if (res.success) {
+            setResultSource('fallback');
+            setDataJudResults(defaultResults);
+            toast({ 
+              title: "Nenhum resultado encontrado", 
+              description: "Mostrando jurisprudências padrão relacionadas.", 
+              variant: "default" 
+            });
+          } else {
+            // Se houver erro na API, mostrar mensagem específica baseada no código de erro
+            setResultSource('fallback');
+            setDataJudResults(defaultResults);
+            setApiError(res.error?.message || "Erro desconhecido");
+            
+            let errorMessage = "Erro na busca. Mostrando jurisprudências padrão.";
+            
+            if (res.error) {
+              switch(res.error.code) {
+                case 'TIMEOUT_ERROR':
+                  errorMessage = "Tempo de resposta excedido. Verifique sua conexão.";
+                  break;
+                case 'NETWORK_ERROR':
+                  errorMessage = "Erro de conexão com a API. Verifique sua rede.";
+                  break;
+                default:
+                  errorMessage = `Erro: ${res.error.message}`;
+              }
+            }
+            
+            toast({ 
+              title: "Erro na busca", 
+              description: errorMessage, 
+              variant: "destructive" 
+            });
+          }
         }
       } else {
+        // Código para busca no STJ permanece o mesmo
         const res = await searchSTJWebsite(searchTerm);
         if (res.success && res.data.length > 0) {
           setStjResults(res.data.map((r: any) => ({ id: r.id, ementa: r.ementa || '' })));
+          toast({ title: "Busca STJ concluída", description: `Encontrados ${res.data.length} resultados.` });
         } else {
           setStjResults([]);
           toast({ title: "Nenhum resultado STJ", description: "Tente outro termo.", variant: "default" });
@@ -131,10 +235,28 @@ const Jurisprudencia: React.FC = () => {
       }
     } catch (err: any) {
       setApiError(err.message);
-      toast({ title: "Erro na busca", description: err.message, variant: "destructive" });
+      setResultSource('fallback');
+      setDataJudResults(defaultResults);
+      toast({ 
+        title: "Erro inesperado", 
+        description: err.message, 
+        variant: "destructive" 
+      });
     } finally {
       setLoading(false);
     }
+  };
+
+  const resetFilters = () => {
+    setSearchParams({
+      termo: searchTerm,
+      tribunal: 'todos',
+      dataInicio: '',
+      dataFim: '',
+      classeProcessual: '',
+      orgaoJulgador: ''
+    });
+    setShowFilters(false);
   };
 
   return (
@@ -145,6 +267,7 @@ const Jurisprudencia: React.FC = () => {
 
         {apiError && (
           <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
             <AlertTitle>Erro de conexão</AlertTitle>
             <AlertDescription>{apiError}</AlertDescription>
           </Alert>
@@ -169,20 +292,182 @@ const Jurisprudencia: React.FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Database className="w-5 h-5 text-primary" /> Pesquisar DataJud
+                  {apiStatus === 'online' && (
+                    <Badge variant="outline" className="ml-2 bg-green-50 text-green-700 border-green-200">
+                      <CheckCircle className="w-3 h-3 mr-1" /> Online
+                    </Badge>
+                  )}
+                  {apiStatus === 'offline' && (
+                    <Badge variant="outline" className="ml-2 bg-red-50 text-red-700 border-red-200">
+                      <AlertCircle className="w-3 h-3 mr-1" /> Offline
+                    </Badge>
+                  )}
                 </CardTitle>
                 <CardDescription>API oficial do CNJ</CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSearch} className="space-y-4">
-                  <div>
-                    <Label htmlFor="searchTerm">Termo de Pesquisa</Label>
-                    <Input
-                      id="searchTerm"
-                      placeholder="Ex: cultivo, habeas corpus"
-                      value={searchTerm}
-                      onChange={e => setSearchTerm(e.target.value)}
-                    />
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <Label htmlFor="searchTerm">Termo de Pesquisa</Label>
+                      <Input
+                        id="searchTerm"
+                        placeholder="Ex: cultivo, habeas corpus"
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                      />
+                    </div>
+                    <div className="flex items-end">
+                      <Popover open={showFilters} onOpenChange={setShowFilters}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="gap-1">
+                            <Filter className="h-4 w-4" />
+                            Filtros
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80">
+                          <div className="space-y-4">
+                            <h4 className="font-medium">Filtros Avançados</h4>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="tribunal">Tribunal</Label>
+                              <Select 
+                                value={searchParams.tribunal} 
+                                onValueChange={(value) => setSearchParams({...searchParams, tribunal: value})}
+                              >
+                                <SelectTrigger id="tribunal">
+                                  <SelectValue placeholder="Selecione um tribunal" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="todos">Todos</SelectItem>
+                                  <SelectItem value="STF">STF</SelectItem>
+                                  <SelectItem value="STJ">STJ</SelectItem>
+                                  <SelectItem value="TST">TST</SelectItem>
+                                  <SelectItem value="TRF1">TRF1</SelectItem>
+                                  <SelectItem value="TJDFT">TJDFT</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <Label htmlFor="dataInicio">Data Início</Label>
+                                <Input
+                                  id="dataInicio"
+                                  type="date"
+                                  value={searchParams.dataInicio}
+                                  onChange={e => setSearchParams({...searchParams, dataInicio: e.target.value})}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="dataFim">Data Fim</Label>
+                                <Input
+                                  id="dataFim"
+                                  type="date"
+                                  value={searchParams.dataFim}
+                                  onChange={e => setSearchParams({...searchParams, dataFim: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="classeProcessual">Classe Processual</Label>
+                              <Input
+                                id="classeProcessual"
+                                placeholder="Ex: 1116"
+                                value={searchParams.classeProcessual}
+                                onChange={e => setSearchParams({...searchParams, classeProcessual: e.target.value})}
+                              />
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="orgaoJulgador">Órgão Julgador</Label>
+                              <Input
+                                id="orgaoJulgador"
+                                placeholder="Ex: 13597"
+                                value={searchParams.orgaoJulgador}
+                                onChange={e => setSearchParams({...searchParams, orgaoJulgador: e.target.value})}
+                              />
+                            </div>
+                            
+                            <div className="flex justify-between">
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                size="sm"
+                                onClick={resetFilters}
+                              >
+                                <X className="h-4 w-4 mr-1" /> Limpar
+                              </Button>
+                              <Button 
+                                type="button" 
+                                size="sm"
+                                onClick={() => setShowFilters(false)}
+                              >
+                                Aplicar
+                              </Button>
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
                   </div>
+                  
+                  {/* Exibir filtros ativos */}
+                  {(searchParams.tribunal !== 'todos' || 
+                    searchParams.dataInicio || 
+                    searchParams.dataFim || 
+                    searchParams.classeProcessual || 
+                    searchParams.orgaoJulgador) && (
+                    <div className="flex flex-wrap gap-2">
+                      {searchParams.tribunal !== 'todos' && (
+                        <Badge variant="secondary" className="flex items-center gap-1">
+                          Tribunal: {searchParams.tribunal}
+                          <X 
+                            className="h-3 w-3 cursor-pointer" 
+                            onClick={() => setSearchParams({...searchParams, tribunal: 'todos'})}
+                          />
+                        </Badge>
+                      )}
+                      {searchParams.dataInicio && (
+                        <Badge variant="secondary" className="flex items-center gap-1">
+                          De: {searchParams.dataInicio}
+                          <X 
+                            className="h-3 w-3 cursor-pointer" 
+                            onClick={() => setSearchParams({...searchParams, dataInicio: ''})}
+                          />
+                        </Badge>
+                      )}
+                      {searchParams.dataFim && (
+                        <Badge variant="secondary" className="flex items-center gap-1">
+                          Até: {searchParams.dataFim}
+                          <X 
+                            className="h-3 w-3 cursor-pointer" 
+                            onClick={() => setSearchParams({...searchParams, dataFim: ''})}
+                          />
+                        </Badge>
+                      )}
+                      {searchParams.classeProcessual && (
+                        <Badge variant="secondary" className="flex items-center gap-1">
+                          Classe: {searchParams.classeProcessual}
+                          <X 
+                            className="h-3 w-3 cursor-pointer" 
+                            onClick={() => setSearchParams({...searchParams, classeProcessual: ''})}
+                          />
+                        </Badge>
+                      )}
+                      {searchParams.orgaoJulgador && (
+                        <Badge variant="secondary" className="flex items-center gap-1">
+                          Órgão: {searchParams.orgaoJulgador}
+                          <X 
+                            className="h-3 w-3 cursor-pointer" 
+                            onClick={() => setSearchParams({...searchParams, orgaoJulgador: ''})}
+                          />
+                        </Badge>
+                      )}
+                    </div>
+                  )}
+                  
                   <Button type="submit" disabled={loading} className="w-full">
                     {loading ? "Pesquisando..." : "Pesquisar"}
                   </Button>
@@ -223,38 +508,65 @@ const Jurisprudencia: React.FC = () => {
           <div className="space-y-4">
             <Skeleton className="h-8 w-3/4" />
             <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-32 w-full" />
           </div>
         )}
 
         {!loading && activeTab === "datajud" && (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold">Jurisprudências</h2>
-            {dataJudResults.map(item => {
-              const isExpanded = expandedItems.has(item.id);
-              const preview = getPreview(item.ementa);
-              return (
-                <Card key={item.id} className="p-4">
-                  <CardHeader>
-                    <CardTitle>
-                      {item.numeroProcesso} {item.tribunal && `— ${item.tribunal}`}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="whitespace-pre-wrap text-sm font-semibold">
-                      {isExpanded ? item.ementa : preview || item.ementa.substring(0, 100) + '...'}
-                    </p>
-                    {preview && preview !== item.ementa && (
-                      <button
-                        className="mt-2 text-primary hover:underline"
-                        onClick={() => toggleExpand(item.id)}
-                      >
-                        {isExpanded ? 'Ver menos' : 'Ver mais'}
-                      </button>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })}
+            <h2 className="text-xl font-bold flex items-center">
+              Jurisprudências
+              {resultSource === 'api' && (
+                <Badge className="ml-2 bg-green-100 text-green-800">
+                  Resultados da API
+                </Badge>
+              )}
+              {resultSource === 'fallback' && (
+                <Badge variant="outline" className="ml-2 bg-amber-50 text-amber-700 border-amber-200">
+                  Resultados padrão
+                </Badge>
+              )}
+            </h2>
+            
+            <Accordion type="multiple" className="space-y-4">
+              {dataJudResults.map(item => (
+                <AccordionItem key={item.id} value={item.id} className="border rounded-lg p-0 overflow-hidden">
+                  <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                    <div className="text-left">
+                      <div className="font-medium">
+                        {item.numeroProcesso} 
+                        {item.tribunal && <span className="ml-2 text-muted-foreground">— {item.tribunal}</span>}
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
+                        {getPreview(item.ementa)}
+                      </p>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="space-y-2">
+                      {item.classe && (
+                        <div className="text-sm">
+                          <span className="font-medium">Classe:</span> {item.classe}
+                        </div>
+                      )}
+                      {item.orgaoJulgador && (
+                        <div className="text-sm">
+                          <span className="font-medium">Órgão Julgador:</span> {item.orgaoJulgador}
+                        </div>
+                      )}
+                      {item.dataAjuizamento && (
+                        <div className="text-sm">
+                          <span className="font-medium">Data:</span> {new Date(item.dataAjuizamento).toLocaleDateString('pt-BR')}
+                        </div>
+                      )}
+                      <div className="mt-3 whitespace-pre-wrap text-sm">
+                        {item.ementa}
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           </div>
         )}
 
@@ -262,27 +574,24 @@ const Jurisprudencia: React.FC = () => {
           <div className="space-y-4">
             <h2 className="text-xl font-semibold">Resultados Site STJ</h2>
             {stjResults.length > 0 ? (
-              stjResults.map(item => {
-                const isExpanded = expandedItems.has(item.id);
-                const preview = getPreview(item.ementa);
-                return (
-                  <Card key={item.id} className="p-4">
-                    <CardContent>
-                      <p className="whitespace-pre-wrap text-sm">
-                        {isExpanded ? item.ementa : preview || item.ementa.substring(0, 100) + '...'}
-                      </p>
-                      {preview && preview !== item.ementa && (
-                        <button
-                          className="mt-2 text-primary hover:underline"
-                          onClick={() => toggleExpand(item.id)}
-                        >
-                          {isExpanded ? 'Ver menos' : 'Ver mais'}
-                        </button>
-                      )}
-                    </CardContent>
-                  </Card>
-                );
-              })
+              <Accordion type="multiple" className="space-y-4">
+                {stjResults.map(item => (
+                  <AccordionItem key={item.id} value={item.id} className="border rounded-lg p-0 overflow-hidden">
+                    <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                      <div className="text-left">
+                        <p className="text-sm text-muted-foreground line-clamp-1">
+                          {getPreview(item.ementa)}
+                        </p>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="px-4 pb-4">
+                      <div className="whitespace-pre-wrap text-sm">
+                        {item.ementa}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
             ) : (
               <p className="text-sm text-muted-foreground">Nenhum resultado STJ.</p>
             )}
@@ -299,7 +608,8 @@ const Jurisprudencia: React.FC = () => {
             <ul className="list-disc pl-5 space-y-2 text-sm">
               <li>Use termos específicos para resultados mais precisos.</li>
               <li>Inclua números de processo no formato CNJ (sem pontuação).</li>
-              <li>Para classes processuais, use termos como “Habeas Corpus”.</li>
+              <li>Utilize os filtros avançados para refinar sua busca por tribunal, data, classe processual ou órgão julgador.</li>
+              <li>Para classes processuais, use termos como "Habeas Corpus" ou códigos numéricos.</li>
               <li>Se a API não retornar nada, as ementas padrão já estarão visíveis.</li>
             </ul>
           </CardContent>

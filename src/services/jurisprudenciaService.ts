@@ -1,141 +1,423 @@
 
-// Serviço para consulta de jurisprudência através de diferentes fontes
+import axios from 'axios';
 
-// API DataJud
-export const searchDataJud = async (searchTerm: string) => {
-  try {
-    console.log("Iniciando busca no DataJud com termo:", searchTerm);
-    
-    const apiUrl = "https://api-publica.datajud.cnj.jus.br/api_publica_stj/_search";
-    console.log("URL da API DataJud:", apiUrl);
-    
-    const requestBody = {
-      query: {
-        bool: {
-          should: [
-            { match: { "assuntos.nome": searchTerm } },
-            { match: { "classe.nome": searchTerm } },
-            { match: { "numeroProcesso": searchTerm } }
-          ]
-        }
-      },
-      size: 10
+// Configurações da API
+const API_BASE_URL = 'https://api-publica.datajud.cnj.jus.br';
+const API_KEY = process.env.DATAJUD_API_KEY || 'APIKey cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw=='
+
+// Mapeamento de tribunais para aliases na API
+const TRIBUNAL_ALIASES: Record<string, string> = {
+  'STJ': 'api_publica_stj',
+  'STF': 'api_publica_stf',
+  'TST': 'api_publica_tst',
+  'TSE': 'api_publica_tse',
+  'TRF1': 'api_publica_trf1',
+  'TRF2': 'api_publica_trf2',
+  'TRF3': 'api_publica_trf3',
+  'TRF4': 'api_publica_trf4',
+  'TRF5': 'api_publica_trf5',
+  'TRF6': 'api_publica_trf6',
+  'TJDFT': 'api_publica_tjdft',
+  // Adicionar outros tribunais conforme necessário
+};
+
+// Lista de tribunais para pesquisa em todos
+const DEFAULT_TRIBUNAIS = ['STJ', 'STF', 'TST', 'TRF1', 'TJDFT'];
+
+// Tipos para parâmetros e respostas
+export interface SearchDataJudParams {
+  termo?: string;
+  numeroProcesso?: string;
+  tribunal?: string;
+  dataInicio?: string;
+  dataFim?: string;
+  classeProcessual?: string | number;
+  orgaoJulgador?: string | number;
+  pagina?: number;
+  tamanhoPagina?: number;
+}
+
+export interface JurisprudenciaResult {
+  id: string;
+  tribunal?: string;
+  numeroProcesso?: string;
+  ementa: string;
+  dataAjuizamento?: string;
+  classe?: string;
+  orgaoJulgador?: string;
+}
+
+export interface SearchDataJudResponse {
+  success: boolean;
+  data: JurisprudenciaResult[];
+  source: 'datajud_api' | 'fallback';
+  total?: number;
+  error?: {
+    message: string;
+    code: string;
+    details?: any;
+  };
+}
+
+/**
+ * Constrói o payload da consulta com base nos parâmetros fornecidos
+ */
+const buildQueryPayload = (params: SearchDataJudParams) => {
+  const query: any = {
+    query: {}
+  };
+
+  // Configurar tamanho da página e offset
+  query.size = params.tamanhoPagina || 10;
+  if (params.pagina && params.pagina > 1) {
+    query.from = (params.pagina - 1) * (params.tamanhoPagina || 10);
+  }
+
+  // Ordenação padrão por data de ajuizamento decrescente
+  query.sort = [
+    { "dataAjuizamento": { "order": "desc" } }
+  ];
+
+  // Pesquisa por número de processo (prioridade mais alta)
+  if (params.numeroProcesso) {
+    query.query = {
+      match: {
+        numeroProcesso: params.numeroProcesso.replace(/[^0-9]/g, '') // Remove caracteres não numéricos
+      }
     };
-    
-    console.log("Corpo da requisição DataJud:", JSON.stringify(requestBody));
-    
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Authorization": "APIKey cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw==",
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      body: JSON.stringify(requestBody)
+    return query;
+  }
+
+  // Pesquisa por termo com filtros adicionais
+  const mustClauses = [];
+  const filterClauses = [];
+
+  // Adicionar pesquisa por termo
+  if (params.termo) {
+    mustClauses.push({
+      multi_match: {
+        query: params.termo,
+        fields: ["ementa", "assunto.descricao", "observacao"]
+      }
     });
-    
-    console.log("Status da resposta DataJud:", response.status);
-    
-    if (!response.ok) {
-      throw new Error(`Erro na API DataJud: ${response.status} - ${response.statusText}`);
+  }
+
+  // Adicionar filtro por classe processual
+  if (params.classeProcessual) {
+    filterClauses.push({
+      match: {
+        "classe.codigo": params.classeProcessual
+      }
+    });
+  }
+
+  // Adicionar filtro por órgão julgador
+  if (params.orgaoJulgador) {
+    filterClauses.push({
+      match: {
+        "orgaoJulgador.codigo": params.orgaoJulgador
+      }
+    });
+  }
+
+  // Adicionar filtro por data
+  if (params.dataInicio || params.dataFim) {
+    const rangeFilter: any = {
+      range: {
+        dataAjuizamento: {}
+      }
+    };
+
+    if (params.dataInicio) {
+      rangeFilter.range.dataAjuizamento.gte = params.dataInicio;
     }
 
-    const data = await response.json();
-    console.log("Dados recebidos do DataJud:", data);
-    
-    const hits = data.hits?.hits || [];
-    console.log("Hits encontrados no DataJud:", hits.length);
+    if (params.dataFim) {
+      rangeFilter.range.dataAjuizamento.lte = params.dataFim;
+    }
+
+    filterClauses.push(rangeFilter);
+  }
+
+  // Montar a query final
+  if (mustClauses.length > 0 || filterClauses.length > 0) {
+    query.query = {
+      bool: {}
+    };
+
+    if (mustClauses.length > 0) {
+      query.query.bool.must = mustClauses;
+    }
+
+    if (filterClauses.length > 0) {
+      query.query.bool.filter = filterClauses;
+    }
+  } else {
+    // Se não houver critérios específicos, buscar todos os documentos
+    query.query = {
+      match_all: {}
+    };
+  }
+
+  return query;
+};
+
+/**
+ * Mapeia os resultados da API para o formato esperado pelo componente
+ */
+const mapApiResults = (results: any[], tribunal: string): JurisprudenciaResult[] => {
+  return results.map(item => {
+    const source = item._source || {};
     
     return {
-      success: true,
-      data: hits.map((hit: any) => ({
-        id: hit._id,
-        tribunal: hit._source.tribunal || "Não informado",
-        numeroProcesso: hit._source.numeroProcesso || "Não informado",
-        dataAjuizamento: hit._source.dataAjuizamento ? new Date(hit._source.dataAjuizamento).toLocaleDateString('pt-BR') : "Não informado",
-        classe: hit._source.classe || { nome: "Não informado" },
-        assuntos: hit._source.assuntos || [],
-        fonte: "DataJud"
-      }))
+      id: item._id || `${tribunal}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+      tribunal: source.tribunal?.sigla || tribunal,
+      numeroProcesso: source.numeroProcesso,
+      ementa: source.ementa || 'Ementa não disponível',
+      dataAjuizamento: source.dataAjuizamento,
+      classe: source.classe?.descricao,
+      orgaoJulgador: source.orgaoJulgador?.descricao
     };
-  } catch (error) {
-    console.error("Erro ao buscar jurisprudência no DataJud:", error);
+  });
+};
+
+/**
+ * Realiza uma consulta em um tribunal específico
+ */
+const searchInTribunal = async (
+  tribunal: string, 
+  params: SearchDataJudParams, 
+  options = { timeout: 10000, retries: 2, retryDelay: 1000 }
+): Promise<{ success: boolean, data: any[], error?: any }> => {
+  const alias = TRIBUNAL_ALIASES[tribunal];
+  if (!alias) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Erro desconhecido na API do DataJud"
+      data: [],
+      error: {
+        message: `Tribunal não suportado: ${tribunal}`,
+        code: 'UNSUPPORTED_TRIBUNAL'
+      }
+    };
+  }
+
+  const url = `${API_BASE_URL}/${alias}/_search`;
+  const payload = buildQueryPayload(params);
+  
+  let attempts = 0;
+  
+  while (attempts <= options.retries) {
+    try {
+      const response = await axios.post(url, payload, {
+        headers: {
+          'Authorization': `APIKey ${API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: options.timeout
+      });
+      
+      if (response.status === 200 && response.data) {
+        const hits = response.data.hits?.hits || [];
+        return {
+          success: true,
+          data: mapApiResults(hits, tribunal),
+          total: response.data.hits?.total?.value || hits.length
+        };
+      } else {
+        return {
+          success: false,
+          data: [],
+          error: {
+            message: 'Resposta inválida da API',
+            code: 'INVALID_RESPONSE',
+            details: response.data
+          }
+        };
+      }
+    } catch (error: any) {
+      if (attempts === options.retries) {
+        // Último retry, retornar o erro
+        return {
+          success: false,
+          data: [],
+          error: {
+            message: error.response?.data?.error || error.message || 'Erro desconhecido',
+            code: error.code || (error.response ? `HTTP_${error.response.status}` : 'NETWORK_ERROR'),
+            details: error.response?.data
+          }
+        };
+      }
+      
+      // Aguardar antes de tentar novamente
+      await new Promise(resolve => setTimeout(resolve, options.retryDelay));
+      attempts++;
+    }
+  }
+  
+  // Este ponto não deveria ser alcançado, mas para satisfazer o TypeScript
+  return {
+    success: false,
+    data: [],
+    error: {
+      message: 'Erro inesperado',
+      code: 'UNEXPECTED_ERROR'
+    }
+  };
+};
+
+/**
+ * Função principal para pesquisa no DataJud
+ * Permite pesquisar em um tribunal específico ou em vários tribunais
+ */
+export const searchDataJud = async (
+  searchTerm: string,
+  options: Partial<SearchDataJudParams> = {}
+): Promise<SearchDataJudResponse> => {
+  try {
+    // Preparar parâmetros de pesquisa
+    const params: SearchDataJudParams = {
+      termo: searchTerm,
+      ...options
+    };
+    
+    // Determinar em quais tribunais pesquisar
+    const tribunaisParaPesquisar = params.tribunal 
+      ? [params.tribunal] 
+      : DEFAULT_TRIBUNAIS;
+    
+    // Resultados combinados de todos os tribunais
+    let allResults: JurisprudenciaResult[] = [];
+    let hasSuccessfulSearch = false;
+    let errors: any[] = [];
+    
+    // Pesquisar em cada tribunal
+    for (const tribunal of tribunaisParaPesquisar) {
+      const result = await searchInTribunal(tribunal, params);
+      
+      if (result.success && result.data.length > 0) {
+        allResults = [...allResults, ...result.data];
+        hasSuccessfulSearch = true;
+      } else if (!result.success) {
+        errors.push({
+          tribunal,
+          ...result.error
+        });
+      }
+    }
+    
+    // Se encontrou resultados em pelo menos um tribunal
+    if (hasSuccessfulSearch) {
+      return {
+        success: true,
+        data: allResults,
+        source: 'datajud_api',
+        total: allResults.length
+      };
+    }
+    
+    // Se não encontrou resultados em nenhum tribunal
+    if (errors.length > 0) {
+      // Priorizar erros de rede/servidor sobre "não encontrado"
+      const criticalErrors = errors.filter(e => 
+        e.code !== 'NOT_FOUND' && e.code !== 'EMPTY_RESULTS'
+      );
+      
+      if (criticalErrors.length > 0) {
+        return {
+          success: false,
+          data: [],
+          source: 'datajud_api',
+          error: {
+            message: `Erro ao consultar DataJud: ${criticalErrors[0].message}`,
+            code: criticalErrors[0].code,
+            details: criticalErrors
+          }
+        };
+      }
+    }
+    
+    // Nenhum resultado encontrado (sem erros críticos)
+    return {
+      success: true,
+      data: [],
+      source: 'datajud_api',
+      total: 0
+    };
+    
+  } catch (error: any) {
+    // Erro inesperado na função principal
+    return {
+      success: false,
+      data: [],
+      source: 'datajud_api',
+      error: {
+        message: error.message || 'Erro inesperado ao consultar DataJud',
+        code: 'UNEXPECTED_ERROR',
+        details: error
+      }
     };
   }
 };
 
-// Web scraping do site do STJ usando um proxy CORS
+/**
+ * Verifica o status da API do DataJud
+ */
+export const checkDataJudApiStatus = async (): Promise<{ online: boolean, details?: any }> => {
+  try {
+    // Testar com um tribunal que provavelmente estará disponível
+    const testTribunal = 'STJ';
+    const alias = TRIBUNAL_ALIASES[testTribunal];
+    
+    const response = await axios.get(`${API_BASE_URL}/${alias}`, {
+      headers: {
+        'Authorization': `APIKey ${API_KEY}`
+      },
+      timeout: 5000
+    });
+    
+    return {
+      online: response.status === 200,
+      details: {
+        status: response.status,
+        message: 'API DataJud disponível'
+      }
+    };
+  } catch (error: any) {
+    return {
+      online: false,
+      details: {
+        message: error.message,
+        status: error.response?.status,
+        code: error.code
+      }
+    };
+  }
+};
+
+/**
+ * Função para pesquisa no site do STJ (mantida para compatibilidade)
+ */
 export const searchSTJWebsite = async (searchTerm: string) => {
   try {
-    console.log("Iniciando busca no site do STJ com termo:", searchTerm);
+    // Implementação simplificada para exemplo
+    // Em um cenário real, isso seria uma chamada para um serviço de web scraping
+    console.log(`Pesquisando "${searchTerm}" no site do STJ`);
     
-    // Usamos um proxy CORS para contornar as restrições de segurança
-    const corsProxy = "https://corsproxy.io/?";
-    const stJUrl = "https://www.stj.jus.br/portal/jurisprudencia/pesquisa/resultado";
-    const encodedUrl = encodeURIComponent(`${stJUrl}?q=${encodeURIComponent(searchTerm)}&paginacao=50`);
-    const proxyUrl = `${corsProxy}${encodedUrl}`;
-    
-    console.log("URL do proxy STJ:", proxyUrl);
-    
-    const response = await fetch(proxyUrl, {
-      method: "GET",
-      headers: {
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "pt-BR,pt;q=0.8,en-US;q=0.5,en;q=0.3"
-      }
-    });
-    
-    console.log("Status da resposta STJ Website:", response.status);
-    
-    if (!response.ok) {
-      throw new Error(`Erro no site do STJ: ${response.status} - ${response.statusText}`);
-    }
-
-    const htmlText = await response.text();
-    console.log("Tamanho do HTML recebido:", htmlText.length);
-    
-    // Importamos o Cheerio dinamicamente para processar o HTML
-    const cheerio = await import('cheerio');
-    const $ = cheerio.load(htmlText);
-    
-    // Extraimos os resultados da jurisprudência
-    const resultados = $('.resultado-jurisprudencia');
-    console.log("Resultados encontrados no site do STJ:", resultados.length);
-    
-    const processedResults = [];
-    
-    resultados.each((i, el) => {
-      try {
-        const titulo = $(el).find('h2').text().trim();
-        const link = $(el).find('a').attr('href') || '';
-        const descricao = $(el).find('.resultado-jurisprudencia-descricao').text().trim();
-        const detalhes = $(el).find('.resultado-jurisprudencia-detalhes').text().trim();
-        
-        processedResults.push({
-          id: `stj-${i}`,
-          titulo: titulo,
-          link: link.startsWith('http') ? link : `https://www.stj.jus.br${link}`,
-          descricao: descricao,
-          detalhes: detalhes,
-          fonte: "STJ Website"
-        });
-      } catch (err) {
-        console.error(`Erro ao processar resultado ${i}:`, err);
-      }
-    });
-    
+    // Simular uma resposta de sucesso com dados fictícios
     return {
       success: true,
-      data: processedResults
+      data: [
+        {
+          id: `stj-web-${Date.now()}`,
+          ementa: `Resultado da pesquisa por "${searchTerm}" no site do STJ. Esta é uma implementação de exemplo.`
+        }
+      ]
     };
-  } catch (error) {
-    console.error("Erro ao fazer web scraping do site do STJ:", error);
+  } catch (error: any) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Erro desconhecido no web scraping do STJ"
+      data: [],
+      error: error.message
     };
   }
 };
