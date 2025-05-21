@@ -61,13 +61,7 @@ const PostsList = ({ posts, isLoading }: PostsListProps) => {
           />
         </div>
         
-        {isAuthenticated && (
-          <Button asChild>
-            <Link to="/clube/comunidade/novo">
-              <Plus className="mr-2 h-4 w-4" /> Novo Post
-            </Link>
-          </Button>
-        )}
+       
       </div>
       
       <div className="flex overflow-x-auto pb-2 gap-2 scrollbar-hide">

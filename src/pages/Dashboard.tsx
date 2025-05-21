@@ -145,42 +145,7 @@ const Dashboard = () => {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold mb-4">Meus Votos</h2>
-            <Card>
-              <CardContent className="py-6">
-                {user?.votes && user.votes.length > 0 ? (
-                  <div className="space-y-4">
-                    {user.votes.slice(0, 3).map((vote) => (
-                      <div key={vote.id} className="flex justify-between items-center">
-                        <div>
-                          <p className="font-medium">{vote.initiative?.title}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {vote.credits_spent} créditos alocados
-                          </p>
-                        </div>
-                        <Button variant="outline" size="sm" asChild>
-                          <Link to={`/clube/iniciativas/${vote.initiative_id}`}>
-                            Ver
-                          </Link>
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-center text-muted-foreground">
-                    Você ainda não votou em nenhuma iniciativa.
-                  </p>
-                )}
-              </CardContent>
-              <CardFooter>
-                <Button variant="outline" className="w-full" asChild>
-                  <Link to="/clube/iniciativas">
-                    <Vote className="mr-2 h-4 w-4" />
-                    Ver todas as iniciativas
-                  </Link>
-                </Button>
-              </CardFooter>
-            </Card>
+            
           </div>
         </div>
 

@@ -34,12 +34,8 @@ const Comunidade = () => {
                   <MessageSquare className="mr-2 h-4 w-4" /> 
                   Posts
                 </TabsTrigger>
-                <TabsTrigger value="iniciativas" className="flex items-center">
-                  <Vote className="mr-2 h-4 w-4" />
-                  Iniciativas
-                </TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="posts">
                 <PostsList posts={posts || []} isLoading={isLoading} />
               </TabsContent>

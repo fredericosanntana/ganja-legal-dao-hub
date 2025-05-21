@@ -10,26 +10,26 @@ const mockInitiatives: Initiative[] = [
     title: 'Expansão do Suporte Jurídico para Casos de Apreensão',
     description: 'Atualmente, nosso foco principal é o HC preventivo. Esta proposta visa desenvolver e implementar um novo módulo de suporte jurídico focado em auxiliar cultivadores que, infelizmente, já enfrentaram uma apreensão de suas plantas ou produtos. Isso incluiria a criação de modelos de defesa, orientação sobre como proceder legalmente após uma apreensão, e a facilitação do contato com advogados especializados em casos de defesa criminal relacionados ao cultivo. O objetivo é não deixar desamparado quem já está enfrentando um processo. Impacto Potencial: Aumentaria significativamente o escopo de proteção da GanjaDAO, oferecendo amparo em um momento crítico e de grande vulnerabilidade para os cultivadores. Poderia ajudar a reverter situações injustas e a garantir que os direitos dos pacientes sejam respeitados mesmo após uma intercorrência legal. Recursos Necessários: Desenvolvimento de nova plataforma/módulo, contratação ou parceria com mais advogados criminalistas, criação de material informativo específico.',
     status: 'open',
-    created_at: '2023-04-10T10:00:00Z',
-    updated_at: '2023-04-10T10:00:00Z',
+    created_at: '2025-05-10T10:00:00Z',
+    updated_at: '2025-05-20T10:00:00Z',
     user_id: '1',
     author: {
       id: '1',
-      username: 'joaosilva',
+      username: 'growingautos',
     },
     votes: []
   },
   {
     id: '2',
-    title: 'Lançamento de uma Plataforma Educacional sobre Cultivo e Legislação (GanjaDAO Educa)',
+    title: 'Plataforma Educacional sobre Cultivo e Legislação',
     description: 'Esta proposta foca na criação de uma plataforma educacional robusta, a "GanjaDAO Educa". O objetivo é oferecer cursos, workshops, webinars, artigos e guias detalhados sobre todos os aspectos do cultivo de cannabis (desde o básico até técnicas avançadas, cultivo orgânico, extração de óleos, etc.) e, crucialmente, sobre a legislação brasileira, direitos dos pacientes, como montar uma documentação médica forte, e como se preparar para um pedido de HC. O conteúdo seria produzido por especialistas e acessível de forma gratuita ou a baixo custo para membros da DAO. Impacto Potencial: Empoderaria os cultivadores com conhecimento técnico e jurídico, aumentando a qualidade dos cultivos, a segurança dos pacientes e a capacidade da comunidade de se autodefender e de advogar pela causa. A informação é uma ferramenta poderosa de transformação. Recursos Necessários: Desenvolvimento da plataforma EAD, produção de conteúdo multimídia, parcerias com educadores e especialistas, equipe de moderação e suporte.' ,
     status: 'open',
-    created_at: '2023-04-15T14:30:00Z',
-    updated_at: '2023-04-15T14:30:00Z',
-    user_id: '2',
+    created_at: '2025-05-10T10:00:00Z',
+    updated_at: '2025-05-20T10:00:00Z',
+    user_id: '1',
     author: {
-      id: '2',
-      username: 'mariaoliver',
+      id: '1',
+      username: 'growingautos',
     },
     votes: []
   },
@@ -38,12 +38,12 @@ const mockInitiatives: Initiative[] = [
     title: 'Desenvolvimento de Ferramentas para Associações de Pacientes',
     description: 'Muitas associações de pacientes de cannabis medicinal realizam um trabalho incrível, mas frequentemente carecem de ferramentas de gestão, comunicação e captação de recursos. Esta proposta visa desenvolver um conjunto de soluções tecnológicas (software como serviço - SaaS) especificamente para essas associações. Poderia incluir ferramentas para gestão de associados, comunicação interna, organização de eventos, campanhas de doação, e até mesmo um módulo simplificado para auxiliar as associações a orientarem seus membros sobre a busca por HCs, em parceria com a GanjaDAO. Impacto Potencial: Fortaleceria o ecossistema de associações, que são pilares fundamentais no apoio aos pacientes e na luta pela regulamentação. Ao otimizar a gestão dessas organizações, permitiríamos que elas focassem mais em sua missão principal e ampliassem seu alcance e impacto. Recursos Necessários: Pesquisa de necessidades das associações, desenvolvimento de software customizado, equipe de suporte técnico e treinamento para as associações.',
     status: 'open',
-    created_at: '2023-04-15T14:30:00Z',
-    updated_at: '2023-04-15T14:30:00Z',
-    user_id: '2',
+    created_at: '2025-05-10T10:00:00Z',
+    updated_at: '2025-05-20T10:00:00Z',
+    user_id: '1',
     author: {
-      id: '2',
-      username: 'mariaoliver',
+      id: '1',
+      username: 'growingautos',
     },
     votes: []
   }
@@ -133,7 +133,7 @@ export const createInitiative = async (title: string, description: string): Prom
       user_id: user.data.user.id,
       author: {
         id: user.data.user.id,
-        username: 'current_user'
+        username: user.data.user.user_metadata?.username || 'usuário'
       },
       votes: []
     };
@@ -172,7 +172,7 @@ export const createInitiative = async (title: string, description: string): Prom
       ...data,
       author: {
         id: userData.user.id,
-        username: 'current_user'
+        username: user?.username || 'usuário'
       },
       votes: []
     } as Initiative;
