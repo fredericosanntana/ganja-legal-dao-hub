@@ -11,24 +11,24 @@ export const useInitiatives = () => {
   const [error, setError] = useState<Error | null>(null);
   const { refreshUser } = useAuth();
 
-  useEffect(() => {
-    const fetchInitiatives = async () => {
-      setIsLoading(true);
-      try {
-        const data = await getInitiatives();
-        setInitiatives(data);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error("Failed to fetch initiatives"));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchInitiatives();
+  const fetchInitiatives = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await getInitiatives();
+      setInitiatives(data);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error("Failed to fetch initiatives"));
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  return { initiatives, isLoading, error };
+  useEffect(() => {
+    fetchInitiatives();
+  }, [fetchInitiatives]);
+
+  return { initiatives, isLoading, error, refreshInitiatives: fetchInitiatives };
 };
 
 // Hook for getting a single initiative and voting on it

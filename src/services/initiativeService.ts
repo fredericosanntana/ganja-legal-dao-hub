@@ -50,13 +50,7 @@ const mockInitiatives: Initiative[] = [
 ];
 
 export const getInitiatives = async (): Promise<Initiative[]> => {
-  // Using mock data for now
-  const useMockData = true;
-  
-  if (useMockData) {
-    return Promise.resolve(mockInitiatives);
-  }
-
+  // Try to get initiatives from Supabase first
   try {
     const { data, error } = await supabase
       .from('initiatives')
@@ -68,27 +62,29 @@ export const getInitiatives = async (): Promise<Initiative[]> => {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching initiatives:', error);
-      return [];
+      console.error('Error fetching initiatives from Supabase:', error);
+      // Fallback to mock data
+      console.log('Falling back to mock initiatives data');
+      return mockInitiatives;
     }
 
-    return data as unknown as Initiative[];
+    if (data && data.length > 0) {
+      console.log('Initiatives fetched from Supabase:', data);
+      return data as unknown as Initiative[];
+    } else {
+      // If no data in Supabase, use mock data
+      console.log('No initiatives found in Supabase, using mock data');
+      return mockInitiatives;
+    }
   } catch (error) {
     console.error('Exception fetching initiatives:', error);
-    return [];
+    return mockInitiatives;
   }
 };
 
 export const getInitiativeById = async (id: string): Promise<Initiative | null> => {
-  // Using mock data for now
-  const useMockData = true;
-  
-  if (useMockData) {
-    const initiative = mockInitiatives.find(i => i.id === id);
-    return initiative ? Promise.resolve(initiative) : Promise.resolve(null);
-  }
-
   try {
+    // Try to get from Supabase first
     const { data, error } = await supabase
       .from('initiatives')
       .select(`
@@ -100,56 +96,50 @@ export const getInitiativeById = async (id: string): Promise<Initiative | null> 
       .single();
 
     if (error) {
-      console.error('Error fetching initiative:', error);
-      return null;
+      console.error('Error fetching initiative from Supabase:', error);
+      // Fallback to mock data
+      const initiative = mockInitiatives.find(i => i.id === id);
+      return initiative || null;
     }
 
-    return data as unknown as Initiative;
+    if (data) {
+      console.log('Initiative fetched from Supabase:', data);
+      return data as unknown as Initiative;
+    }
+
+    // If not found in Supabase, check mock data
+    const initiative = mockInitiatives.find(i => i.id === id);
+    return initiative || null;
   } catch (error) {
     console.error('Exception fetching initiative:', error);
-    return null;
+    const initiative = mockInitiatives.find(i => i.id === id);
+    return initiative || null;
   }
 };
 
 export const createInitiative = async (title: string, description: string): Promise<Initiative | null> => {
-  // Using mock data for now
-  const useMockData = true;
-  
-  if (useMockData) {
-    const user = await supabase.auth.getUser();
-    if (!user.data.user) {
-      toast.error('Você precisa estar logado para criar uma iniciativa');
-      return null;
-    }
-    
-    const newId = (mockInitiatives.length + 1).toString();
-    const newInitiative: Initiative = {
-      id: newId,
-      title,
-      description,
-      status: 'open',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      user_id: user.data.user.id,
-      author: {
-        id: user.data.user.id,
-        username: user.data.user.user_metadata?.username || 'usuário'
-      },
-      votes: []
-    };
-    
-    mockInitiatives.push(newInitiative);
-    return Promise.resolve(newInitiative);
-  }
-
   try {
-    const { data: userData } = await supabase.auth.getUser();
+    const { data: userData, error: userError } = await supabase.auth.getUser();
     
-    if (!userData.user) {
+    if (userError || !userData.user) {
       toast.error('Você precisa estar logado para criar uma iniciativa');
       return null;
     }
 
+    // Get user metadata to retrieve username
+    const { data: userProfile, error: profileError } = await supabase
+      .from('users')
+      .select('username')
+      .eq('id', userData.user.id)
+      .single();
+    
+    if (profileError) {
+      console.error('Error fetching user profile:', profileError);
+    }
+    
+    const username = userProfile?.username || userData.user.email?.split('@')[0] || 'usuário';
+    
+    // Create initiative in Supabase
     const { data, error } = await supabase
       .from('initiatives')
       .insert({
@@ -162,20 +152,45 @@ export const createInitiative = async (title: string, description: string): Prom
       .single();
 
     if (error) {
-      console.error('Error creating initiative:', error);
-      toast.error('Falha ao criar iniciativa');
-      return null;
+      console.error('Error creating initiative in Supabase:', error);
+      toast.error('Falha ao salvar iniciativa no banco de dados');
+      
+      // For demo purposes, still create in local mock array
+      const newId = (mockInitiatives.length + 1).toString();
+      const newInitiative: Initiative = {
+        id: newId,
+        title,
+        description,
+        status: 'open',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        user_id: userData.user.id,
+        author: {
+          id: userData.user.id,
+          username
+        },
+        votes: []
+      };
+      
+      mockInitiatives.push(newInitiative);
+      console.log('Initiative created in mock data:', newInitiative);
+      toast.success('Iniciativa criada apenas localmente (modo demonstração)');
+      return newInitiative;
     }
 
-    // Return the created initiative
-    return {
+    // Successfully created in database
+    const newInitiative: Initiative = {
       ...data,
       author: {
         id: userData.user.id,
-        username: user?.username || 'usuário'
+        username
       },
       votes: []
     } as Initiative;
+    
+    console.log('Initiative successfully created in Supabase:', newInitiative);
+    toast.success('Iniciativa criada com sucesso!');
+    return newInitiative;
   } catch (error) {
     console.error('Exception creating initiative:', error);
     toast.error('Erro ao criar iniciativa');
