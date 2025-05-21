@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import VotingSystemExplanation from "@/components/VotingSystemExplanation";
 import Layout from "@/components/Layout";
 import { useInitiative } from "@/hooks/use-initiatives";
+import { InitiativeVote } from "@/types/initiatives";
 
 const IniciativaDetalhe = () => {
   const { id } = useParams<{ id: string }>();
@@ -26,7 +27,7 @@ const IniciativaDetalhe = () => {
   const [showVotingForm, setShowVotingForm] = useState(false);
 
   // Get user's current vote for this initiative if any
-  const userVote = initiative?.votes?.find((vote: any) => vote.user_id === user?.id);
+  const userVote = initiative?.votes?.find((vote) => vote.user_id === user?.id);
   
   // Check if user has active subscription
   const hasActiveSubscription = user?.subscription?.status === 'active';
@@ -205,11 +206,21 @@ const IniciativaDetalhe = () => {
         <CardContent className="space-y-6">
           <div className="flex items-center gap-3">
             <Avatar>
-              <AvatarImage src={initiative.creator?.avatar_url || initiative.author?.avatar_url} />
-              <AvatarFallback>{(initiative.creator?.username || initiative.author?.username || "U").charAt(0)}</AvatarFallback>
+              <AvatarImage 
+                src={
+                  initiative.author?.avatar_url ||
+                  (initiative.creator && initiative.creator.avatar_url) || 
+                  undefined
+                } 
+              />
+              <AvatarFallback>
+                {((initiative.author?.username || initiative.creator?.username || "U").charAt(0))}
+              </AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-sm font-medium">{initiative.creator?.username || initiative.author?.username || "Usuário Anônimo"}</p>
+              <p className="text-sm font-medium">
+                {initiative.author?.username || (initiative.creator && initiative.creator.username) || "Usuário Anônimo"}
+              </p>
               <p className="text-xs text-muted-foreground">Autor da Iniciativa</p>
             </div>
           </div>
@@ -224,13 +235,17 @@ const IniciativaDetalhe = () => {
             <div className="flex items-center gap-2 text-sm">
               <ThumbsUp className="h-4 w-4 text-muted-foreground" />
               <span>
-                <strong>{initiative.total_votes || initiative.votes?.length || 0}</strong> votos
+                <strong>
+                  {initiative.total_votes || initiative._count?.votes || initiative.votes?.length || 0}
+                </strong> votos
               </span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Users className="h-4 w-4 text-muted-foreground" />
               <span>
-                <strong>{initiative.unique_voters || initiative.votes?.length || 0}</strong> participantes
+                <strong>
+                  {initiative.unique_voters || initiative.votes?.length || 0}
+                </strong> participantes
               </span>
             </div>
           </div>
@@ -242,7 +257,7 @@ const IniciativaDetalhe = () => {
                   <ThumbsUp className="h-4 w-4" />
                   <AlertTitle>Você já votou nesta iniciativa</AlertTitle>
                   <AlertDescription>
-                    Você votou com intensidade {userVote.intensity}, utilizando {userVote.credits_spent} créditos.
+                    Você votou com intensidade {userVote.credits_spent}, utilizando {userVote.credits_spent} créditos.
                   </AlertDescription>
                 </Alert>
               ) : (
