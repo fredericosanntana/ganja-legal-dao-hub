@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -77,17 +78,10 @@ export const useUpdatePost = (postId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["post", postId] });
-      toast({
-        title: "Post atualizado",
-        description: "Seu post foi atualizado com sucesso",
-      });
+      toast.success("Post atualizado com sucesso");
     },
     onError: (error: Error) => {
-      toast({
-        title: "Erro",
-        description: error.message || "Ocorreu um erro ao atualizar o post",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Ocorreu um erro ao atualizar o post");
     },
   });
 };
@@ -100,17 +94,10 @@ export const useDeletePost = () => {
     mutationFn: (postId: string) => deletePost(postId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
-      toast({
-        title: "Post excluído",
-        description: "Seu post foi excluído com sucesso",
-      });
+      toast.success("Post excluído com sucesso");
     },
     onError: (error: Error) => {
-      toast({
-        title: "Erro",
-        description: error.message || "Ocorreu um erro ao excluir o post",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Ocorreu um erro ao excluir o post");
     },
   });
 };
@@ -126,11 +113,7 @@ export const usePostLike = (postId: string) => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
     },
     onError: (error: Error) => {
-      toast({
-        title: "Erro",
-        description: error.message || "Ocorreu um erro ao curtir o post",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Ocorreu um erro ao curtir o post");
     },
   });
 
@@ -141,11 +124,7 @@ export const usePostLike = (postId: string) => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
     },
     onError: (error: Error) => {
-      toast({
-        title: "Erro",
-        description: error.message || "Ocorreu um erro ao descurtir o post",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Ocorreu um erro ao descurtir o post");
     },
   });
 
@@ -170,17 +149,10 @@ export const useCreateComment = () => {
     }) => createComment(newComment),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["post", data?.post_id] });
-      toast({
-        title: "Comentário adicionado",
-        description: "Seu comentário foi adicionado com sucesso",
-      });
+      toast.success("Comentário adicionado com sucesso");
     },
     onError: (error: Error) => {
-      toast({
-        title: "Erro",
-        description: error.message || "Ocorreu um erro ao adicionar o comentário",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Ocorreu um erro ao adicionar o comentário");
     },
   });
 };
@@ -193,17 +165,10 @@ export const useDeleteComment = (postId: string) => {
     mutationFn: (commentId: string) => deleteComment(commentId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["post", postId] });
-      toast({
-        title: "Comentário excluído",
-        description: "Seu comentário foi excluído com sucesso",
-      });
+      toast.success("Comentário excluído com sucesso");
     },
     onError: (error: Error) => {
-      toast({
-        title: "Erro",
-        description: error.message || "Ocorreu um erro ao excluir o comentário",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Ocorreu um erro ao excluir o comentário");
     },
   });
 };
@@ -218,11 +183,7 @@ export const useCommentLike = (postId: string, commentId: string) => {
       queryClient.invalidateQueries({ queryKey: ["post", postId] });
     },
     onError: (error: Error) => {
-      toast({
-        title: "Erro",
-        description: error.message || "Ocorreu um erro ao curtir o comentário",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Ocorreu um erro ao curtir o comentário");
     },
   });
 
@@ -232,11 +193,7 @@ export const useCommentLike = (postId: string, commentId: string) => {
       queryClient.invalidateQueries({ queryKey: ["post", postId] });
     },
     onError: (error: Error) => {
-      toast({
-        title: "Erro",
-        description: error.message || "Ocorreu um erro ao descurtir o comentário",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Ocorreu um erro ao descurtir o comentário");
     },
   });
 
