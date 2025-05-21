@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/use-auth";
@@ -5,8 +6,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ThumbsUp, Users, AlertTriangle } from "lucide-react";
-import { useState, useEffect } from "react";
+import { ArrowLeft, ThumbsUp, Users, AlertTriangle, RefreshCw } from "lucide-react";
+import { useState } from "react";
 import QuadraticVotingForm from "@/components/initiatives/QuadraticVotingForm";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -14,35 +15,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import VotingSystemExplanation from "@/components/VotingSystemExplanation";
-import { getInitiativeById } from "@/services/initiativeService";
 import Layout from "@/components/Layout";
+import { useInitiative } from "@/hooks/use-initiatives";
 
 const IniciativaDetalhe = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
-  const [initiative, setInitiative] = useState<any>(null);
+  const { initiative, isLoading, error, refreshInitiative } = useInitiative(id);
   const [showVotingForm, setShowVotingForm] = useState(false);
-  
-  useEffect(() => {
-    if (id) {
-      fetchInitiative(id);
-    }
-  }, [id]);
-
-  const fetchInitiative = async (initiativeId: string) => {
-    setIsLoading(true);
-    try {
-      const data = await getInitiativeById(initiativeId);
-      setInitiative(data);
-    } catch (error) {
-      console.error("Error fetching initiative:", error);
-      toast.error("Não foi possível carregar os dados da iniciativa.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   // Get user's current vote for this initiative if any
   const userVote = initiative?.votes?.find((vote: any) => vote.user_id === user?.id);
@@ -77,6 +58,14 @@ const IniciativaDetalhe = () => {
     }
   };
 
+  // Refresh initiative data
+  const handleRefresh = () => {
+    if (refreshInitiative) {
+      refreshInitiative();
+      toast.info("Atualizando dados da iniciativa...");
+    }
+  };
+
   // Check initiative status
   const getStatusBadge = () => {
     if (!initiative) return null;
@@ -101,7 +90,17 @@ const IniciativaDetalhe = () => {
 
   if (isLoading) {
     return (
-      <div className="container max-w-4xl py-8">
+      <Layout>
+        <Button
+          variant="outline"
+          size="sm"
+          className="mb-6"
+          onClick={() => navigate('/clube/iniciativas')}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Voltar para Iniciativas
+        </Button>
+        
         <div className="mb-6">
           <Skeleton className="h-8 w-64 mb-2" />
           <Skeleton className="h-4 w-32" />
@@ -117,13 +116,23 @@ const IniciativaDetalhe = () => {
             <Skeleton className="h-4 w-3/4" />
           </CardContent>
         </Card>
-      </div>
+      </Layout>
     );
   }
 
   if (!initiative) {
     return (
-      <div className="container max-w-4xl py-8">
+      <Layout>
+        <Button
+          variant="outline"
+          size="sm"
+          className="mb-6"
+          onClick={() => navigate('/clube/iniciativas')}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Voltar para Iniciativas
+        </Button>
+
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Iniciativa não encontrada</AlertTitle>
@@ -131,30 +140,51 @@ const IniciativaDetalhe = () => {
             A iniciativa que você está procurando não existe ou foi removida.
           </AlertDescription>
         </Alert>
-        <Button
-          variant="outline"
-          size="sm"
-          className="mt-4"
-          onClick={() => navigate('/clube/iniciativas')}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Voltar para Iniciativas
-        </Button>
-      </div>
+        
+        <div className="flex justify-between mt-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate('/clube/iniciativas')}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Voltar para Iniciativas
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleRefresh}
+          >
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Tentar Novamente
+          </Button>
+        </div>
+      </Layout>
     );
   }
 
   return (
     <Layout>
-      <Button
-        variant="outline"
-        size="sm"
-        className="mb-6"
-        onClick={() => navigate('/clube/iniciativas')}
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Voltar para Iniciativas
-      </Button>
+      <div className="flex justify-between items-center mb-6">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate('/clube/iniciativas')}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Voltar para Iniciativas
+        </Button>
+        
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleRefresh}
+          title="Atualizar dados da iniciativa"
+        >
+          <RefreshCw className="h-4 w-4" />
+        </Button>
+      </div>
 
       <VotingSystemExplanation />
 
@@ -175,11 +205,11 @@ const IniciativaDetalhe = () => {
         <CardContent className="space-y-6">
           <div className="flex items-center gap-3">
             <Avatar>
-              <AvatarImage src={initiative.creator?.avatar_url} />
-              <AvatarFallback>{initiative.creator?.username?.charAt(0) || "U"}</AvatarFallback>
+              <AvatarImage src={initiative.creator?.avatar_url || initiative.author?.avatar_url} />
+              <AvatarFallback>{(initiative.creator?.username || initiative.author?.username || "U").charAt(0)}</AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-sm font-medium">{initiative.creator?.username || "Usuário Anônimo"}</p>
+              <p className="text-sm font-medium">{initiative.creator?.username || initiative.author?.username || "Usuário Anônimo"}</p>
               <p className="text-xs text-muted-foreground">Autor da Iniciativa</p>
             </div>
           </div>
@@ -194,13 +224,13 @@ const IniciativaDetalhe = () => {
             <div className="flex items-center gap-2 text-sm">
               <ThumbsUp className="h-4 w-4 text-muted-foreground" />
               <span>
-                <strong>{initiative.total_votes || 0}</strong> votos
+                <strong>{initiative.total_votes || initiative.votes?.length || 0}</strong> votos
               </span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Users className="h-4 w-4 text-muted-foreground" />
               <span>
-                <strong>{initiative.unique_voters || 0}</strong> participantes
+                <strong>{initiative.unique_voters || initiative.votes?.length || 0}</strong> participantes
               </span>
             </div>
           </div>
@@ -239,7 +269,7 @@ const IniciativaDetalhe = () => {
                     initiativeId={initiative.id} 
                     onVotingComplete={() => {
                       setShowVotingForm(false);
-                      fetchInitiative(initiative.id);
+                      refreshInitiative();
                     }}
                   />
                 </div>

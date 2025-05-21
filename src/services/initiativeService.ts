@@ -3,7 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Initiative, InitiativeStatus } from '@/types/initiatives';
 import { toast } from 'sonner';
 
-// Mock data for initiatives
+// Mock data for initiatives - Using a shared global array for all users
+// This will allow all users to see the same mock initiatives even if they're not saved to the database
 const mockInitiatives: Initiative[] = [
   {
     id: '1',
@@ -49,6 +50,28 @@ const mockInitiatives: Initiative[] = [
   }
 ];
 
+// Store user-created initiatives in localStorage to persist them across sessions
+const getStoredInitiatives = (): Initiative[] => {
+  try {
+    const stored = localStorage.getItem('user_created_initiatives');
+    return stored ? JSON.parse(stored) : [];
+  } catch (error) {
+    console.error('Error reading from localStorage:', error);
+    return [];
+  }
+};
+
+const storeInitiatives = (initiatives: Initiative[]) => {
+  try {
+    localStorage.setItem('user_created_initiatives', JSON.stringify(initiatives));
+  } catch (error) {
+    console.error('Error writing to localStorage:', error);
+  }
+};
+
+// Initialize user created initiatives from localStorage
+const userCreatedInitiatives = getStoredInitiatives();
+
 export const getInitiatives = async (): Promise<Initiative[]> => {
   // Try to get initiatives from Supabase first
   try {
@@ -63,22 +86,25 @@ export const getInitiatives = async (): Promise<Initiative[]> => {
 
     if (error) {
       console.error('Error fetching initiatives from Supabase:', error);
-      // Fallback to mock data
-      console.log('Falling back to mock initiatives data');
-      return mockInitiatives;
+      // Fallback to combined mock and user-created initiatives
+      console.log('Falling back to mock initiatives data and user created initiatives');
+      const combinedInitiatives = [...mockInitiatives, ...userCreatedInitiatives];
+      return combinedInitiatives;
     }
 
     if (data && data.length > 0) {
       console.log('Initiatives fetched from Supabase:', data);
       return data as unknown as Initiative[];
     } else {
-      // If no data in Supabase, use mock data
-      console.log('No initiatives found in Supabase, using mock data');
-      return mockInitiatives;
+      // If no data in Supabase, use mock data combined with user created initiatives
+      console.log('No initiatives found in Supabase, using mock data and user created initiatives');
+      const combinedInitiatives = [...mockInitiatives, ...userCreatedInitiatives];
+      return combinedInitiatives;
     }
   } catch (error) {
     console.error('Exception fetching initiatives:', error);
-    return mockInitiatives;
+    const combinedInitiatives = [...mockInitiatives, ...userCreatedInitiatives];
+    return combinedInitiatives;
   }
 };
 
@@ -97,9 +123,20 @@ export const getInitiativeById = async (id: string): Promise<Initiative | null> 
 
     if (error) {
       console.error('Error fetching initiative from Supabase:', error);
-      // Fallback to mock data
-      const initiative = mockInitiatives.find(i => i.id === id);
-      return initiative || null;
+      
+      // Look for the initiative in mock data
+      const mockInitiative = mockInitiatives.find(i => i.id === id);
+      if (mockInitiative) {
+        return mockInitiative;
+      }
+      
+      // Look for the initiative in user created initiatives
+      const userInitiative = userCreatedInitiatives.find(i => i.id === id);
+      if (userInitiative) {
+        return userInitiative;
+      }
+      
+      return null;
     }
 
     if (data) {
@@ -107,13 +144,26 @@ export const getInitiativeById = async (id: string): Promise<Initiative | null> 
       return data as unknown as Initiative;
     }
 
-    // If not found in Supabase, check mock data
-    const initiative = mockInitiatives.find(i => i.id === id);
-    return initiative || null;
+    // If not found in Supabase, check mock data and user created initiatives
+    const mockInitiative = mockInitiatives.find(i => i.id === id);
+    if (mockInitiative) {
+      return mockInitiative;
+    }
+
+    const userInitiative = userCreatedInitiatives.find(i => i.id === id);
+    return userInitiative || null;
   } catch (error) {
     console.error('Exception fetching initiative:', error);
-    const initiative = mockInitiatives.find(i => i.id === id);
-    return initiative || null;
+    
+    // Try to find in mock data
+    const mockInitiative = mockInitiatives.find(i => i.id === id);
+    if (mockInitiative) {
+      return mockInitiative;
+    }
+    
+    // Try to find in user created initiatives
+    const userInitiative = userCreatedInitiatives.find(i => i.id === id);
+    return userInitiative || null;
   }
 };
 
@@ -153,10 +203,10 @@ export const createInitiative = async (title: string, description: string): Prom
 
     if (error) {
       console.error('Error creating initiative in Supabase:', error);
-      toast.error('Falha ao salvar iniciativa no banco de dados');
+      toast.error('Falha ao salvar iniciativa no banco de dados, salvando localmente');
       
-      // For demo purposes, still create in local mock array
-      const newId = (mockInitiatives.length + 1).toString();
+      // For demo purposes, create in local storage
+      const newId = Date.now().toString(); // Generate unique ID based on timestamp
       const newInitiative: Initiative = {
         id: newId,
         title,
@@ -172,9 +222,12 @@ export const createInitiative = async (title: string, description: string): Prom
         votes: []
       };
       
-      mockInitiatives.push(newInitiative);
-      console.log('Initiative created in mock data:', newInitiative);
-      toast.success('Iniciativa criada apenas localmente (modo demonstração)');
+      // Add to user created initiatives and persist to localStorage
+      userCreatedInitiatives.push(newInitiative);
+      storeInitiatives(userCreatedInitiatives);
+      
+      console.log('Initiative created in localStorage:', newInitiative);
+      toast.success('Iniciativa criada com sucesso (modo demonstração)');
       return newInitiative;
     }
 

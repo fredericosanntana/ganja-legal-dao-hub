@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useInitiatives } from "@/hooks/use-initiatives";
 import InitiativeCard from "@/components/initiatives/InitiativeCard";
 import VotingSystemExplanation from "@/components/VotingSystemExplanation";
+import { toast } from "sonner";
 import { 
   Dialog, 
   DialogContent, 
@@ -48,6 +49,7 @@ const Iniciativas = () => {
 
   const handleRefresh = () => {
     refreshInitiatives();
+    toast.info("Atualizando lista de iniciativas...");
   };
 
   return (
@@ -115,7 +117,11 @@ const Iniciativas = () => {
               </Dialog>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={handleRefresh} title="Atualizar iniciativas">
+              <Button 
+                variant="outline" 
+                onClick={handleRefresh} 
+                title="Atualizar iniciativas"
+              >
                 <RefreshCw className="h-4 w-4" />
               </Button>
               {user?.subscription && (
@@ -129,7 +135,7 @@ const Iniciativas = () => {
             </div>
           </div>
 
-          {/* Add the new explanation component */}
+          {/* Add the explanation component */}
           <VotingSystemExplanation />
 
           <div className="mb-8">
