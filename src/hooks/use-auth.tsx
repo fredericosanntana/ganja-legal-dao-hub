@@ -338,13 +338,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      // First, clear our local state regardless of API success
       setUser(null);
       setSession(null);
+      
+      // Then try to sign out from Supabase
+      // If it fails due to session missing, that's ok - we've already cleared local state
+      await supabase.auth.signOut().catch(error => {
+        console.error('Error in Supabase signOut:', error);
+        // We can ignore the session missing error since we've already cleared local state
+      });
+      
+      return true;
     } catch (error) {
       console.error('Error signing out:', error);
-      throw error;
+      // Return true anyway as we want to navigate away
+      return true;
     }
   };
   

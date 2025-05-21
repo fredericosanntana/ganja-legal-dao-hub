@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { useAuth } from "@/hooks/use-auth";
@@ -103,7 +102,9 @@ const Perfil = () => {
       toast.success("Logout realizado com sucesso!");
     } catch (error: any) {
       console.error("Sign out error:", error);
-      toast.error("Erro ao fazer logout.");
+      // Even if there's an error, we'll still redirect to login
+      toast.info("Sessão encerrada.");
+      navigate('/clube/login');
     }
   };
 
