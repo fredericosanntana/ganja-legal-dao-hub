@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Post, Comment, PostLike, CommentLike } from '@/types/forum';
@@ -41,11 +42,14 @@ export const getPosts = async (): Promise<Post[]> => {
     console.log('Posts fetched successfully:', data);
     
     // Transform the data to match our Post type
+    // Make sure _count contains simple numbers, not objects
     const formattedPosts = data.map((post: any) => ({
       ...post,
       _count: { 
-        comments: post.comments || 0,
-        likes: post.likes || 0
+        comments: typeof post.comments === 'number' ? post.comments : 
+                 (post.comments && typeof post.comments === 'object' ? post.comments.count || 0 : 0),
+        likes: typeof post.likes === 'number' ? post.likes : 
+              (post.likes && typeof post.likes === 'object' ? post.likes.count || 0 : 0)
       }
     })) as Post[];
     
