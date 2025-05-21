@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { BookOpen, MessageSquare, ThumbsUp, Vote } from "lucide-react";
+import { BookOpen, MessageSquare, ThumbsUp, Vote, Plus } from "lucide-react";
 
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +16,8 @@ const Comunidade = () => {
   const { data: posts, isLoading: postsLoading } = usePosts();
   const { initiatives, isLoading: initiativesLoading } = useInitiatives();
 
+  console.log("Comunidade page rendering with posts:", posts);
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-6">
@@ -26,6 +28,16 @@ const Comunidade = () => {
               Discuta, proponha e vote em iniciativas da comunidade GanjaDAO
             </p>
           </div>
+          
+          {isAuthenticated && (
+            <div className="flex gap-2">
+              <Button asChild>
+                <Link to="/clube/comunidade/novo">
+                  <Plus className="mr-2 h-4 w-4" /> Criar Post
+                </Link>
+              </Button>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

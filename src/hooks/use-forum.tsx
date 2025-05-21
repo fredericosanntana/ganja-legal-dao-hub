@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { 
   getAllPosts, 
   getPostById, 
@@ -23,8 +22,8 @@ export const usePosts = () => {
   return useQuery({
     queryKey: ["posts"],
     queryFn: () => {
-      // Use mock data for development
-      const useMockData = true; // Change to false when backend is ready
+      // Use real data from the database
+      const useMockData = false; // Set to false to use real data
       return useMockData ? Promise.resolve(mockPosts) : getAllPosts();
     }
   });
@@ -49,21 +48,18 @@ export const useCreatePost = () => {
       content: string;
       user_id: string;
       category?: string;
-    }) => createPost(newPost),
+    }) => {
+      console.log("Creating post in mutation:", newPost);
+      return createPost(newPost);
+    },
     onSuccess: () => {
       // Invalidate posts query to refetch
+      console.log("Post created successfully, invalidating queries");
       queryClient.invalidateQueries({ queryKey: ["posts"] });
-      toast({
-        title: "Post criado",
-        description: "Seu post foi criado com sucesso",
-      });
     },
     onError: (error: Error) => {
-      toast({
-        title: "Erro",
-        description: error.message || "Ocorreu um erro ao criar o post",
-        variant: "destructive",
-      });
+      console.error("Error in useCreatePost mutation:", error);
+      toast.error(error.message || "Ocorreu um erro ao criar o post");
     },
   });
 };

@@ -23,6 +23,8 @@ const PostsList = ({ posts, isLoading }: PostsListProps) => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   
+  console.log('PostsList rendering with posts:', posts);
+  
   const filteredPosts = posts.filter(post => {
     // Filter by category if selected
     if (activeCategory && post.category !== activeCategory) {
@@ -61,7 +63,13 @@ const PostsList = ({ posts, isLoading }: PostsListProps) => {
           />
         </div>
         
-       
+        {isAuthenticated && (
+          <Button asChild>
+            <Link to="/clube/comunidade/novo">
+              <Plus className="mr-2 h-4 w-4" /> Criar Post
+            </Link>
+          </Button>
+        )}
       </div>
       
       <div className="flex overflow-x-auto pb-2 gap-2 scrollbar-hide">
