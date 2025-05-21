@@ -1,9 +1,18 @@
-
 import axios from 'axios';
 
 // Configurações da API
 const API_BASE_URL = 'https://api-publica.datajud.cnj.jus.br';
-const API_KEY = import.meta.env.VITE_DATAJUD_API_KEY || 'APIKey cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw==';
+
+// Determine API Key and log
+const FALLBACK_API_KEY_VALUE = 'cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw=='; // Value only
+let VITE_KEY_VALUE = import.meta.env.VITE_DATAJUD_API_KEY;
+let IS_FALLBACK = false;
+if (!VITE_KEY_VALUE) {
+    VITE_KEY_VALUE = FALLBACK_API_KEY_VALUE;
+    IS_FALLBACK = true;
+}
+const AUTH_HEADER_STRING = `APIKey ${VITE_KEY_VALUE}`;
+console.log(`JurisprudenciaService: Using API Key ending with: ...${VITE_KEY_VALUE.slice(-10)}. Fallback: ${IS_FALLBACK}. Ensure VITE_DATAJUD_API_KEY is set if fallback is true.`);
 
 // Mapeamento de tribunais para aliases na API
 const TRIBUNAL_ALIASES: Record<string, string> = {
@@ -222,7 +231,7 @@ const searchInTribunal = async (
     try {
       const response = await axios.post(url, payload, {
         headers: {
-          'Authorization': `APIKey ${API_KEY}`,
+          'Authorization': AUTH_HEADER_STRING,
           'Content-Type': 'application/json'
         },
         timeout: options.timeout
@@ -382,11 +391,12 @@ export const checkDataJudApiStatus = async (): Promise<{ online: boolean, detail
     
     const response = await axios.get(`${API_BASE_URL}/${alias}`, {
       headers: {
-        'Authorization': `APIKey ${API_KEY}`
+        'Authorization': AUTH_HEADER_STRING
       },
       timeout: 5000
     });
     
+    console.log('checkDataJudApiStatus success:', { online: response.status === 200, status: response.status, details: response.data });
     return {
       online: response.status === 200,
       details: {
@@ -395,6 +405,7 @@ export const checkDataJudApiStatus = async (): Promise<{ online: boolean, detail
       }
     };
   } catch (error: any) {
+    console.error('checkDataJudApiStatus error:', { message: error.message, status: error.response?.status, code: error.code, responseData: error.response?.data });
     return {
       online: false,
       details: {

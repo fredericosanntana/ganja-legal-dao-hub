@@ -124,8 +124,9 @@ const Jurisprudencia = () => {
   // Verificar status da API ao carregar o componente
   useEffect(() => {
     const checkApiStatus = async () => {
-      const status = await checkDataJudApiStatus();
-      setApiStatus(status.online ? 'online' : 'offline');
+      const statusResult = await checkDataJudApiStatus();
+      console.log('Periodic API Status Check (Jurisprudencia.tsx):', JSON.stringify(statusResult, null, 2));
+      setApiStatus(statusResult.online ? 'online' : 'offline');
     };
     
     checkApiStatus();
@@ -150,6 +151,7 @@ const Jurisprudencia = () => {
       if (activeTab === "datajud") {
         // Verificar status da API antes de fazer a busca
         const apiStatusCheck = await checkDataJudApiStatus();
+        console.log('API Status Check inside handleSearch (Jurisprudencia.tsx):', JSON.stringify(apiStatusCheck, null, 2));
         setApiStatus(apiStatusCheck.online ? 'online' : 'offline');
         
         if (!apiStatusCheck.online) {
@@ -173,9 +175,11 @@ const Jurisprudencia = () => {
           classeProcessual: searchParams.classeProcessual || undefined,
           orgaoJulgador: searchParams.orgaoJulgador || undefined
         };
+        console.log('Searching DataJud with params (Jurisprudencia.tsx):', JSON.stringify(params, null, 2));
         
         // Realizar a busca
         const res = await searchDataJud(searchParams.termo, params);
+        console.log('searchDataJud response in handleSearch (Jurisprudencia.tsx):', JSON.stringify(res, null, 2));
         
         if (res.success && res.data.length > 0) {
           setResultSource('api');
