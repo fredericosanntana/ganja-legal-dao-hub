@@ -76,7 +76,7 @@ const EnergyParameters: React.FC<EnergyParametersProps> = ({
                 </Label>
                 <div className="flex gap-2">
                   <Select
-                    value={equipment.name}
+                    value={equipment.name || ""}
                     onValueChange={(value) => {
                       updateEquipment(equipment.id, "name", value);
                       const selectedEquipment = COMMON_EQUIPMENT.find(
@@ -90,18 +90,6 @@ const EnergyParameters: React.FC<EnergyParametersProps> = ({
                         );
                       }
                     }}
-<<<<<<< HEAD
-                    className="w-full p-2 border rounded-md"
-                    key={`select-${equipment.id}`}
-                  >
-                    <option value="">Selecione ou digite</option>
-                    {COMMON_EQUIPMENT.map((item) => (
-                      <option key={`${equipment.id}-${item.name}`} value={item.name}>
-                        {item.name} ({item.power}W)
-                      </option>
-                    ))}
-                  </select>
-=======
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione um equipamento" />
@@ -114,7 +102,6 @@ const EnergyParameters: React.FC<EnergyParametersProps> = ({
                       ))}
                     </SelectContent>
                   </Select>
->>>>>>> 39556299c91df8adebf07e417a994abad53223f0
                   <Button
                     variant="ghost"
                     size="icon"
