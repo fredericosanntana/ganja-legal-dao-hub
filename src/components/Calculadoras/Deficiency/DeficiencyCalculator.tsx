@@ -64,7 +64,7 @@ const DeficiencyCalculator: React.FC = () => {
       title="Identificador de Deficiências"
       description="Identifique possíveis deficiências nutricionais com base nos sintomas observados"
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
         {/* Parâmetros */}
         <DeficiencyParameters
           selectedSymptoms={selectedSymptoms}
