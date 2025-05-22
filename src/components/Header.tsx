@@ -1,7 +1,8 @@
+
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
-import { Menu, X, BookOpen, Calculator, FileText, Users } from 'lucide-react';
+import { Menu, X, BookOpen, Calculator, FileText, Users, Leaf } from 'lucide-react';
 import Logo from './Logo';
 
 const Header = () => {
