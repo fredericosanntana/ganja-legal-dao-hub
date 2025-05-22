@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"; // ajuste conforme seu projeto
 import { Droplet, Sun, Thermometer, FlaskConical, AlertTriangle, Sprout } from "lucide-react"; // ícones exemplo
 
 const Calculadoras = () => {
-  const [activeCalculator, setActiveCalculator] = useState<string | null>(null);
+  const [activeCalculator, setActiveCalculator] = useState<string>("vpd");
 
   const calculators = [
     { id: "vpd", name: "VPD", icon: <Thermometer /> },
