@@ -41,7 +41,7 @@ const convocacaoDaoContent = `
     <p>A participação é simples e direta, refletindo nosso compromisso com a acessibilidade:</p>
     <ol>
         <li><strong>Acesse a Área de Membros:</strong> Faça login na sua conta na plataforma GanjaDAO.</li>
-        <li><strong>Navegue até a Seção \"Governança\" ou \"Votações\":</strong> Você encontrará um link destacado para a votação atual.</li>
+        <li><strong>Navegue até a Seção \"Votações\":</strong> Você encontrará um link destacado para a votação atual.</li>
         <li><strong>Leia os Detalhes de Cada Proposta:</strong> Embora resumidas aqui, na plataforma você encontrará informações mais detalhadas sobre cada opção, incluindo estimativas de cronograma e desafios.</li>
         <li><strong>Vote na Sua Proposta Preferida:</strong> Cada membro tem direito a um voto. Escolha com consciência, pensando no que trará maior benefício para a comunidade como um todo.</li>
     </ol>
@@ -50,10 +50,10 @@ const convocacaoDaoContent = `
     <div class="calendario-dao">
         <h3>Cronograma da Votação:</h3>
         <ul>
-            <li><strong>Período de Votação:</strong> De [Data de Início] a [Data de Término] – Fique atento aos prazos!</li>
-            <li><strong>Apuração dos Votos:</strong> [Data da Apuração]</li>
-            <li><strong>Anúncio da Proposta Vencedora:</strong> [Data do Anúncio] – Será divulgado em nossos canais oficiais e na plataforma.</li>
-            <li><strong>Início do Desenvolvimento da Missão Escolhida:</strong> [Previsão de Início]</li>
+            <li><strong>Período de Votação:</strong> De 20/05/2025</strong>  a 20/06/2025</strong> – Fique atento aos prazos!</li>
+            <li><strong>Apuração dos Votos:</strong> 21/06/2025</strong> </li>
+            <li><strong>Anúncio da Proposta Vencedora:</strong> 21/06/2025</strong> – Será divulgado em nossos canais oficiais e na plataforma.</li>
+            <li><strong>Início do Desenvolvimento da Missão Escolhida:</strong> 28/06/2025</strong> </li>
         </ul>
         <p><em>(Nota: As datas acima são placeholders e seriam preenchidas com as informações reais da campanha de votação.)</em></p>
     </div>
