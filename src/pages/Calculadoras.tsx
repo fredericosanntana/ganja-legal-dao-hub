@@ -6,8 +6,9 @@ import DLICalculator from "@/components/Calculadoras/DLI/DLICalculator";
 import ECFlushCalculator from "@/components/Calculadoras/ECFlush/ECFlushCalculator";
 import DeficiencyCalculator from "@/components/Calculadoras/Deficiency/DeficiencyCalculator";
 import NutrientsCalculator from "@/components/Calculadoras/Nutrients/NutrientsCalculator";
+import EnergyCalculator from "@/components/Calculadoras/Energy/EnergyCalculator";
 import { Button } from "@/components/ui/button"; // ajuste conforme seu projeto
-import { Droplet, Sun, Thermometer, FlaskConical, AlertTriangle, Sprout } from "lucide-react"; // ícones exemplo
+import { Droplet, Sun, Thermometer, FlaskConical, AlertTriangle, Sprout, HousePlug } from "lucide-react"; // ícones exemplo
 
 const Calculadoras = () => {
   const [activeCalculator, setActiveCalculator] = useState<string>("vpd");
@@ -19,6 +20,7 @@ const Calculadoras = () => {
     { id: "ec-flush", name: "EC/Flush", icon: <FlaskConical /> },
     { id: "deficiency", name: "Deficiências", icon: <AlertTriangle /> },
     { id: "nutrients", name: "Nutrientes", icon: <Sprout /> },
+    { id: "energy", name: "Energia", icon: <HousePlug /> },
   ];
 
   return (
@@ -46,6 +48,7 @@ const Calculadoras = () => {
         {activeCalculator === "ec-flush" && <ECFlushCalculator />}
         {activeCalculator === "deficiency" && <DeficiencyCalculator />}
         {activeCalculator === "nutrients" && <NutrientsCalculator />}
+        {activeCalculator === "energy" && <EnergyCalculator />}
       </div>
     </Layout>
   );
