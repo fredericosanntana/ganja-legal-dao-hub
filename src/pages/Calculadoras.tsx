@@ -7,6 +7,7 @@ import ECFlushCalculator from "@/components/Calculadoras/ECFlush/ECFlushCalculat
 import DeficiencyCalculator from "@/components/Calculadoras/Deficiency/DeficiencyCalculator";
 import NutrientsCalculator from "@/components/Calculadoras/Nutrients/NutrientsCalculator";
 import EnergyCalculator from "@/components/Calculadoras/Energy/EnergyCalculator";
+import CECCalculator from "@/components/Calculadoras/CEC/CECCalculator";
 import { Button } from "@/components/ui/button"; // ajuste conforme seu projeto
 import { Droplet, Sun, Thermometer, FlaskConical, AlertTriangle, Sprout, HousePlug } from "lucide-react"; // ícones exemplo
 
@@ -21,6 +22,7 @@ const Calculadoras = () => {
     { id: "deficiency", name: "Deficiências", icon: <AlertTriangle /> },
     { id: "nutrients", name: "Nutrientes", icon: <Sprout /> },
     { id: "energy", name: "Energia", icon: <HousePlug /> },
+    { id: "cec", name: "CEC", icon: <HousePlug /> },
   ];
 
   return (
@@ -49,6 +51,7 @@ const Calculadoras = () => {
         {activeCalculator === "deficiency" && <DeficiencyCalculator />}
         {activeCalculator === "nutrients" && <NutrientsCalculator />}
         {activeCalculator === "energy" && <EnergyCalculator />}
+        {activeCalculator === "cec" && <CECCalculator />}
       </div>
     </Layout>
   );
