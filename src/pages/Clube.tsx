@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, Users, Vote, Crown } from "lucide-react";
@@ -77,7 +78,7 @@ const Clube = () => {
               </CardContent>
               <CardFooter>
                 <Button variant="outline" className="w-full" asChild>
-                  <Link to={isAuthenticated ? "/clube/iniciativas" : "/clube/votacoes"}>
+                  <Link to={isAuthenticated ? "/clube/iniciativas" : "/conteudo/convocacao-dao"}>
                     <Vote className="mr-2 h-5 w-5" />
                     Ver Votações Ativas
                   </Link>
