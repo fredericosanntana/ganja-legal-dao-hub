@@ -1,8 +1,8 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
-import { Menu, X, Leaf, BookOpen, Calculator, FileText, Users } from 'lucide-react';
+import { Menu, X, BookOpen, Calculator, FileText, Users } from 'lucide-react';
+import Logo from './Logo';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,14 +14,7 @@ const Header = () => {
   return (
     <header className="w-full bg-background/90 backdrop-blur-sm border-b border-border sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-ganja-400 to-activist-700 flex items-center justify-center">
-            <Leaf className="h-5 w-5 text-white" />
-          </div>
-          <span className="font-heading font-bold text-xl text-foreground hidden sm:inline-block">
-            GanjaDAO
-          </span>
-        </Link>
+        <Logo />
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-1">

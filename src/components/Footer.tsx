@@ -1,6 +1,7 @@
 
 import { Link } from 'react-router-dom';
-import { Leaf, Twitter, Instagram, Github } from 'lucide-react';
+import { Twitter, Instagram, Github } from 'lucide-react';
+import Logo from './Logo';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -10,14 +11,12 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-ganja-400 to-activist-700 flex items-center justify-center">
-                <Leaf className="h-5 w-5 text-white" />
-              </div>
-              <span className="font-heading font-bold text-xl">GanjaDAO</span>
-            </div>
+            <Logo size="lg" />
             <p className="text-sm text-muted-foreground">
               Iniciativa LegalTech ativista para proteção e empoderamento de cultivadores de Cannabis no Brasil através de educação jurídica e ferramentas legais.
+            </p>
+            <p className="text-sm font-semibold text-primary">
+              Nós que plantamos
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
