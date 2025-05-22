@@ -60,11 +60,10 @@ const EnergyCalculator: React.FC = () => {
   };
 
   const updateEquipment = (id: string, field: keyof EquipmentItem, value: any) => {
-    setEquipmentList(
-      equipmentList.map(item =>
-        item.id === id ? { ...item, [field]: value } : item
-      )
+    const updatedList = equipmentList.map(item =>
+      item.id === id ? { ...item, [field]: value } : item
     );
+    setEquipmentList([...updatedList]);
   };
 
   const handleCalculate = () => {

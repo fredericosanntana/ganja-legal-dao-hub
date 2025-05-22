@@ -84,10 +84,11 @@ const EnergyParameters: React.FC<EnergyParametersProps> = ({
                       }
                     }}
                     className="w-full p-2 border rounded-md"
+                    key={`select-${equipment.id}`}
                   >
                     <option value="">Selecione ou digite</option>
                     {COMMON_EQUIPMENT.map((item) => (
-                      <option key={item.name} value={item.name}>
+                      <option key={`${equipment.id}-${item.name}`} value={item.name}>
                         {item.name} ({item.power}W)
                       </option>
                     ))}
