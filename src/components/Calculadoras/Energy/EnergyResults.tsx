@@ -59,8 +59,8 @@ const EnergyResults: React.FC<EnergyResultsProps> = ({
           </thead>
           <tbody>
             {results.equipmentBreakdown.map((item, index) => (
-              <tr key={index} className="border-b">
-                <td className="p-2">{item.name}</td>
+              <tr key={`result-item-${index}`} className="border-b">
+                <td className="p-2">{item.name || "Equipamento sem nome"}</td>
                 <td className="p-2 text-right">{item.consumption.toFixed(2)}</td>
                 <td className="p-2 text-right">{item.cost.toFixed(2)}</td>
               </tr>

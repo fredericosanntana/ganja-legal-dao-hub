@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Zap } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import CalculatorCard from "../common/CalculatorCard";
@@ -17,7 +16,8 @@ import {
 } from "./energyUtils";
 
 const EnergyCalculator: React.FC = () => {
-  const [equipmentList, setEquipmentList] = useState<EquipmentItem[]>([
+  // Usar useState com função para garantir que o ID seja gerado apenas uma vez na inicialização
+  const [equipmentList, setEquipmentList] = useState<EquipmentItem[]>(() => [
     {
       id: uuidv4(),
       name: "LED 600W",
@@ -41,10 +41,13 @@ const EnergyCalculator: React.FC = () => {
   const [results, setResults] = useState<EnergyCalculationResult | null>(null);
   const [chartData, setChartData] = useState<any>(null);
   const [efficiencyTips, setEfficiencyTips] = useState<string[]>([]);
+  // Estado para forçar re-renderização
+  const [updateCounter, setUpdateCounter] = useState<number>(0);
 
-  const addEquipment = () => {
-    setEquipmentList([
-      ...equipmentList,
+  // Usar useCallback para memoizar as funções e evitar re-renderizações desnecessárias
+  const addEquipment = useCallback(() => {
+    setEquipmentList(prevList => [
+      ...prevList,
       {
         id: uuidv4(),
         name: "",
@@ -54,20 +57,28 @@ const EnergyCalculator: React.FC = () => {
         quantity: 1
       }
     ]);
-  };
+    // Incrementar contador para forçar re-renderização
+    setUpdateCounter(prev => prev + 1);
+  }, []);
 
-  const removeEquipment = (id: string) => {
-    setEquipmentList(equipmentList.filter(item => item.id !== id));
-  };
+  const removeEquipment = useCallback((id: string) => {
+    setEquipmentList(prevList => prevList.filter(item => item.id !== id));
+    // Incrementar contador para forçar re-renderização
+    setUpdateCounter(prev => prev + 1);
+  }, []);
 
-  const updateEquipment = (id: string, field: keyof EquipmentItem, value: any) => {
-    const updatedList = equipmentList.map(item =>
-      item.id === id ? { ...item, [field]: value } : item
-    );
-    setEquipmentList([...updatedList]);
-  };
+  const updateEquipment = useCallback((id: string, field: keyof EquipmentItem, value: any) => {
+    setEquipmentList(prevList => {
+      const newList = prevList.map(item =>
+        item.id === id ? { ...item, [field]: value } : item
+      );
+      return [...newList]; // Criar nova referência para garantir re-renderização
+    });
+    // Incrementar contador para forçar re-renderização
+    setUpdateCounter(prev => prev + 1);
+  }, []);
 
-  const handleCalculate = () => {
+  const handleCalculate = useCallback(() => {
     const calculationResults = calculateEnergyResults(equipmentList, kwhPrice);
     const chartData = generateConsumptionChartData(calculationResults.equipmentBreakdown);
     const tips = generateEfficiencyTips(equipmentList);
@@ -76,7 +87,12 @@ const EnergyCalculator: React.FC = () => {
     setChartData(chartData);
     setEfficiencyTips(tips);
     setShowResults(true);
-  };
+  }, [equipmentList, kwhPrice]);
+
+  // Efeito para debug - remover em produção
+  useEffect(() => {
+    console.log("Equipment list updated:", equipmentList);
+  }, [equipmentList]);
 
   return (
     <CalculatorCard
@@ -95,6 +111,7 @@ const EnergyCalculator: React.FC = () => {
             kwhPrice={kwhPrice}
             setKwhPrice={setKwhPrice}
             handleCalculate={handleCalculate}
+            key={`energy-parameters-${updateCounter}`} // Forçar re-renderização
           />
         </div>
 
@@ -104,6 +121,7 @@ const EnergyCalculator: React.FC = () => {
             showResults={showResults}
             results={results}
             efficiencyTips={efficiencyTips}
+            key={`energy-results-${updateCounter}`} // Forçar re-renderização
           />
         </div>
 
@@ -112,6 +130,7 @@ const EnergyCalculator: React.FC = () => {
           <EnergyChart
             showResults={showResults}
             chartData={chartData}
+            key={`energy-chart-${updateCounter}`} // Forçar re-renderização
           />
           
           {showResults && (

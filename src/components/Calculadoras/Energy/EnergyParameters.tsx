@@ -1,18 +1,10 @@
-
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import RangeInput from "../common/RangeInput";
 import { EquipmentItem, COMMON_EQUIPMENT } from "./energyUtils";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
 
 interface EnergyParametersProps {
   equipmentList: EquipmentItem[];
@@ -33,6 +25,36 @@ const EnergyParameters: React.FC<EnergyParametersProps> = ({
   setKwhPrice,
   handleCalculate,
 }) => {
+  // Referência para forçar re-renderização
+  const forceUpdateRef = useRef(0);
+
+  // Força re-renderização quando a lista de equipamentos muda
+  useEffect(() => {
+    forceUpdateRef.current += 1;
+  }, [equipmentList]);
+
+  // Função para lidar com a mudança de equipamento
+  const handleEquipmentChange = (equipmentId: string, value: string) => {
+    // Primeiro atualiza o nome
+    updateEquipment(equipmentId, "name", value);
+    
+    // Depois atualiza a potência se encontrar o equipamento na lista
+    const selectedEquipment = COMMON_EQUIPMENT.find(
+      (item) => item.name === value
+    );
+    
+    if (selectedEquipment) {
+      // Pequeno timeout para garantir que as atualizações ocorram em sequência
+      setTimeout(() => {
+        updateEquipment(
+          equipmentId,
+          "power",
+          selectedEquipment.power
+        );
+      }, 0);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -60,13 +82,13 @@ const EnergyParameters: React.FC<EnergyParametersProps> = ({
             onClick={addEquipment}
             className="flex items-center gap-1"
           >
-            <Plus className="h-4 w-4" /> Adicionar
+            <Plus className="w-full" /> Adicionar
           </Button>
         </div>
 
         {equipmentList.map((equipment) => (
           <div
-            key={equipment.id}
+            key={`equipment-container-${equipment.id}-${forceUpdateRef.current}`}
             className="border rounded-md p-3 space-y-3"
           >
             <div className="flex justify-between items-center">
@@ -75,33 +97,23 @@ const EnergyParameters: React.FC<EnergyParametersProps> = ({
                   Equipamento
                 </Label>
                 <div className="flex gap-2">
-                  <Select
-                    value={equipment.name || ""}
-                    onValueChange={(value) => {
-                      updateEquipment(equipment.id, "name", value);
-                      const selectedEquipment = COMMON_EQUIPMENT.find(
-                        (item) => item.name === value
-                      );
-                      if (selectedEquipment) {
-                        updateEquipment(
-                          equipment.id,
-                          "power",
-                          selectedEquipment.power
-                        );
-                      }
-                    }}
+                  <select
+                    id={`equipment-name-${equipment.id}`}
+                    value={equipment.name}
+                    onChange={(e) => handleEquipmentChange(equipment.id, e.target.value)}
+                    className="w-full p-2 border rounded-md"
+                    key={`select-${equipment.id}-${forceUpdateRef.current}`}
                   >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione um equipamento" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {COMMON_EQUIPMENT.map((item) => (
-                        <SelectItem key={item.name} value={item.name}>
-                          {item.name} ({item.power}W)
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    <option value="">Selecione ou digite</option>
+                    {COMMON_EQUIPMENT.map((item) => (
+                      <option 
+                        key={`${equipment.id}-${item.name}-${forceUpdateRef.current}`} 
+                        value={item.name}
+                      >
+                        {item.name} ({item.power}W)
+                      </option>
+                    ))}
+                  </select>
                   <Button
                     variant="ghost"
                     size="icon"
