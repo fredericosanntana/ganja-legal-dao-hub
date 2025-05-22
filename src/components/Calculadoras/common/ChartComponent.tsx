@@ -1,9 +1,10 @@
+
 import React from "react";
 import { Chart, ChartData, ChartOptions } from "chart.js/auto";
 import { useEffect, useRef } from "react";
 
 interface ChartComponentProps {
-  type: "line" | "bar";
+  type: "line" | "bar" | "radar";
   data: ChartData;
   options?: ChartOptions;
   height?: number;
