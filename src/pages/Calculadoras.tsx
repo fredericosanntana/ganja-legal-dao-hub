@@ -10,7 +10,7 @@ import NutrientsCalculator from "@/components/Calculadoras/Nutrients/NutrientsCa
 import EnergyCalculator from "@/components/Calculadoras/Energy/EnergyCalculator";
 import CECCalculator from "@/components/Calculadoras/CEC/CECCalculator";
 import { Button } from "@/components/ui/button"; // ajuste conforme seu projeto
-import { Droplet, Sun, Thermometer, FlaskConical, AlertTriangle, Sprout, HousePlug } from "lucide-react"; // ícones exemplo
+import { Droplet, Sun, Thermometer, FlaskConical, AlertTriangle, Sprout, HousePlug, LeafyGreen } from "lucide-react"; // ícones exemplo
 
 const Calculadoras = () => {
   const [activeCalculator, setActiveCalculator] = useState<string>("vpd");
@@ -23,7 +23,7 @@ const Calculadoras = () => {
     { id: "deficiency", name: "Deficiências", icon: <AlertTriangle /> },
     { id: "nutrients", name: "Nutrientes", icon: <Sprout /> },
     { id: "energy", name: "Energia", icon: <HousePlug /> },
-    { id: "cec", name: "CEC", icon: <Sprout /> },
+    { id: "cec", name: "Expectativa de Cultivo", icon: <LeafyGreen /> },
   ];
 
   return (
