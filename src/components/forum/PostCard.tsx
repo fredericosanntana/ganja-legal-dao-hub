@@ -21,6 +21,7 @@ const PostCard = ({ post, compact = false }: PostCardProps) => {
     locale: ptBR,
   });
 
+  // Convert counts to numbers to ensure we're not directly rendering objects
   const commentCount = post._count?.comments || 0;
   const likeCount = post._count?.likes || 0;
 

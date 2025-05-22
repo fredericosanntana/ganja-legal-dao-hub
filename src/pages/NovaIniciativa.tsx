@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "sonner";
@@ -7,12 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { createInitiative } from "@/services/initiativeService";
+import { useInitiatives } from "@/hooks/use-initiatives";
 
 const NovaIniciativa = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { refreshInitiatives } = useInitiatives();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,6 +25,8 @@ const NovaIniciativa = () => {
       const newInitiative = await createInitiative(title, description);
       if (newInitiative) {
         toast.success('Iniciativa criada com sucesso!');
+        // Refresh the initiatives list to include the new one
+        await refreshInitiatives();
         navigate('/clube/iniciativas');
       } else {
         toast.error('Falha ao criar iniciativa.');

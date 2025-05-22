@@ -1,18 +1,22 @@
 
 import { Link } from "react-router-dom";
-import { BookOpen, MessageSquare, ThumbsUp, Vote } from "lucide-react";
+import { BookOpen, MessageSquare, ThumbsUp, Vote, Plus } from "lucide-react";
 
 import Layout from "@/components/Layout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
 import { usePosts } from "@/hooks/use-forum";
+import { useInitiatives } from "@/hooks/use-initiatives";
 import PostsList from "@/components/forum/PostsList";
 
 const Comunidade = () => {
   const { user, isAuthenticated } = useAuth();
-  const { data: posts, isLoading } = usePosts();
+  const { data: posts, isLoading: postsLoading } = usePosts();
+  const { initiatives, isLoading: initiativesLoading } = useInitiatives();
+
+  console.log("Comunidade page rendering with posts:", posts);
 
   return (
     <Layout>
@@ -24,6 +28,16 @@ const Comunidade = () => {
               Discuta, proponha e vote em iniciativas da comunidade GanjaDAO
             </p>
           </div>
+          
+          {isAuthenticated && (
+            <div className="flex gap-2">
+              <Button asChild>
+                <Link to="/clube/comunidade/novo">
+                  <Plus className="mr-2 h-4 w-4" /> Criar Post
+                </Link>
+              </Button>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -34,10 +48,14 @@ const Comunidade = () => {
                   <MessageSquare className="mr-2 h-4 w-4" /> 
                   Posts
                 </TabsTrigger>
+                <TabsTrigger value="iniciativas" className="flex items-center">
+                  <Vote className="mr-2 h-4 w-4" /> 
+                  Iniciativas
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="posts">
-                <PostsList posts={posts || []} isLoading={isLoading} />
+                <PostsList posts={posts || []} isLoading={postsLoading} />
               </TabsContent>
               
               <TabsContent value="iniciativas">
@@ -54,16 +72,38 @@ const Comunidade = () => {
                     )}
                   </div>
                   
-                  <Card>
-                    <CardContent className="py-6">
-                      <Link to="/clube/iniciativas" className="block">
-                        <Button variant="outline" className="w-full">
-                          <Vote className="mr-2 h-4 w-4" />
-                          Ver todas as iniciativas
-                        </Button>
-                      </Link>
-                    </CardContent>
-                  </Card>
+                  {initiativesLoading ? (
+                    <p>Carregando iniciativas...</p>
+                  ) : initiatives && initiatives.length > 0 ? (
+                    <Card>
+                      <CardContent className="py-6 space-y-4">
+                        {initiatives.slice(0, 3).map((initiative) => (
+                          <Link key={initiative.id} to={`/clube/iniciativas/${initiative.id}`} className="block hover:bg-muted p-2 rounded-md transition-colors">
+                            <h3 className="font-medium">{initiative.title}</h3>
+                            <p className="text-sm text-muted-foreground line-clamp-1">{initiative.description}</p>
+                          </Link>
+                        ))}
+                        <Link to="/clube/iniciativas" className="block">
+                          <Button variant="outline" className="w-full">
+                            <Vote className="mr-2 h-4 w-4" />
+                            Ver todas as iniciativas
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <Card>
+                      <CardContent className="py-6">
+                        <p className="text-muted-foreground text-center mb-4">Nenhuma iniciativa ativa no momento</p>
+                        <Link to="/clube/iniciativas" className="block">
+                          <Button variant="outline" className="w-full">
+                            <Vote className="mr-2 h-4 w-4" />
+                            Ver todas as iniciativas
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  )}
                 </div>
               </TabsContent>
             </Tabs>

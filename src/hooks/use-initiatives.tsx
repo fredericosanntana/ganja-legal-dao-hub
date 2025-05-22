@@ -11,24 +11,24 @@ export const useInitiatives = () => {
   const [error, setError] = useState<Error | null>(null);
   const { refreshUser } = useAuth();
 
-  useEffect(() => {
-    const fetchInitiatives = async () => {
-      setIsLoading(true);
-      try {
-        const data = await getInitiatives();
-        setInitiatives(data);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error("Failed to fetch initiatives"));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchInitiatives();
+  const fetchInitiatives = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await getInitiatives();
+      setInitiatives(data);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error("Failed to fetch initiatives"));
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  return { initiatives, isLoading, error };
+  useEffect(() => {
+    fetchInitiatives();
+  }, [fetchInitiatives]);
+
+  return { initiatives, isLoading, error, refreshInitiatives: fetchInitiatives };
 };
 
 // Hook for getting a single initiative and voting on it
@@ -38,24 +38,24 @@ export const useInitiative = (id: string | undefined) => {
   const [error, setError] = useState<Error | null>(null);
   const { refreshUser } = useAuth();
 
-  useEffect(() => {
-    const fetchInitiative = async () => {
-      if (!id) return;
-      
-      setIsLoading(true);
-      try {
-        const data = await getInitiativeById(id);
-        setInitiative(data);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error("Failed to fetch initiative"));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchInitiative();
+  const fetchInitiative = useCallback(async () => {
+    if (!id) return;
+    
+    setIsLoading(true);
+    try {
+      const data = await getInitiativeById(id);
+      setInitiative(data);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error("Failed to fetch initiative"));
+    } finally {
+      setIsLoading(false);
+    }
   }, [id]);
+
+  useEffect(() => {
+    fetchInitiative();
+  }, [fetchInitiative]);
 
   const vote = useCallback(async (creditsSpent: number) => {
     if (!id) {
@@ -78,18 +78,13 @@ export const useInitiative = (id: string | undefined) => {
     }
   }, [id, refreshUser]);
 
-  // Since `removeVoteFromInitiative` function doesn't exist in the module,
-  // we'll need to implement it or remove this functionality
   const removeVote = useCallback(async () => {
     if (!id) {
       throw new Error("Initiative ID is required");
     }
 
     try {
-      // Since there's no removeVoteFromInitiative function, we'll comment this out
-      // await removeVoteFromInitiative(id);
-      
-      // For now, just refresh the data
+      // For now, just refresh the data since removeVoteFromInitiative isn't implemented
       const updatedInitiative = await getInitiativeById(id);
       setInitiative(updatedInitiative);
       
@@ -102,5 +97,5 @@ export const useInitiative = (id: string | undefined) => {
     }
   }, [id, refreshUser]);
 
-  return { initiative, isLoading, error, vote, removeVote };
+  return { initiative, isLoading, error, vote, removeVote, refreshInitiative: fetchInitiative };
 };

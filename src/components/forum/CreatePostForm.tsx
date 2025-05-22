@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { POST_CATEGORIES } from "@/types/forum";
 import { useCreatePost } from "@/hooks/use-forum";
 import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   title: z.string().min(5, {
@@ -46,17 +47,30 @@ const CreatePostForm = () => {
 
   const onSubmit = (values: FormValues) => {
     if (!user) {
+      toast.error("Você precisa estar logado para criar um post");
       return;
     }
 
-    createPost({
+    console.log("Submitting post:", {
       title: values.title,
       content: values.content,
       category: values.category,
       user_id: user.id,
+    });
+
+    createPost({
+      title: values.title,
+      content: values.content,
+      category: values.category || "geral",
+      user_id: user.id,
     }, {
       onSuccess: () => {
+        toast.success("Post criado com sucesso!");
         navigate("/clube/comunidade");
+      },
+      onError: (error) => {
+        console.error("Error creating post:", error);
+        toast.error("Erro ao criar post: " + error.message);
       }
     });
   };

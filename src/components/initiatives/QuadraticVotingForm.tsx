@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { useAuth } from '@/hooks/use-auth';
 import { toast } from 'sonner';
-import { voteOnInitiative } from '@/services/initiativeService';
+import { voteOnInitiative } from '@/services/voteService';
 
 export type QuadraticVotingFormProps = {
   initiativeId: string;
@@ -113,6 +113,5 @@ const QuadraticVotingForm: React.FC<QuadraticVotingFormProps> = ({
   );
 };
 
-// Export the component as both default and named export
 export default QuadraticVotingForm;
 export { QuadraticVotingForm };

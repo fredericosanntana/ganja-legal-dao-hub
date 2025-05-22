@@ -11,21 +11,28 @@ interface PostData {
 
 export const createAuthServicePost = async (postData: PostData) => {
   try {
-    const { data: user } = await supabase.auth.getUser();
-    if (!user) {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData || !userData.user) {
       toast.error('Authentication failed. Please login again.');
       return null;
     }
 
+    console.log('Creating post with data:', {
+      title: postData.title,
+      body: postData.content,
+      slug: createSlugFromTitle(postData.title),
+      author_id: userData.user.id,
+      category: 'blog'
+    });
+
     const { data, error } = await supabase
-      .from('contents')
+      .from('posts')
       .insert([
         {
           title: postData.title,
-          body: postData.content,
-          slug: createSlugFromTitle(postData.title),
-          author_id: user.user?.id,
-          category: 'blog' // Default category
+          content: postData.content,
+          category: 'geral', // Default category for forum posts
+          user_id: userData.user.id
         }
       ])
       .select()
@@ -38,6 +45,7 @@ export const createAuthServicePost = async (postData: PostData) => {
     }
 
     toast.success('Post created successfully!');
+    console.log('Post created successfully:', data);
     return data;
   } catch (error) {
     console.error('Exception creating post:', error);

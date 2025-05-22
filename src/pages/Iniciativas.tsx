@@ -4,11 +4,12 @@ import { Link, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Vote, HelpCircle } from "lucide-react";
+import { Plus, Vote, HelpCircle, RefreshCw } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useInitiatives } from "@/hooks/use-initiatives";
 import InitiativeCard from "@/components/initiatives/InitiativeCard";
 import VotingSystemExplanation from "@/components/VotingSystemExplanation";
+import { toast } from "sonner";
 import { 
   Dialog, 
   DialogContent, 
@@ -21,7 +22,7 @@ import {
 const Iniciativas = () => {
   const navigate = useNavigate();
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
-  const { initiatives, isLoading: initiativesLoading } = useInitiatives();
+  const { initiatives, isLoading: initiativesLoading, refreshInitiatives } = useInitiatives();
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -45,6 +46,11 @@ const Iniciativas = () => {
 
   const openInitiatives = initiatives?.filter(i => i.status === "open") || [];
   const closedInitiatives = initiatives?.filter(i => i.status !== "open") || [];
+
+  const handleRefresh = () => {
+    refreshInitiatives();
+    toast.info("Atualizando lista de iniciativas...");
+  };
 
   return (
     <Layout>
@@ -110,17 +116,26 @@ const Iniciativas = () => {
                 </DialogContent>
               </Dialog>
             </div>
-            {user?.subscription && (
-              <Button asChild>
-                <Link to="/clube/iniciativas/nova">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Nova Iniciativa
-                </Link>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                onClick={handleRefresh} 
+                title="Atualizar iniciativas"
+              >
+                <RefreshCw className="h-4 w-4" />
               </Button>
-            )}
+              {user?.subscription && (
+                <Button asChild>
+                  <Link to="/clube/iniciativas/nova">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Nova Iniciativa
+                  </Link>
+                </Button>
+              )}
+            </div>
           </div>
 
-          {/* Add the new explanation component */}
+          {/* Add the explanation component */}
           <VotingSystemExplanation />
 
           <div className="mb-8">

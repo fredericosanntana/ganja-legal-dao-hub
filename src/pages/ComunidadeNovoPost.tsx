@@ -1,5 +1,5 @@
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 import Layout from "@/components/Layout";
@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import CreatePostForm from "@/components/forum/CreatePostForm";
 import { useAuth } from "@/hooks/use-auth";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 
 const ComunidadeNovoPost = () => {
   const { isAuthenticated, isLoading } = useAuth();

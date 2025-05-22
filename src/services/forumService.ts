@@ -11,7 +11,7 @@ export const getAllPosts = async (): Promise<Post[]> => {
 // Get all posts - implementation
 export const getPosts = async (): Promise<Post[]> => {
   // Using mock data for now
-  const useMockData = true;
+  const useMockData = false; // Set to false to use real data from the database
   
   if (useMockData) {
     // Return mock posts - ensure each post has properly formatted _count
@@ -22,13 +22,14 @@ export const getPosts = async (): Promise<Post[]> => {
   }
 
   try {
+    console.log('Fetching posts from Supabase');
     const { data, error } = await supabase
       .from('posts')
       .select(`
         *,
         author:user_id(id, username),
-        comments(count),
-        likes(count)
+        comments:comments(count),
+        likes:post_likes(count)
       `)
       .order('created_at', { ascending: false });
 
@@ -38,14 +39,22 @@ export const getPosts = async (): Promise<Post[]> => {
       return [];
     }
 
+    console.log('Posts fetched successfully:', data);
+    
     // Transform the data to match our Post type
-    return data.map((post: any) => ({
+    // Make sure _count contains simple numbers, not objects
+    const formattedPosts = data.map((post: any) => ({
       ...post,
       _count: { 
-        comments: post._count?.comments || 0,
-        likes: post._count?.likes || 0
+        comments: typeof post.comments === 'number' ? post.comments : 
+                 (post.comments && typeof post.comments === 'object' ? post.comments.count || 0 : 0),
+        likes: typeof post.likes === 'number' ? post.likes : 
+              (post.likes && typeof post.likes === 'object' ? post.likes.count || 0 : 0)
       }
     })) as Post[];
+    
+    console.log('Formatted posts:', formattedPosts);
+    return formattedPosts;
   } catch (error) {
     console.error('Exception fetching posts:', error);
     toast.error('Erro inesperado ao carregar posts');
@@ -139,28 +148,31 @@ export const createPost = async (data: {
   category?: string;
 }): Promise<Post | null> => {
   try {
+    console.log('Creating post in Supabase:', data);
+    
     const { data: post, error } = await supabase
       .from('posts')
       .insert({
         title: data.title,
         content: data.content,
         user_id: data.user_id,
-        category: data.category
+        category: data.category || 'geral'
       })
-      .select()
+      .select('*, author:user_id(id, username)')
       .single();
 
     if (error) {
       console.error('Error creating post:', error);
-      toast.error('Falha ao criar post');
+      toast.error('Falha ao criar post: ' + error.message);
       throw error;
     }
 
+    console.log('Post created successfully:', post);
     toast.success('Post criado com sucesso!');
-    return post;
-  } catch (error) {
+    return post as Post;
+  } catch (error: any) {
     console.error('Exception creating post:', error);
-    throw error;
+    throw new Error('Erro ao criar post: ' + (error.message || 'Erro desconhecido'));
   }
 };
 

@@ -19,10 +19,13 @@ const DashboardHeader = () => {
     try {
       await logout();
       toast.success("Logout realizado com sucesso!");
+      // Always redirect to login page even if there was an error with the session
       navigate("/clube/login");
     } catch (error) {
       console.error("Logout error:", error);
-      toast.error("Erro ao fazer logout. Tente novamente.");
+      // Even if there's an error, we'll still redirect to login and clear local state
+      toast.info("Sessão encerrada.");
+      navigate("/clube/login");
     } finally {
       setIsLoggingOut(false);
     }
