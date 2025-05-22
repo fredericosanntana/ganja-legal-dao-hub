@@ -1,5 +1,6 @@
+
 import React, { useState } from "react";
-import { Plant } from "lucide-react";
+import { Sprout } from "lucide-react";
 import CalculatorCard from "../common/CalculatorCard";
 import CECParameters from "./CECParameters";
 import CECResults from "./CECResults";
@@ -31,7 +32,7 @@ const CECCalculator: React.FC = () => {
 
   return (
     <CalculatorCard
-      icon={Plant}
+      icon={Sprout}
       title="Calculadora de Expectativa de Cultivo (CEC)"
       description="Estime o rendimento do seu cultivo com base em parâmetros reais e obtenha uma projeção documentada para uso jurídico e organizacional."
     >

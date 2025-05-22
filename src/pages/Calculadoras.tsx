@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import Layout from "@/components/Layout";
 import VPDCalculator from "@/components/Calculadoras/VPD/VPDCalculator";
@@ -22,7 +23,7 @@ const Calculadoras = () => {
     { id: "deficiency", name: "Deficiências", icon: <AlertTriangle /> },
     { id: "nutrients", name: "Nutrientes", icon: <Sprout /> },
     { id: "energy", name: "Energia", icon: <HousePlug /> },
-    { id: "cec", name: "CEC", icon: <HousePlug /> },
+    { id: "cec", name: "CEC", icon: <Sprout /> },
   ];
 
   return (
