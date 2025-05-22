@@ -35,6 +35,8 @@ import ManualCultivadorAutonomoPage from './pages/conteudo/ManualCulvitadorAuton
 import Comunidade from './pages/Comunidade';
 import ComunidadeNovoPost from './pages/ComunidadeNovoPost';
 import ComunidadePostDetail from './pages/ComunidadePostDetail';
+import Privacidade from './pages/Privacidade';
+import Sobre from './pages/Sobre';
 
 function App() {
   return (
@@ -73,6 +75,8 @@ function App() {
         <Route path="/origem-genetica" element={<OrigemGenetica />} />
         <Route path="/habeas-corpus-preventivo" element={<HabeasCorpusPage />} />
         <Route path="/jurisprudencia" element={<Jurisprudencia />} />
+        <Route path="/privacidade" element={<Privacidade />} />
+        <Route path="/sobre" element={<Sobre />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
       <Toaster richColors closeButton />
