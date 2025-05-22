@@ -55,7 +55,7 @@ const convocacaoDaoContent = `
             <li><strong>Anúncio da Proposta Vencedora:</strong> 21/06/2025</strong> – Será divulgado em nossos canais oficiais e na plataforma.</li>
             <li><strong>Início do Desenvolvimento da Missão Escolhida:</strong> 28/06/2025</strong> </li>
         </ul>
-        <p><em>(Nota: As datas acima são placeholders e seriam preenchidas com as informações reais da campanha de votação.)</em></p>
+        
     </div>
 
     <h2>Seu Voto Constrói o Futuro da GanjaDAO!</h2>
