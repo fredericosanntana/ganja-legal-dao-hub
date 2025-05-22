@@ -1,10 +1,11 @@
+
 import React from "react";
 import ChartComponent from "../common/ChartComponent";
 import { ChartData, ChartOptions } from "chart.js/auto";
 
 interface EnergyChartProps {
   showResults: boolean;
-  chartData: ChartData | null;
+  chartData: ChartData<"bar"> | null;
 }
 
 const EnergyChart: React.FC<EnergyChartProps> = ({
@@ -15,7 +16,7 @@ const EnergyChart: React.FC<EnergyChartProps> = ({
     return null;
   }
 
-  const chartOptions: ChartOptions = {
+  const chartOptions: ChartOptions<"bar"> = {
     responsive: true,
     maintainAspectRatio: false,
     scales: {

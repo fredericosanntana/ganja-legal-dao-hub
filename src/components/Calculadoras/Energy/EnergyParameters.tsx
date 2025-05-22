@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -5,6 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import RangeInput from "../common/RangeInput";
 import { EquipmentItem, COMMON_EQUIPMENT } from "./energyUtils";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
 
 interface EnergyParametersProps {
   equipmentList: EquipmentItem[];
@@ -67,14 +75,13 @@ const EnergyParameters: React.FC<EnergyParametersProps> = ({
                   Equipamento
                 </Label>
                 <div className="flex gap-2">
-                  <select
-                    id={`equipment-name-${equipment.id}`}
+                  <Select
                     value={equipment.name}
-                    onChange={(e) => {
+                    onValueChange={(value) => {
+                      updateEquipment(equipment.id, "name", value);
                       const selectedEquipment = COMMON_EQUIPMENT.find(
-                        (item) => item.name === e.target.value
+                        (item) => item.name === value
                       );
-                      updateEquipment(equipment.id, "name", e.target.value);
                       if (selectedEquipment) {
                         updateEquipment(
                           equipment.id,
@@ -83,15 +90,18 @@ const EnergyParameters: React.FC<EnergyParametersProps> = ({
                         );
                       }
                     }}
-                    className="w-full p-2 border rounded-md"
                   >
-                    <option value="">Selecione ou digite</option>
-                    {COMMON_EQUIPMENT.map((item) => (
-                      <option key={item.name} value={item.name}>
-                        {item.name} ({item.power}W)
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione um equipamento" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {COMMON_EQUIPMENT.map((item) => (
+                        <SelectItem key={item.name} value={item.name}>
+                          {item.name} ({item.power}W)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <Button
                     variant="ghost"
                     size="icon"
