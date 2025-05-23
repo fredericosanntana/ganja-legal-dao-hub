@@ -10,14 +10,30 @@ const app = express();
 const port = process.env.PORT || 3001; // Porta para o servidor proxy
 const datajudApiKey = process.env.DATAJUD_API_KEY; // Definindo a variável de API key
 
-// Configuração do CORS mais permissiva para aceitar requisições de qualquer origem
+// Get the allowed origins from environment or use defaults
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',') 
+  : ['http://localhost:8080', 'https://1a63a5bf-1914-4ef5-bb47-b55309266491.lovableproject.com'];
+
+// Configuração do CORS mais permissiva para aceitar requisições de origens específicas
 const corsOptions = {
-  origin: '*', // Permite requisições de qualquer origem durante desenvolvimento
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
+      callback(null, true);
+    } else {
+      console.log(`Origin ${origin} not allowed by CORS`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
   credentials: true,
   optionsSuccessStatus: 200
 };
+
 app.use(cors(corsOptions));
 
 // Middleware para parsear JSON no corpo das requisições
@@ -41,6 +57,7 @@ app.post('/api/datajud/search/:tribunalAlias', async (req, res) => {
 
   console.log(`Proxying request for ${tribunalAlias} to: ${datajudApiUrl}`);
   console.log('Payload:', JSON.stringify(searchPayload, null, 2)); // Adiciona log detalhado do payload
+  console.log('Origin:', req.get('origin')); // Log da origem da requisição
 
   try {
     const response = await axios.post(datajudApiUrl, searchPayload, {
@@ -84,13 +101,13 @@ app.get('/api/health', (req, res) => {
     status: 'Proxy server is running',
     apiKey: datajudApiKey ? 'API key is set' : 'API key is missing',
     timestamp: new Date().toISOString(),
-    corsOrigin: corsOptions.origin
+    allowedOrigins: allowedOrigins
   });
 });
 
 app.listen(port, () => {
   console.log(`Servidor proxy (ESM) rodando em http://localhost:${port}`);
-  console.log(`Permitindo requisições CORS de: ${corsOptions.origin}`);
+  console.log(`Permitindo requisições CORS de: ${JSON.stringify(allowedOrigins)}`);
   if (!process.env.DATAJUD_API_KEY) {
     console.warn('AVISO: Variável de ambiente DATAJUD_API_KEY não está definida!');
   } else {
