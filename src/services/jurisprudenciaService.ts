@@ -1,21 +1,11 @@
+
 import axios from 'axios';
 
-// --- MODIFICAÇÃO 1: URL Base aponta para o Proxy --- 
+// --- URL Base aponta para o Proxy --- 
 // Use uma variável de ambiente para configurar a URL do seu proxy.
 // Exemplo para Vite: VITE_PROXY_URL=http://localhost:3001/api/datajud
-// Exemplo para Create React App: REACT_APP_PROXY_URL=http://localhost:3001/api/datajud
 const PROXY_API_BASE_URL = import.meta.env.VITE_PROXY_URL || 'http://localhost:3001/api/datajud'; 
 console.log(`JurisprudenciaService: Using Proxy URL: ${PROXY_API_BASE_URL}`);
-
-// --- MODIFICAÇÃO 2: Remover completamente a lógica da API Key do Frontend --- 
-/*
-const FALLBACK_API_KEY_VALUE = '...';
-let VITE_KEY_VALUE = import.meta.env.VITE_DATAJUD_API_KEY;
-let IS_FALLBACK = false;
-if (!VITE_KEY_VALUE) { ... }
-const AUTH_HEADER_STRING = `APIKey ${VITE_KEY_VALUE}`;
-console.log(`JurisprudenciaService: Using API Key ending with: ...`);
-*/
 
 // Mapeamento de tribunais para aliases na API (mantido)
 const TRIBUNAL_ALIASES: Record<string, string> = {
@@ -38,23 +28,62 @@ const TRIBUNAL_ALIASES: Record<string, string> = {
   'TJSC': 'tjsc',
   'TJBA': 'tjba',
   'TJGO': 'tjgo',
-  'TJPB': 'tjpb'
+  'TJPB': 'tjpb',
 };
 
 // Lista de tribunais para pesquisa em todos (mantido)
 const DEFAULT_TRIBUNAIS = ['STJ', 'STF', 'TRF1', 'TRF4', 'TJDFT'];
 
-// Tipos para parâmetros e respostas (mantidos)
-export interface SearchDataJudParams { /* ... */ }
-export interface JurisprudenciaResult { /* ... */ }
-export interface SearchDataJudResponse { /* ... */ }
-interface TribunalSearchResult { /* ... */ }
+// Tipos para parâmetros e respostas
+export interface SearchDataJudParams {
+  termo?: string;
+  tribunal?: string;
+  numeroProcesso?: string;
+  classeProcessual?: string;
+  orgaoJulgador?: string;
+  dataInicio?: string;
+  dataFim?: string;
+  tamanhoPagina?: number;
+  pagina?: number;
+}
+
+export interface JurisprudenciaResult {
+  id: string;
+  tribunal?: string;
+  numeroProcesso?: string;
+  ementa: string;
+  dataAjuizamento?: string;
+  classe?: string;
+  orgaoJulgador?: string;
+}
+
+export interface SearchDataJudResponse {
+  success: boolean;
+  data: JurisprudenciaResult[];
+  source: string;
+  total?: number;
+  error?: {
+    message: string;
+    code?: string;
+    details?: any;
+  };
+}
+
+interface TribunalSearchResult {
+  success: boolean;
+  data: JurisprudenciaResult[];
+  total?: number;
+  error?: {
+    message: string;
+    code: string;
+    details?: any;
+  };
+}
 
 /**
- * Constrói o payload da consulta (mantido)
+ * Constrói o payload da consulta
  */
 const buildQueryPayload = (params: SearchDataJudParams) => {
-  // ... (lógica original mantida)
   console.log('Building query payload with params:', params);
   const query: any = {
     size: params.tamanhoPagina || 20,
@@ -69,26 +98,99 @@ const buildQueryPayload = (params: SearchDataJudParams) => {
       }
     }
   };
-  // ... (lógica original de filtros mantida)
-  if (params.numeroProcesso) { /* ... */ }
-  if (params.termo && params.termo.trim()) { /* ... */ }
-  if (params.classeProcessual) { /* ... */ }
-  if (params.orgaoJulgador) { /* ... */ }
-  if (params.dataInicio || params.dataFim) { /* ... */ }
-  if (query.query.bool.must.length === 0 && !params.termo?.trim()) { /* ... */ }
+
+  if (params.numeroProcesso) {
+    query.query.bool.must.push({
+      match_phrase: { "numeroProcesso": params.numeroProcesso }
+    });
+  }
+
+  if (params.termo && params.termo.trim()) {
+    query.query.bool.must.push({
+      multi_match: {
+        query: params.termo,
+        fields: ["ementa^3", "ementaTexto^3", "textoDecisao", "textoEmenta"],
+        type: "most_fields",
+        operator: "and"
+      }
+    });
+    // Adicionar também com fuzzy para termos similares
+    query.query.bool.should = [
+      {
+        multi_match: {
+          query: params.termo,
+          fields: ["ementa^2", "ementaTexto^2"],
+          fuzziness: "AUTO",
+          operator: "or"
+        }
+      },
+      {
+        match_phrase_prefix: {
+          ementa: {
+            query: params.termo,
+            max_expansions: 10
+          }
+        }
+      }
+    ];
+  }
+
+  if (params.classeProcessual) {
+    query.query.bool.filter.push({
+      nested: {
+        path: "classe",
+        query: {
+          bool: {
+            should: [
+              { match: { "classe.nome": params.classeProcessual } },
+              { match: { "classe.descricao": params.classeProcessual } }
+            ]
+          }
+        }
+      }
+    });
+  }
+
+  if (params.orgaoJulgador) {
+    query.query.bool.filter.push({
+      nested: {
+        path: "orgaoJulgador",
+        query: {
+          bool: {
+            should: [
+              { match: { "orgaoJulgador.nome": params.orgaoJulgador } },
+              { match: { "orgaoJulgador.descricao": params.orgaoJulgador } }
+            ]
+          }
+        }
+      }
+    });
+  }
+
+  if (params.dataInicio || params.dataFim) {
+    const rangeQuery: any = { range: { dataAjuizamento: {} } };
+    if (params.dataInicio) rangeQuery.range.dataAjuizamento.gte = params.dataInicio;
+    if (params.dataFim) rangeQuery.range.dataAjuizamento.lte = params.dataFim;
+    query.query.bool.filter.push(rangeQuery);
+  }
+
+  // Se não houver nenhuma condição de busca, adicionar match_all para buscar tudo
+  if (query.query.bool.must.length === 0 && !params.termo?.trim()) {
+    query.query.bool.must.push({ match_all: {} });
+  }
+
   console.log('Final query payload:', JSON.stringify(query, null, 2));
   return query;
 };
 
 /**
- * Mapeia os resultados da API (mantido)
+ * Mapeia os resultados da API
  */
 const mapApiResults = (results: any[], tribunal: string): JurisprudenciaResult[] => {
-  // ... (lógica original mantida)
   console.log(`Mapping ${results.length} results from ${tribunal}`);
   return results.map((item, index) => {
     const source = item._source || {};
-    // ... (lógica original de mapeamento mantida)
+    
     return {
       id: item._id || `${tribunal}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
       tribunal: source.tribunal?.sigla || tribunal.toUpperCase(),
@@ -107,15 +209,21 @@ const mapApiResults = (results: any[], tribunal: string): JurisprudenciaResult[]
 const searchInTribunal = async (
   tribunal: string,
   params: SearchDataJudParams,
-  options = { timeout: 25000, retries: 1, retryDelay: 2000 } // Timeout pode ser maior via proxy
+  options = { timeout: 25000, retries: 1, retryDelay: 2000 }
 ): Promise<TribunalSearchResult> => {
   const alias = TRIBUNAL_ALIASES[tribunal];
   if (!alias) {
     console.error(`Tribunal não suportado: ${tribunal}`);
-    return { /* ... erro tribunal não suportado ... */ };
+    return {
+      success: false,
+      data: [],
+      error: {
+        message: `Tribunal não suportado: ${tribunal}`,
+        code: 'UNSUPPORTED_TRIBUNAL'
+      }
+    };
   }
 
-  // --- MODIFICAÇÃO 3: URL aponta para o endpoint do Proxy --- 
   const url = `${PROXY_API_BASE_URL}/search/${alias}`;
   const payload = buildQueryPayload(params);
 
@@ -128,9 +236,7 @@ const searchInTribunal = async (
       console.log(`Attempt ${attempts + 1} for ${tribunal} via proxy`);
 
       const response = await axios.post(url, payload, {
-        // --- MODIFICAÇÃO 4: REMOVER o cabeçalho 'Authorization' daqui! --- 
         headers: {
-          // 'Authorization': AUTH_HEADER_STRING, // REMOVIDO!
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
@@ -140,7 +246,10 @@ const searchInTribunal = async (
 
       console.log(`Response FROM PROXY for ${tribunal}:`, {
         status: response.status,
-        // ... (resto do logging)
+        statusText: response.statusText,
+        hasData: !!response.data,
+        hasHits: !!(response.data && response.data.hits),
+        hitsCount: response.data?.hits?.hits?.length || 0
       });
 
       if (response.status === 200 && response.data) {
@@ -153,7 +262,6 @@ const searchInTribunal = async (
           total: total
         };
       } else {
-        // Tratamento de erro HTTP vindo do proxy/DataJud
         console.error(`HTTP error ${response.status} from proxy for ${tribunal}:`, response.data);
         return {
           success: false,
@@ -218,14 +326,13 @@ const searchInTribunal = async (
 };
 
 /**
- * Função principal para pesquisa no DataJud (mantida, usa searchInTribunal adaptado)
+ * Função principal para pesquisa no DataJud
  */
 export const searchDataJud = async (
   searchTerm: string,
   options: Partial<SearchDataJudParams> = {}
 ): Promise<SearchDataJudResponse> => {
   console.log('=== Starting DataJud Search (via Proxy) ===');
-  // ... (lógica original mantida, pois depende de searchInTribunal que foi adaptado)
   console.log('Search term:', searchTerm);
   console.log('Options:', options);
   try {
@@ -240,7 +347,12 @@ export const searchDataJud = async (
     for (const tribunal of tribunaisParaPesquisar) {
       console.log(`\n--- Searching in ${tribunal} (via Proxy) ---`);
       const result = await searchInTribunal(tribunal, params);
-      console.log(`${tribunal} result (via Proxy):`, { /* ... logging ... */ });
+      console.log(`${tribunal} result (via Proxy):`, { 
+        success: result.success, 
+        resultsCount: result.data.length,
+        error: result.error 
+      });
+      
       if (result.success && result.data.length > 0) {
         allResults = [...allResults, ...result.data];
         hasSuccessfulSearch = true;
@@ -254,7 +366,10 @@ export const searchDataJud = async (
     }
 
     console.log(`\n=== Search Summary (via Proxy) ===`);
-    // ... (lógica original de sumarização e retorno mantida)
+    console.log(`Total results: ${allResults.length}`);
+    console.log(`Successful search: ${hasSuccessfulSearch}`);
+    console.log(`Error count: ${errors.length}`);
+    
     if (hasSuccessfulSearch) {
       return { success: true, data: allResults, source: 'datajud_api', total: allResults.length };
     } 
@@ -262,7 +377,16 @@ export const searchDataJud = async (
       const criticalErrors = errors.filter(e => e.code !== 'NOT_FOUND' && e.code !== 'EMPTY_RESULTS');
       if (criticalErrors.length > 0) {
         console.error('Critical errors found (via Proxy):', criticalErrors);
-        return { success: false, data: [], source: 'datajud_api', error: { /* ... */ } };
+        return { 
+          success: false, 
+          data: [], 
+          source: 'datajud_api', 
+          error: { 
+            message: `Erro na busca: ${criticalErrors[0].message}`, 
+            code: criticalErrors[0].code,
+            details: criticalErrors
+          } 
+        };
       }
     }
     console.log('No results found (via Proxy), but no critical errors');
@@ -270,24 +394,19 @@ export const searchDataJud = async (
 
   } catch (error: any) {
     console.error('Unexpected error in searchDataJud (via Proxy):', error);
-    return { success: false, data: [], source: 'datajud_api', error: { /* ... */ } };
+    return { 
+      success: false, 
+      data: [], 
+      source: 'datajud_api', 
+      error: { 
+        message: `Erro inesperado: ${error.message || 'Desconhecido'}`, 
+        code: error.code || 'UNKNOWN_ERROR',
+        details: error
+      } 
+    };
   }
 };
 
-// --- MODIFICAÇÃO 5: Remover ou comentar checkDataJudApiStatus --- 
-/*
-export const checkDataJudApiStatus = async (): Promise<{ online: boolean, details?: any }> => {
-  // Esta função faz chamadas diretas e causará CORS.
-  // Foi removida do componente Jurisprudencia.tsx.
-  // Se precisar verificar o status, crie um endpoint no proxy.
-  console.warn('Direct call to checkDataJudApiStatus is disabled.');
-  return Promise.resolve({ online: false, details: { message: 'Status check disabled.' } });
-};
-*/
-
-// Função para buscar no site do STJ (verificar se precisa de proxy também)
-// Se searchSTJWebsite também faz chamadas diretas do frontend para um site externo,
-// ela provavelmente também precisará ser roteada através do proxy.
 export const searchSTJWebsite = async (searchTerm: string): Promise<any> => {
   console.warn('searchSTJWebsite implementation needs review for potential CORS issues if called directly from frontend.');
   // Placeholder - Implementar ou adaptar conforme necessário, possivelmente usando o proxy.
@@ -295,5 +414,4 @@ export const searchSTJWebsite = async (searchTerm: string): Promise<any> => {
 };
 
 // Exportar apenas as funções necessárias e adaptadas
-export { searchDataJud, TRIBUNAL_ALIASES }; // Removido checkDataJudApiStatus e searchSTJWebsite (se não adaptado)
-
+export { searchDataJud, TRIBUNAL_ALIASES };

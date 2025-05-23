@@ -1,5 +1,4 @@
 
-
 import express from 'express';
 import axios from 'axios';
 import cors from 'cors';
@@ -10,9 +9,9 @@ dotenv.config(); // Carrega variáveis do arquivo .env
 const app = express();
 const port = process.env.PORT || 3001; // Porta para o servidor proxy
 
-// Configuração do CORS
+// Configuração do CORS mais permissiva para desenvolvimento
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:8080', // Ajuste conforme necessário
+  origin: '*', // Permite requisições de qualquer origem durante desenvolvimento
   optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
@@ -38,7 +37,7 @@ app.post('/api/datajud/search/:tribunalAlias', async (req, res) => {
   const datajudApiUrl = `https://api-publica.datajud.cnj.jus.br/api_publica_${tribunalAlias}/_search`;
 
   console.log(`Proxying request for ${tribunalAlias} to: ${datajudApiUrl}`);
-  // console.log('Payload:', JSON.stringify(searchPayload, null, 2)); // Descomente para debug detalhado do payload
+  console.log('Payload:', JSON.stringify(searchPayload, null, 2)); // Adiciona log detalhado do payload
 
   try {
     const response = await axios.post(datajudApiUrl, searchPayload, {
@@ -47,10 +46,11 @@ app.post('/api/datajud/search/:tribunalAlias', async (req, res) => {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      timeout: 20000
+      timeout: 30000 // Aumenta o timeout para 30 segundos
     });
 
     console.log(`Success response from DataJud (${tribunalAlias}): Status ${response.status}`);
+    console.log(`Response data:`, JSON.stringify(response.data).substring(0, 500) + '...');
     res.status(response.status).json(response.data);
 
   } catch (error) {
@@ -77,7 +77,11 @@ app.post('/api/datajud/search/:tribunalAlias', async (req, res) => {
 
 // Endpoint de health check simples para o proxy
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'Proxy server is running' });
+  res.status(200).json({ 
+    status: 'Proxy server is running',
+    apiKey: datajudApiKey ? 'API key is set' : 'API key is missing',
+    timestamp: new Date().toISOString()
+  });
 });
 
 app.listen(port, () => {
@@ -85,6 +89,7 @@ app.listen(port, () => {
   console.log(`Permitindo requisições CORS de: ${corsOptions.origin}`);
   if (!process.env.DATAJUD_API_KEY) {
     console.warn('AVISO: Variável de ambiente DATAJUD_API_KEY não está definida!');
+  } else {
+    console.log('DATAJUD_API_KEY está configurada');
   }
 });
-

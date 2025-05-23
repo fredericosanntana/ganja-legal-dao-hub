@@ -1,12 +1,14 @@
 
-import React from "react";
-import { CECCalculator } from "@Calculadoras/components/CECCalculator";
-import "./styles.css";
+import React from 'react';
+import { Card } from '@/components/ui/card';
+import CECCalculator from '@/components/Calculadoras/CEC/CECCalculator';
 
-export default function App() {
+const CEC: React.FC = () => {
   return (
-    <div className="container mx-auto p-4 max-w-6xl">
+    <Card className="p-4">
       <CECCalculator />
-    </div>
+    </Card>
   );
-}
+};
+
+export default CEC;

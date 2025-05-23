@@ -1,16 +1,12 @@
-import React from "react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import RangeInput from "./common/RangeInput";
-import {
-  CECParameters as CECParametersType,
-  GENETIC_TYPES,
-  CULTIVATION_TYPES,
-  EXPERIENCE_LEVELS
-} from "./CECUtils";
+import React from 'react';
+import { useState, useEffect } from 'react';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import RangeInput from '@/components/Calculadoras/common/RangeInput';
+import { ResetIcon } from 'lucide-react';
+import { defaultCECParams } from './CECUtils';
 
 interface CECParametersProps {
   parameters: CECParametersType;
