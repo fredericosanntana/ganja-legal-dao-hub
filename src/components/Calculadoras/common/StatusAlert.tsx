@@ -1,11 +1,13 @@
+
 import React from "react";
 
 interface StatusAlertProps {
   status: string;
   type: "info" | "success" | "warning" | "danger";
+  children?: React.ReactNode; // Added children prop
 }
 
-const StatusAlert: React.FC<StatusAlertProps> = ({ status, type }) => {
+const StatusAlert: React.FC<StatusAlertProps> = ({ status, type, children }) => {
   const getAlertClass = () => {
     switch (type) {
       case "info":
@@ -22,8 +24,9 @@ const StatusAlert: React.FC<StatusAlertProps> = ({ status, type }) => {
   };
 
   return (
-    <div className={`alert ${getAlertClass()}`}>
+    <div className={`alert ${getAlertClass()} p-3 rounded`}>
       <strong>{status}</strong>
+      {children && <div className="mt-1">{children}</div>}
     </div>
   );
 };

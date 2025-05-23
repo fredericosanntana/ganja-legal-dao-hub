@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Chart as ChartJS,
@@ -31,16 +30,41 @@ ChartJS.register(
 );
 
 export interface NutrientsChartProps {
-  params: {
+  params?: {
     growthStage: string;
     cultivarType: string;
     waterVolume: number;
     desiredEC: number;
     addMicronutrients: boolean;
   };
+  nutrientLevelsData?: any; // Added for compatibility with NutrientsCalculator
+  showResults?: boolean; // Added for compatibility with NutrientsCalculator
 }
 
-export const NutrientsChart: React.FC<NutrientsChartProps> = ({ params }) => {
+export const NutrientsChart: React.FC<NutrientsChartProps> = ({ params, nutrientLevelsData, showResults }) => {
+  // If nutrientLevelsData is provided, use that instead of calculating from params
+  if (nutrientLevelsData && showResults) {
+    return (
+      <div className="chart-container">
+        <Bar data={nutrientLevelsData} options={{
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            title: {
+              display: true,
+              text: 'Níveis de Nutrientes',
+            },
+          },
+        }} />
+      </div>
+    );
+  }
+  
+  // Otherwise, fall back to original functionality with params
+  if (!params) return null;
+  
   // Valores simulados para NPK baseados no estágio de crescimento
   let nitrogen = 0;
   let phosphorus = 0;

@@ -4,16 +4,93 @@ import { Card, CardContent } from '@/components/ui/card';
 import StatusAlert from '../common/StatusAlert';
 
 export interface NutrientsResultsProps {
-  params: {
+  params?: {
     growthStage: string;
     cultivarType: string;
     waterVolume: number;
     desiredEC: number;
     addMicronutrients: boolean;
   };
+  // Added for compatibility with NutrientsCalculator
+  showResults?: boolean;
+  targetEC?: number;
+  resultEC?: number;
+  dosages?: Record<string, { mlPerLiter: number; mlTotal: number }>;
+  incompatibilities?: string[];
+  schedule?: Record<string, number>;
 }
 
-export const NutrientsResults: React.FC<NutrientsResultsProps> = ({ params }) => {
+export const NutrientsResults: React.FC<NutrientsResultsProps> = ({ 
+  params,
+  showResults,
+  targetEC,
+  resultEC,
+  dosages,
+  incompatibilities,
+  schedule
+}) => {
+  // If we're showing results from NutrientsCalculator, render those
+  if (showResults && dosages) {
+    const nutritionStatus = resultEC && resultEC > 2.0 ? "Alto" : 
+                           resultEC && resultEC > 1.0 ? "Moderado" : "Baixo";
+    const statusType = nutritionStatus === "Moderado" ? "success" : "warning";
+    
+    return (
+      <Card className="mt-4">
+        <CardContent className="pt-6">
+          <h3 className="text-lg font-semibold mb-4">Resultados da Nutrição</h3>
+          
+          <StatusAlert
+            status={nutritionStatus}
+            type={statusType}
+          >
+            <p>EC resultante: <strong>{resultEC?.toFixed(1)} mS/cm</strong></p>
+          </StatusAlert>
+          
+          <div className="mt-4">
+            <h4 className="font-medium mb-2">Dosagens</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {Object.entries(dosages).map(([nutrient, values]) => (
+                <div key={nutrient} className="p-3 border rounded-lg bg-slate-50">
+                  <div className="text-sm text-gray-500">{nutrient}</div>
+                  <div className="text-xl font-bold">{values.mlTotal.toFixed(1)}ml</div>
+                  <div className="text-xs text-gray-500">{values.mlPerLiter.toFixed(1)}ml/L</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {incompatibilities && incompatibilities.length > 0 && (
+            <div className="mt-4">
+              <h4 className="font-medium mb-2">Incompatibilidades</h4>
+              <ul className="list-disc pl-5 space-y-1">
+                {incompatibilities.map((item, index) => (
+                  <li key={index} className="text-sm text-amber-700">{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          {schedule && Object.keys(schedule).length > 0 && (
+            <div className="mt-4">
+              <h4 className="font-medium mb-2">Programa de Alimentação</h4>
+              <ul className="list-disc pl-5 space-y-1">
+                {Object.entries(schedule).map(([day, percent]) => (
+                  <li key={day} className="text-sm">
+                    {day}: {percent}% da solução
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  // Fall back to original functionality with params
+  if (!params) return null;
+  
   // Valores simulados para NPK baseados no estágio de crescimento
   let nitrogen = 0;
   let phosphorus = 0;
