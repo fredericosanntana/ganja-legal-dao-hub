@@ -10,9 +10,12 @@ const app = express();
 const port = process.env.PORT || 3001; // Porta para o servidor proxy
 const datajudApiKey = process.env.DATAJUD_API_KEY; // Definindo a variável de API key
 
-// Configuração do CORS mais permissiva para desenvolvimento
+// Configuração do CORS mais permissiva para aceitar requisições de qualquer origem
 const corsOptions = {
   origin: '*', // Permite requisições de qualquer origem durante desenvolvimento
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+  credentials: true,
   optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
@@ -80,7 +83,8 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ 
     status: 'Proxy server is running',
     apiKey: datajudApiKey ? 'API key is set' : 'API key is missing',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    corsOrigin: corsOptions.origin
   });
 });
 
