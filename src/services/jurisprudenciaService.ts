@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 
 // --- URL Base aponta para o Proxy --- 
@@ -413,5 +412,5 @@ export const searchSTJWebsite = async (searchTerm: string): Promise<any> => {
   return { success: false, data: [], source: 'stj_website', error: { message: 'Not implemented or needs proxy', code: 'NOT_IMPLEMENTED' } };
 };
 
-// Exportar apenas as funções necessárias e adaptadas
-export { searchDataJud, TRIBUNAL_ALIASES };
+// Removendo a exportação duplicada e exportando apenas o que é necessário
+export { TRIBUNAL_ALIASES };

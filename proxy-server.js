@@ -8,6 +8,7 @@ dotenv.config(); // Carrega variáveis do arquivo .env
 
 const app = express();
 const port = process.env.PORT || 3001; // Porta para o servidor proxy
+const datajudApiKey = process.env.DATAJUD_API_KEY; // Definindo a variável de API key
 
 // Configuração do CORS mais permissiva para desenvolvimento
 const corsOptions = {
@@ -23,7 +24,6 @@ app.use(express.json());
 app.post('/api/datajud/search/:tribunalAlias', async (req, res) => {
   const { tribunalAlias } = req.params;
   const searchPayload = req.body;
-  const datajudApiKey = process.env.DATAJUD_API_KEY;
 
   if (!datajudApiKey) {
     console.error('Erro: Chave da API DataJud (DATAJUD_API_KEY) não definida no .env');

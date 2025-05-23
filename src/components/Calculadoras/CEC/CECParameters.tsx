@@ -1,186 +1,210 @@
+
 import React from 'react';
-import { useState, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import RangeInput from '@/components/Calculadoras/common/RangeInput';
-import { ResetIcon } from 'lucide-react';
-import { defaultCECParams } from './CECUtils';
+import { Slider } from '@/components/ui/slider';
+import { Card, CardContent } from '@/components/ui/card';
+import { Repeat } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+// Definindo tipos para os parâmetros
+export interface CECParametersType {
+  soilType: string;
+  soilPH: number;
+  organicMatter: number;
+  geneticType: string;
+  cultivationType: string;
+  experienceLevel: string;
+  usesAmendments: boolean;
+  customNotes: string;
+}
+
+// Constantes para opções nos menus
+const GENETIC_TYPES = [
+  { value: 'indica', label: 'Indica' },
+  { value: 'sativa', label: 'Sativa' },
+  { value: 'hybrid', label: 'Híbrida' }
+];
+
+const CULTIVATION_TYPES = [
+  { value: 'soil', label: 'Solo' },
+  { value: 'coco', label: 'Coco' },
+  { value: 'hydro', label: 'Hidroponia' }
+];
+
+const EXPERIENCE_LEVELS = [
+  { value: 'beginner', label: 'Iniciante' },
+  { value: 'intermediate', label: 'Intermediário' },
+  { value: 'advanced', label: 'Avançado' }
+];
+
+// Valores padrão para inicialização
+export const defaultCECParams: CECParametersType = {
+  soilType: 'normal',
+  soilPH: 6.5,
+  organicMatter: 3,
+  geneticType: 'hybrid',
+  cultivationType: 'soil',
+  experienceLevel: 'intermediate',
+  usesAmendments: false,
+  customNotes: ''
+};
 
 interface CECParametersProps {
-  parameters: CECParametersType;
-  updateParameter: (field: keyof CECParametersType, value: any) => void;
-  handleCalculate: () => void;
+  params: CECParametersType;
+  onChange: (updatedParams: Partial<CECParametersType>) => void;
 }
 
 const CECParameters: React.FC<CECParametersProps> = ({
-  parameters,
-  updateParameter,
-  handleCalculate,
+  params,
+  onChange
 }) => {
+  const handleReset = () => {
+    onChange(defaultCECParams);
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium text-primary">Informações da Genética</h3>
-        
-        <div className="space-y-2">
-          <Label htmlFor="genetic-type">Tipo de genética</Label>
-          <div className="grid grid-cols-3 gap-2">
-            {GENETIC_TYPES.map((type) => (
-              <Button
-                key={type}
-                type="button"
-                variant={parameters.geneticType === type ? "default" : "outline"}
-                className="w-full"
-                onClick={() => updateParameter("geneticType", type)}
-              >
-                {type}
-              </Button>
-            ))}
-          </div>
+    <Card>
+      <CardContent className="pt-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-lg font-semibold">Parâmetros CEC</h2>
+          <Button variant="outline" onClick={handleReset} size="sm">
+            <Repeat className="mr-1 h-4 w-4" /> Resetar
+          </Button>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="cycle-days">Ciclo total estimado (dias)</Label>
-          <Input
-            id="cycle-days"
-            type="number"
-            min={30}
-            max={180}
-            value={parameters.cycleDays}
-            onChange={(e) => updateParameter("cycleDays", parseInt(e.target.value))}
-          />
-          <p className="text-sm text-muted-foreground">
-            Total de dias de vegetação + floração
-          </p>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium text-primary">Configuração do Cultivo</h3>
-        
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="plant-count">Número de plantas</Label>
-            <Input
-              id="plant-count"
-              type="number"
-              min={1}
-              max={100}
-              value={parameters.plantCount}
-              onChange={(e) => updateParameter("plantCount", parseInt(e.target.value))}
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="soilPH">pH do Solo</Label>
+            <Slider
+              id="soilPH"
+              min={4.0}
+              max={9.0}
+              step={0.1}
+              value={[params.soilPH]}
+              onValueChange={(value) => onChange({ soilPH: value[0] })}
             />
+            <div className="flex justify-between text-xs text-muted-foreground mt-1">
+              <span>4.0 (Ácido)</span>
+              <span>{params.soilPH}</span>
+              <span>9.0 (Alcalino)</span>
+            </div>
           </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="pot-size">Tamanho dos vasos (L)</Label>
-            <Input
-              id="pot-size"
-              type="number"
-              min={1}
-              max={100}
-              value={parameters.potSize}
-              onChange={(e) => updateParameter("potSize", parseInt(e.target.value))}
-            />
+
+          <div>
+            <Label htmlFor="geneticType">Genética</Label>
+            <Select
+              value={params.geneticType}
+              onValueChange={(value) => onChange({ geneticType: value })}
+            >
+              <SelectTrigger id="geneticType">
+                <SelectValue placeholder="Selecione o tipo genético" />
+              </SelectTrigger>
+              <SelectContent>
+                {GENETIC_TYPES.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="cultivation-type">Tipo de cultivo</Label>
-          <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
-            {CULTIVATION_TYPES.map((type) => (
-              <Button
-                key={type}
-                type="button"
-                variant={parameters.cultivationType === type ? "default" : "outline"}
-                className="w-full"
-                onClick={() => updateParameter("cultivationType", type)}
-              >
-                {type}
-              </Button>
-            ))}
+          <div>
+            <Label htmlFor="cultivationType">Tipo de Cultivo</Label>
+            <Select
+              value={params.cultivationType}
+              onValueChange={(value) => onChange({ cultivationType: value })}
+            >
+              <SelectTrigger id="cultivationType">
+                <SelectValue placeholder="Selecione o tipo de cultivo" />
+              </SelectTrigger>
+              <SelectContent>
+                {CULTIVATION_TYPES.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        </div>
 
-        <div className="flex items-center justify-between">
-          <Label htmlFor="controlled-environment">Ambiente controlado?</Label>
-          <Switch
-            id="controlled-environment"
-            checked={parameters.controlledEnvironment}
-            onCheckedChange={(checked) => updateParameter("controlledEnvironment", checked)}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="grower-experience">Experiência do cultivador</Label>
-          <div className="grid grid-cols-3 gap-2">
-            {EXPERIENCE_LEVELS.map((level) => (
-              <Button
-                key={level}
-                type="button"
-                variant={parameters.growerExperience === level ? "default" : "outline"}
-                className="w-full"
-                onClick={() => updateParameter("growerExperience", level)}
-              >
-                {level}
-              </Button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium text-primary">Detalhes Técnicos</h3>
-        
-        <div className="space-y-2">
-          <Label htmlFor="light-coverage">Cobertura de luz (W por planta ou m²)</Label>
-          <Input
-            id="light-coverage"
-            type="number"
-            min={10}
-            max={1000}
-            value={parameters.lightCoverage}
-            onChange={(e) => updateParameter("lightCoverage", parseInt(e.target.value))}
-          />
-          <p className="text-sm text-muted-foreground">
-            Potência real em watts por planta ou por metro quadrado
-          </p>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <Label htmlFor="nutrition-control">Análise de nutrição</Label>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Sem controle</span>
+          <div className="flex items-center space-x-2">
             <Switch
-              id="nutrition-control"
-              checked={parameters.nutritionControl}
-              onCheckedChange={(checked) => updateParameter("nutritionControl", checked)}
+              id="usesAmendments"
+              checked={params.usesAmendments}
+              onCheckedChange={(checked) => onChange({ usesAmendments: checked })}
             />
-            <span className="text-sm text-muted-foreground">Com controle</span>
+            <Label htmlFor="usesAmendments">Usa corretivos de solo</Label>
+          </div>
+
+          <div>
+            <Label htmlFor="experienceLevel">Nível de Experiência</Label>
+            <Select
+              value={params.experienceLevel}
+              onValueChange={(value) => onChange({ experienceLevel: value })}
+            >
+              <SelectTrigger id="experienceLevel">
+                <SelectValue placeholder="Selecione seu nível de experiência" />
+              </SelectTrigger>
+              <SelectContent>
+                {EXPERIENCE_LEVELS.map((level) => (
+                  <SelectItem key={level.value} value={level.value}>
+                    {level.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="organicMatter">Matéria Orgânica (%)</Label>
+            <Slider
+              id="organicMatter"
+              min={1}
+              max={10}
+              step={0.5}
+              value={[params.organicMatter]}
+              onValueChange={(value) => onChange({ organicMatter: value[0] })}
+            />
+            <div className="flex justify-between text-xs text-muted-foreground mt-1">
+              <span>1% (Baixo)</span>
+              <span>{params.organicMatter}%</span>
+              <span>10% (Alto)</span>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="showAdvanced"
+              checked={params.usesAmendments}
+              onCheckedChange={(checked) => onChange({ usesAmendments: checked })}
+            />
+            <Label htmlFor="showAdvanced">Mostrar opções avançadas</Label>
+          </div>
+
+          <div>
+            <Label htmlFor="customNotes">Anotações</Label>
+            <Textarea
+              id="customNotes"
+              value={params.customNotes}
+              onChange={(e) => onChange({ customNotes: e.target.value })}
+              placeholder="Informações adicionais sobre o solo..."
+              className="resize-none"
+            />
           </div>
         </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="observations">Observações (opcional)</Label>
-          <Textarea
-            id="observations"
-            placeholder="Adicione informações adicionais relevantes sobre seu cultivo..."
-            value={parameters.observations}
-            onChange={(e) => updateParameter("observations", e.target.value)}
-            rows={3}
-          />
-        </div>
-      </div>
-
-      <Button 
-        className="w-full" 
-        onClick={handleCalculate}
-        size="lg"
-      >
-        Calcular Expectativa de Cultivo
-      </Button>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

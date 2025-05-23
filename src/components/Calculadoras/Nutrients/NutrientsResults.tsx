@@ -2,15 +2,50 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import StatusAlert from '../common/StatusAlert';
-import { NutrientParams, calculateNutrients } from './nutrientsUtils';
 
-interface NutrientsResultsProps {
-  params: NutrientParams;
+export interface NutrientsResultsProps {
+  params: {
+    growthStage: string;
+    cultivarType: string;
+    waterVolume: number;
+    desiredEC: number;
+    addMicronutrients: boolean;
+  };
 }
 
 export const NutrientsResults: React.FC<NutrientsResultsProps> = ({ params }) => {
-  const results = calculateNutrients(params);
-
+  // Valores simulados para NPK baseados no estágio de crescimento
+  let nitrogen = 0;
+  let phosphorus = 0;
+  let potassium = 0;
+  
+  switch (params.growthStage) {
+    case 'seedling':
+      nitrogen = 2.0;
+      phosphorus = 1.0;
+      potassium = 1.0;
+      break;
+    case 'vegetative':
+      nitrogen = 3.0;
+      phosphorus = 1.5;
+      potassium = 2.0;
+      break;
+    case 'flowering':
+      nitrogen = 1.5;
+      phosphorus = 3.0;
+      potassium = 3.0;
+      break;
+    case 'late_flowering':
+      nitrogen = 0.5;
+      phosphorus = 2.0;
+      potassium = 3.5;
+      break;
+    default:
+      nitrogen = 2.0;
+      phosphorus = 2.0;
+      potassium = 2.0;
+  }
+  
   const formatValue = (value: number): string => {
     return value.toFixed(1);
   };
@@ -51,7 +86,6 @@ export const NutrientsResults: React.FC<NutrientsResultsProps> = ({ params }) =>
   };
   
   const getNutrationStatus = (): string => {
-    const { nitrogen, phosphorus, potassium } = results;
     const total = nitrogen + phosphorus + potassium;
     
     if (total <= 3) return "Baixo";
@@ -71,7 +105,7 @@ export const NutrientsResults: React.FC<NutrientsResultsProps> = ({ params }) =>
         
         <StatusAlert
           status={nutritionStatus}
-          type={statusType as "success" | "warning" | "error" | "info" | undefined}
+          type={statusType}
         >
           <p>Nível de nutrição atual: <strong>{nutritionStatus}</strong></p>
         </StatusAlert>
@@ -79,15 +113,15 @@ export const NutrientsResults: React.FC<NutrientsResultsProps> = ({ params }) =>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <div className="p-3 border rounded-lg bg-blue-50">
             <div className="text-sm text-gray-500">Nitrogênio (N)</div>
-            <div className="text-2xl font-bold">{formatValue(results.nitrogen)}</div>
+            <div className="text-2xl font-bold">{formatValue(nitrogen)}</div>
           </div>
           <div className="p-3 border rounded-lg bg-red-50">
             <div className="text-sm text-gray-500">Fósforo (P)</div>
-            <div className="text-2xl font-bold">{formatValue(results.phosphorus)}</div>
+            <div className="text-2xl font-bold">{formatValue(phosphorus)}</div>
           </div>
           <div className="p-3 border rounded-lg bg-teal-50">
             <div className="text-sm text-gray-500">Potássio (K)</div>
-            <div className="text-2xl font-bold">{formatValue(results.potassium)}</div>
+            <div className="text-2xl font-bold">{formatValue(potassium)}</div>
           </div>
         </div>
         
