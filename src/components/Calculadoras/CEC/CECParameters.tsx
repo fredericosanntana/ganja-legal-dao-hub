@@ -41,23 +41,14 @@ const CECParametersComponent: React.FC<CECParametersProps> = ({
   updateParameter,
   handleCalculate,
 }) => {
-  // Create a new parameters object if it's undefined
-  const params = parameters || {
-    soilType: "loamy",
-    soilPH: 6.5,
-    organicMatter: 3,
-    clayContent: 20,
-    experienceLevel: "intermediate",
-    desiredCEC: 15,
-  };
-
+  // We don't need to create a new parameters object as the type is now properly defined
   return (
     <div className="space-y-4 p-1">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="soilType">Tipo de Solo</Label>
           <Select
-            value={params.soilType}
+            value={parameters.soilType}
             onValueChange={(value) => updateParameter("soilType", value)}
           >
             <SelectTrigger id="soilType">
@@ -74,13 +65,13 @@ const CECParametersComponent: React.FC<CECParametersProps> = ({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="soilPH">pH do Solo: {params.soilPH}</Label>
+          <Label htmlFor="soilPH">pH do Solo: {parameters.soilPH}</Label>
           <Slider
             id="soilPH"
             min={4}
             max={9}
             step={0.1}
-            value={[params.soilPH]}
+            value={[parameters.soilPH]}
             onValueChange={(value) => updateParameter("soilPH", value[0])}
             className="py-2"
           />
@@ -93,14 +84,14 @@ const CECParametersComponent: React.FC<CECParametersProps> = ({
 
         <div className="space-y-2">
           <Label htmlFor="organicMatter">
-            Matéria Orgânica (%): {params.organicMatter}%
+            Matéria Orgânica (%): {parameters.organicMatter}%
           </Label>
           <Slider
             id="organicMatter"
             min={1}
             max={10}
             step={0.5}
-            value={[params.organicMatter]}
+            value={[parameters.organicMatter]}
             onValueChange={(value) => updateParameter("organicMatter", value[0])}
             className="py-2"
           />
@@ -113,14 +104,14 @@ const CECParametersComponent: React.FC<CECParametersProps> = ({
 
         <div className="space-y-2">
           <Label htmlFor="clayContent">
-            Conteúdo de Argila (%): {params.clayContent}%
+            Conteúdo de Argila (%): {parameters.clayContent}%
           </Label>
           <Slider
             id="clayContent"
             min={5}
             max={60}
             step={1}
-            value={[params.clayContent]}
+            value={[parameters.clayContent]}
             onValueChange={(value) => updateParameter("clayContent", value[0])}
             className="py-2"
           />
@@ -134,7 +125,7 @@ const CECParametersComponent: React.FC<CECParametersProps> = ({
         <div className="space-y-2">
           <Label htmlFor="experienceLevel">Nível de Experiência</Label>
           <Select
-            value={params.experienceLevel}
+            value={parameters.experienceLevel}
             onValueChange={(value) => updateParameter("experienceLevel", value)}
           >
             <SelectTrigger id="experienceLevel">
@@ -152,14 +143,14 @@ const CECParametersComponent: React.FC<CECParametersProps> = ({
 
         <div className="space-y-2">
           <Label htmlFor="desiredCEC">
-            CEC Desejado (meq/100g): {params.desiredCEC}
+            CEC Desejado (meq/100g): {parameters.desiredCEC}
           </Label>
           <Slider
             id="desiredCEC"
             min={5}
             max={40}
             step={1}
-            value={[params.desiredCEC]}
+            value={[parameters.desiredCEC]}
             onValueChange={(value) => updateParameter("desiredCEC", value[0])}
             className="py-2"
           />

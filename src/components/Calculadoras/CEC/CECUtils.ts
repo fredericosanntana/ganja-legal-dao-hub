@@ -11,6 +11,13 @@ export interface CECParameters {
   lightCoverage: number; // W reais por planta ou m²
   nutritionControl: boolean; // Com controle, Sem controle
   observations: string; // Observações livres (opcional)
+  
+  soilType: string; // Tipo de solo: Arenoso, Franco, Argiloso, etc.
+  soilPH: number; // pH do solo
+  organicMatter: number; // Porcentagem de matéria orgânica
+  clayContent: number; // Porcentagem de argila
+  experienceLevel: string; // Nível de experiência: Iniciante, Intermediário, Avançado
+  desiredCEC: number; // CEC desejado em meq/100g
 }
 
 export interface CECResult {
@@ -256,7 +263,14 @@ export const DEFAULT_PARAMETERS: CECParameters = {
   growerExperience: "Intermediário",
   lightCoverage: 100,
   nutritionControl: true,
-  observations: ""
+  observations: "",
+  
+  soilType: "loamy",
+  soilPH: 6.5,
+  organicMatter: 3,
+  clayContent: 20,
+  experienceLevel: "intermediate",
+  desiredCEC: 15,
 };
 
 // Opções para os campos de seleção
