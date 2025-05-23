@@ -13,7 +13,7 @@ const datajudApiKey = process.env.DATAJUD_API_KEY; // Definindo a variável de A
 // Get the allowed origins from environment or use defaults
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',') 
-  : ['http://localhost:8080', 'https://1a63a5bf-1914-4ef5-bb47-b55309266491.lovableproject.com'];
+  : ['http://localhost:8080', 'https://1a63a5bf-1914-4ef5-bb47-b55309266491.lovableproject.com'. 'https://www.ganjadao.org'];
 
 // Configuração do CORS mais permissiva para aceitar requisições de origens específicas
 const corsOptions = {
